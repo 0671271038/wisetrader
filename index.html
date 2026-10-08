@@ -2,106 +2,103 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wisetrader XAUUSD</title>
+<title>Wisetrader PRO - XAUUSD</title>
 <style>
-body{background:#0a0f1c;color:white;font-family:sans-serif;text-align:center;padding:20px}
-.card{background:#141c2f;padding:15px;border-radius:15px;margin:15px 0;border:1px solid #334}
-.buy{background:#00ff88;color:#000;font-size:30px;font-weight:900;padding:25px;border-radius:20px}
-.sell{background:#ff3344;color:#fff;font-size:30px;font-weight:900;padding:25px;border-radius:20px}
-.wait{background:#ffcc00;color:#000;font-size:26px;font-weight:800;padding:25px;border-radius:20px}
-.small{opacity:.7;font-size:12px}
-button{background:#2a3a5a;color:#fff;border:0;padding:10px 15px;border-radius:10px;margin:5px}
+body{background:#070b17;color:white;font-family:sans-serif;text-align:center;padding:15px}
+.card{background:#141c2f;padding:12px;border-radius:15px;margin:10px 0;border:1px solid #334}
+.buy{background:#00ff88;color:#000;font-size:30px;font-weight:900;padding:22px;border-radius:20px}
+.sell{background:#ff3344;color:#fff;font-size:30px;font-weight:900;padding:22px;border-radius:20px}
+.wait{background:#ffcc00;color:#000;font-size:26px;font-weight:800;padding:22px;border-radius:20px}
+.small{opacity:.7;font-size:11px}.tp{color:#00ff88}.sl{color:#ff3344}
 </style>
 </head>
 <body>
-<h1>Wisetrader 🚀<br>XAUUSD</h1>
-<p>Real Gold - M5 + M1 Confirmation</p>
-
+<h2>Wisetrader 🚀 PRO<br>XAUUSD GOLD</h2>
 <div class="card">
-<div>M5 Supertrend: <b id="m5">Loading...</b></div>
-<div>M1 Supertrend: <b id="m1">Loading...</b></div>
-<div id="price">XAUUSD: --</div>
-<div class="small" id="status">Connecting...</div>
+<div>M5: <b id="m5">--</b> | M1: <b id="m1">--</b></div>
+<div id="price" style="font-size:20px;font-weight:bold">--</div>
+<div id="entry">Entry: --</div>
+<div id="tpsl" class="small">TP: -- | SL: --</div>
+<div class="small" id="status">Live</div>
 </div>
-
-<div id="signal" class="wait">⌛ LOADING GOLD...</div>
-
+<div id="signal" class="wait">Loading...</div>
 <div class="card small">
-<button onclick="changeMult(-0.5)">Mult -</button>
-<span id="settings">Period 10 | Mult 3.0</span>
-<button onclick="changeMult(0.5)">Mult +</button>
+Last Signal: <span id="lastSig">--</span><br>
+<button onclick="toggleSound()" id="sndBtn" style="background:#2a3a5a;color:white;border:0;padding:8px 12px;border-radius:8px;margin-top:5px">🔔 Sound ON</button>
 </div>
 
 <script>
-let mult=3.0, period=10;
-function changeMult(d){mult=Math.max(1,mult+d); document.getElementById('settings').innerText=`Period ${period} | Mult ${mult}`; update();}
-
+let mult=3, period=10, soundOn=true, lastAlert="", entryPrice=0;
+function toggleSound(){soundOn=!soundOn; document.getElementById('sndBtn').innerText=soundOn?"🔔 Sound ON":"🔕 Sound OFF";}
 function calcST(candles){
-  if(candles.length<20) return null;
-  let atr=[], hl2=[], upper=[], lower=[], trend=[];
-  for(let i=0;i<candles.length;i++){
-    let h=candles[i].h, l=candles[i].l, c=candles[i].c;
-    hl2[i]=(h+l)/2;
-    if(i==0){atr[i]=h-l; continue;}
-    let pc=candles[i-1].c;
-    let tr=Math.max(h-l, Math.abs(h-pc), Math.abs(l-pc));
-    atr[i]=(atr[i-1]*(period-1)+tr)/period;
-    upper[i]=hl2[i]+mult*atr[i];
-    lower[i]=hl2[i]-mult*atr[i];
-    if(i<2){trend[i]=true; continue;}
-    if(c>upper[i-1]) trend[i]=true;
-    else if(c<lower[i-1]) trend[i]=false;
-    else trend[i]=trend[i-1];
-    if(trend[i] && lower[i]<lower[i-1]) lower[i]=lower[i-1];
-    if(!trend[i] && upper[i]>upper[i-1]) upper[i]=upper[i-1];
-  }
-  return trend[trend.length-1];
+ if(candles.length<20) return null;
+ let atr=[], hl2=[], upper=[], lower=[], trend=[];
+ for(let i=0;i<candles.length;i++){
+  let h=candles[i].h, l=candles[i].l, c=candles[i].c;
+  hl2[i]=(h+l)/2;
+  if(i==0){atr[i]=h-l; continue;}
+  let pc=candles[i-1].c;
+  let tr=Math.max(h-l, Math.abs(h-pc), Math.abs(l-pc));
+  atr[i]=(atr[i-1]*(period-1)+tr)/period;
+  upper[i]=hl2[i]+mult*atr[i];
+  lower[i]=hl2[i]-mult*atr[i];
+  if(i<2){trend[i]=true; continue;}
+  if(c>upper[i-1]) trend[i]=true;
+  else if(c<lower[i-1]) trend[i]=false;
+  else trend[i]=trend[i-1];
+  if(trend[i] && lower[i]<lower[i-1]) lower[i]=lower[i-1];
+  if(!trend[i] && upper[i]>upper[i-1]) upper[i]=upper[i-1];
+ }
+ return trend[trend.length-1];
 }
-
 async function fetchGold(interval, limit){
-  // Use PAXGUSDT = real gold, via CORS proxy to avoid block
-  const url = `https://api.binance.com/api/v3/klines?symbol=PAXGUSDT&interval=${interval}&limit=${limit}`;
-  const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-  try{
-    let res = await fetch(proxy);
-    let data = await res.json();
-    return data.map(k=>({h:parseFloat(k[2]), l:parseFloat(k[3]), c:parseFloat(k[4])}));
-  }catch(e){
-    // Fallback 2: try direct
-    let res2 = await fetch(url);
-    let data2 = await res2.json();
-    return data2.map(k=>({h:parseFloat(k[2]), l:parseFloat(k[3]), c:parseFloat(k[4])}));
-  }
+ const url=`https://api.binance.com/api/v3/klines?symbol=PAXGUSDT&interval=${interval}&limit=${limit}`;
+ const proxy=`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+ try{let r=await fetch(proxy); let d=await r.json(); return d.map(k=>({h:+k[2],l:+k[3],c:+k[4]}));}
+ catch(e){let r=await fetch(url); let d=await r.json(); return d.map(k=>({h:+k[2],l:+k[3],c:+k[4]}));}
 }
-
+function alertNow(msg){
+ if(!soundOn || lastAlert==msg) return;
+ lastAlert=msg;
+ try{new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play(); navigator.vibrate([300][100][300]);}catch(e){}
+ if(Notification && Notification.permission=="granted"){ new Notification(msg); }
+}
 async function update(){
-  document.getElementById('status').innerText="Fetching Gold candles...";
-  try{
-    let m5 = await fetchGold("5m", 100);
-    let m1 = await fetchGold("1m", 100);
-    let m5T = calcST(m5);
-    let m1T = calcST(m1);
-    let price = m1[m1.length-1].c;
+ try{
+  let m5=await fetchGold("5m",100), m1=await fetchGold("1m",100);
+  let m5T=calcST(m5), m1T=calcST(m1);
+  let price=m1[m1.length-1].c;
+  document.getElementById('m5').innerHTML=m5T?"🟢BUY":"🔴SELL";
+  document.getElementById('m1').innerHTML=m1T?"🟢BUY":"🔴SELL";
+  document.getElementById('price').innerHTML="XAUUSD: $"+price.toFixed(2);
+  document.getElementById('status').innerHTML="Live - P:10 M:3 - "+new Date().toLocaleTimeString();
 
-    document.getElementById('m5').innerHTML=m5T?"🟢 BUY":"🔴 SELL";
-    document.getElementById('m1').innerHTML=m1T?"🟢 BUY":"🔴 SELL";
-    document.getElementById('price').innerHTML="XAUUSD Gold: $"+price.toFixed(2);
-    document.getElementById('status').innerHTML="Live - Supertrend P:10 M:"+mult+" - Updates every 10s";
-
-    let el=document.getElementById('signal');
-    if(m5T && m1T){
-      el.className="buy"; el.innerHTML="🟢 GOLD BUY NOW<br><span style='font-size:15px'>Go MT5 → BUY XAUUSD</span>";
-    }else if(!m5T &&!m1T){
-      el.className="sell"; el.innerHTML="🔴 GOLD SELL NOW<br><span style='font-size:15px'>Go MT5 → SELL XAUUSD</span>";
-    }else{
-      el.className="wait"; el.innerHTML="🟡 WAIT<br><span style='font-size:13px'>M5 & M1 not aligned</span>";
-    }
-  }catch(e){
-    document.getElementById('status').innerText="Error: "+e.message+" - Retrying in 5s";
+  let el=document.getElementById('signal');
+  if(m5T && m1T){
+   if(entryPrice==0 || lastAlert!="BUY") entryPrice=price;
+   let tp=entryPrice+8, sl=entryPrice-4;
+   el.className="buy"; el.innerHTML=`🟢 GOLD BUY NOW<br><span style='font-size:14px'>MT5 BUY @ ${entryPrice.toFixed(2)}</span>`;
+   document.getElementById('entry').innerHTML=`Entry: $${entryPrice.toFixed(2)} | Now: $${price.toFixed(2)} | P/L: ${(price-entryPrice).toFixed(2)}$`;
+   document.getElementById('tpsl').innerHTML=`<span class='tp'>TP: $${tp.toFixed(2)} (+$8)</span> | <span class='sl'>SL: $${sl.toFixed(2)} (-$4)</span>`;
+   document.getElementById('lastSig').innerHTML=`BUY @ $${entryPrice.toFixed(2)}`;
+   alertNow(`GOLD BUY NOW @ $${price.toFixed(2)}`);
+  }else if(!m5T &&!m1T){
+   if(entryPrice==0 || lastAlert!="SELL") entryPrice=price;
+   let tp=entryPrice-8, sl=entryPrice+4;
+   el.className="sell"; el.innerHTML=`🔴 GOLD SELL NOW<br><span style='font-size:14px'>MT5 SELL @ ${entryPrice.toFixed(2)}</span>`;
+   document.getElementById('entry').innerHTML=`Entry: $${entryPrice.toFixed(2)} | Now: $${price.toFixed(2)} | P/L: ${(entryPrice-price).toFixed(2)}$`;
+   document.getElementById('tpsl').innerHTML=`<span class='tp'>TP: $${tp.toFixed(2)} (-$8)</span> | <span class='sl'>SL: $${sl.toFixed(2)} (+$4)</span>`;
+   document.getElementById('lastSig').innerHTML=`SELL @ $${entryPrice.toFixed(2)}`;
+   alertNow(`GOLD SELL NOW @ $${price.toFixed(2)}`);
+  }else{
+   el.className="wait"; el.innerHTML="🟡 WAIT<br><span style='font-size:12px'>M5 & M1 not aligned</span>";
+   document.getElementById('entry').innerHTML=`No active trade - Waiting for confirmation`;
+   document.getElementById('tpsl').innerHTML=`Supertrend P10 M3.0 | Both must align`;
   }
+ }catch(e){document.getElementById('status').innerText="Retrying...";}
 }
-update();
-setInterval(update, 10000);
+if(Notification) Notification.requestPermission();
+update(); setInterval(update, 10000);
 </script>
 </body>
 </html>
