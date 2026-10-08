@@ -1,0 +1,2 @@
+# wisetrader
+Trading Robot
