@@ -2,34 +2,42 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wisetrader PRO - XAUUSD</title>
+<title>Wisetrader FREE WhatsApp - XAUUSD</title>
 <style>
 body{background:#070b17;color:white;font-family:sans-serif;text-align:center;padding:15px}
 .card{background:#141c2f;padding:12px;border-radius:15px;margin:10px 0;border:1px solid #334}
-.buy{background:#00ff88;color:#000;font-size:30px;font-weight:900;padding:22px;border-radius:20px}
-.sell{background:#ff3344;color:#fff;font-size:30px;font-weight:900;padding:22px;border-radius:20px}
-.wait{background:#ffcc00;color:#000;font-size:26px;font-weight:800;padding:22px;border-radius:20px}
-.small{opacity:.7;font-size:11px}.tp{color:#00ff88}.sl{color:#ff3344}
+.buy{background:#00ff88;color:#000;font-size:28px;font-weight:900;padding:20px;border-radius:20px}
+.sell{background:#ff3344;color:#fff;font-size:28px;font-weight:900;padding:20px;border-radius:20px}
+.wait{background:#ffcc00;color:#000;font-size:24px;font-weight:800;padding:20px;border-radius:20px}
+.small{opacity:.7;font-size:11px}
+button{border:0;padding:12px 18px;border-radius:12px;font-weight:bold;margin:6px;font-size:15px}
+.wa{background:#25D366;color:#000}
 </style>
 </head>
 <body>
-<h2>Wisetrader 🚀 PRO<br>XAUUSD GOLD</h2>
+<h2>Wisetrader 🚀<br>XAUUSD GOLD<br><span style="font-size:12px">FREE WhatsApp - No API Key</span></h2>
+
 <div class="card">
 <div>M5: <b id="m5">--</b> | M1: <b id="m1">--</b></div>
 <div id="price" style="font-size:20px;font-weight:bold">--</div>
-<div id="entry">Entry: --</div>
-<div id="tpsl" class="small">TP: -- | SL: --</div>
-<div class="small" id="status">Live</div>
+<div class="small" id="status">Live - Supertrend P10 M3</div>
 </div>
-<div id="signal" class="wait">Loading...</div>
+
+<div id="signal" class="wait">Loading Gold...</div>
+
+<div class="card" id="actionCard" style="display:none">
+<b id="actionText">Signal Ready!</b><br>
+<button class="wa" onclick="shareWA()">📲 Send to WhatsApp (FREE)</button>
+<br><span class="small">Opens WhatsApp with signal ready - send to yourself</span>
+</div>
+
 <div class="card small">
-Last Signal: <span id="lastSig">--</span><br>
-<button onclick="toggleSound()" id="sndBtn" style="background:#2a3a5a;color:white;border:0;padding:8px 12px;border-radius:8px;margin-top:5px">🔔 Sound ON</button>
+Entry: <span id="entry">--</span><br>
+Last: <span id="last">--</span>
 </div>
 
 <script>
-let mult=3, period=10, soundOn=true, lastAlert="", entryPrice=0;
-function toggleSound(){soundOn=!soundOn; document.getElementById('sndBtn').innerText=soundOn?"🔔 Sound ON":"🔕 Sound OFF";}
+let mult=3, period=10, lastType="", entryPrice=0, lastMsg="";
 function calcST(candles){
  if(candles.length<20) return null;
  let atr=[], hl2=[], upper=[], lower=[], trend=[];
@@ -57,11 +65,12 @@ async function fetchGold(interval, limit){
  try{let r=await fetch(proxy); let d=await r.json(); return d.map(k=>({h:+k[2],l:+k[3],c:+k[4]}));}
  catch(e){let r=await fetch(url); let d=await r.json(); return d.map(k=>({h:+k[2],l:+k[3],c:+k[4]}));}
 }
-function alertNow(msg){
- if(!soundOn || lastAlert==msg) return;
- lastAlert=msg;
- try{new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play(); navigator.vibrate([300][100][300]);}catch(e){}
- if(Notification && Notification.permission=="granted"){ new Notification(msg); }
+function shareWA(){
+ if(!lastMsg) return;
+ let waUrl = `https://wa.me/?text=${encodeURIComponent(lastMsg)}`;
+ // For your own number direct:
+ let waDirect = `https://wa.me/27671271038?text=${encodeURIComponent(lastMsg)}`;
+ window.open(waUrl, '_blank');
 }
 async function update(){
  try{
@@ -71,33 +80,33 @@ async function update(){
   document.getElementById('m5').innerHTML=m5T?"🟢BUY":"🔴SELL";
   document.getElementById('m1').innerHTML=m1T?"🟢BUY":"🔴SELL";
   document.getElementById('price').innerHTML="XAUUSD: $"+price.toFixed(2);
-  document.getElementById('status').innerHTML="Live - P:10 M:3 - "+new Date().toLocaleTimeString();
+  document.getElementById('status').innerHTML="Live - "+new Date().toLocaleTimeString()+" - No payment needed";
 
   let el=document.getElementById('signal');
-  if(m5T && m1T){
-   if(entryPrice==0 || lastAlert!="BUY") entryPrice=price;
-   let tp=entryPrice+8, sl=entryPrice-4;
-   el.className="buy"; el.innerHTML=`🟢 GOLD BUY NOW<br><span style='font-size:14px'>MT5 BUY @ ${entryPrice.toFixed(2)}</span>`;
-   document.getElementById('entry').innerHTML=`Entry: $${entryPrice.toFixed(2)} | Now: $${price.toFixed(2)} | P/L: ${(price-entryPrice).toFixed(2)}$`;
-   document.getElementById('tpsl').innerHTML=`<span class='tp'>TP: $${tp.toFixed(2)} (+$8)</span> | <span class='sl'>SL: $${sl.toFixed(2)} (-$4)</span>`;
-   document.getElementById('lastSig').innerHTML=`BUY @ $${entryPrice.toFixed(2)}`;
-   alertNow(`GOLD BUY NOW @ $${price.toFixed(2)}`);
-  }else if(!m5T &&!m1T){
-   if(entryPrice==0 || lastAlert!="SELL") entryPrice=price;
-   let tp=entryPrice-8, sl=entryPrice+4;
-   el.className="sell"; el.innerHTML=`🔴 GOLD SELL NOW<br><span style='font-size:14px'>MT5 SELL @ ${entryPrice.toFixed(2)}</span>`;
-   document.getElementById('entry').innerHTML=`Entry: $${entryPrice.toFixed(2)} | Now: $${price.toFixed(2)} | P/L: ${(entryPrice-price).toFixed(2)}$`;
-   document.getElementById('tpsl').innerHTML=`<span class='tp'>TP: $${tp.toFixed(2)} (-$8)</span> | <span class='sl'>SL: $${sl.toFixed(2)} (+$4)</span>`;
-   document.getElementById('lastSig').innerHTML=`SELL @ $${entryPrice.toFixed(2)}`;
-   alertNow(`GOLD SELL NOW @ $${price.toFixed(2)}`);
-  }else{
-   el.className="wait"; el.innerHTML="🟡 WAIT<br><span style='font-size:12px'>M5 & M1 not aligned</span>";
-   document.getElementById('entry').innerHTML=`No active trade - Waiting for confirmation`;
-   document.getElementById('tpsl').innerHTML=`Supertrend P10 M3.0 | Both must align`;
+  let typeNow = m5T && m1T? "BUY" : (!m5T &&!m1T? "SELL" : "WAIT");
+
+  if(typeNow!= lastType && typeNow!= "WAIT"){
+   entryPrice=price;
+   if(typeNow=="BUY"){
+    el.className="buy"; el.innerHTML=`🟢 GOLD BUY NOW<br><span style='font-size:13px'>@ $${price.toFixed(2)}</span>`;
+    lastMsg = `🚀 Wisetrader XAUUSD\n🟢 GOLD BUY NOW @ $${price.toFixed(2)}\nM5 BUY + M1 BUY Confirmed\nEntry: $${entryPrice.toFixed(2)}\nTP: $${(entryPrice+8).toFixed(2)} | SL: $${(entryPrice-4).toFixed(2)}\nTime: ${new Date().toLocaleTimeString()}\nGo MT5 BUY XAUUSD now!`;
+    document.getElementById('actionText').innerHTML=`🟢 BUY @ $${price.toFixed(2)} - Ready to share`;
+   }else{
+    el.className="sell"; el.innerHTML=`🔴 GOLD SELL NOW<br><span style='font-size:13px'>@ $${price.toFixed(2)}</span>`;
+    lastMsg = `🚀 Wisetrader XAUUSD\n🔴 GOLD SELL NOW @ $${price.toFixed(2)}\nM5 SELL + M1 SELL Confirmed\nEntry: $${entryPrice.toFixed(2)}\nTP: $${(entryPrice-8).toFixed(2)} | SL: $${(entryPrice+4).toFixed(2)}\nTime: ${new Date().toLocaleTimeString()}\nGo MT5 SELL XAUUSD now!`;
+    document.getElementById('actionText').innerHTML=`🔴 SELL @ $${price.toFixed(2)} - Ready to share`;
+   }
+   document.getElementById('entry').innerHTML=`${typeNow} @ $${entryPrice.toFixed(2)}`;
+   document.getElementById('last').innerHTML=lastMsg.replace(/\n/g,'<br>');
+   document.getElementById('actionCard').style.display="block";
+   // Auto beep
+   try{new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play(); navigator.vibrate([300,100,300]);}catch(e){}
+  } else if(typeNow=="WAIT"){
+   el.className="wait"; el.innerHTML=`🟡 WAIT<br><span style='font-size:11px'>M5 & M1 not aligned</span>`;
   }
+  lastType=typeNow;
  }catch(e){document.getElementById('status').innerText="Retrying...";}
 }
-if(Notification) Notification.requestPermission();
 update(); setInterval(update, 10000);
 </script>
 </body>
