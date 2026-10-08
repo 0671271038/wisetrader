@@ -3,104 +3,93 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wisetrader Gold</title>
+<title>Wisetrader GOLD</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Outfit',sans-serif}
-body{background:#070a12;color:#fff;min-height:100vh}
-.bg{position:fixed;inset:0;background:radial-gradient(ellipse at top,#1c1a0f 0%,#070a12 60%);z-index:-1}
-.header{padding:22px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.06)}
-.logo{display:flex;align-items:center;justify-content:center;gap:12px}
-.logo-icon{width:46px;height:46px;background:linear-gradient(135deg,#FFD700,#FF8C00);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#000}
-.logo-text h1{font-size:21px;font-weight:800}.logo-text h1 span{color:#FFD700}
-.logo-text p{font-size:10px;opacity:0.45;letter-spacing:2.5px;text-transform:uppercase;margin-top:3px}
-.container{max-width:440px;margin:0 auto;padding:20px}
-.price-card{background:linear-gradient(135deg,rgba(255,215,0,0.10),rgba(255,255,255,0.02));border:1px solid rgba(255,215,0,0.15);border-radius:22px;padding:22px;margin-bottom:16px}
-.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.pair{display:flex;align-items:center;gap:10px}
-.badge{width:42px;height:42px;background:linear-gradient(135deg,#FFD700,#FF8C00);border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#000;font-size:13px}
-.live{font-size:10px;background:#00FF88;color:#000;padding:5px 11px;border-radius:20px;font-weight:800}
-.price{font-size:40px;font-weight:800;letter-spacing:-1.2px;margin:10px 0}
-.change{font-size:13px}.up{color:#00FF88}.down{color:#FF456E}
-.signal-card{border-radius:24px;padding:28px;text-align:center;margin-bottom:16px}
-.wait{background:linear-gradient(135deg,#1e293b,#0f172a);border:1px solid rgba(255,255,255,0.06)}
-.buy{background:linear-gradient(135deg,#00c271,#00FF88);color:#000;box-shadow:0 18px 50px rgba(0,255,136,0.32)}
-.sell{background:linear-gradient(135deg,#ff1744,#ff456e);color:#fff;box-shadow:0 18px 50px rgba(255,69,110,0.32)}
-.icon{font-size:48px;margin-bottom:8px}.text{font-size:38px;font-weight:900}.sub{font-size:11px;margin-top:8px;opacity:0.8;letter-spacing:1px;text-transform:uppercase;font-weight:700}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-.box{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:16px}
-.box h4{font-size:9px;opacity:0.45;letter-spacing:1.6px;text-transform:uppercase;margin-bottom:8px}.val{font-size:14px;font-weight:700}
+body{background:#070a1a;color:#fff;min-height:100vh}
+.bg{position:fixed;inset:0;background:radial-gradient(ellipse at top,#1a2040 0%,#070a1a 60%);z-index:-1}
+.header{padding:16px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.06)}
+.logo{display:flex;align-items:center;justify-content:center;gap:10px}
+.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,#FFD700,#FF8C00);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#000}
+.container{max-width:440px;margin:0 auto;padding:16px}
+.price-card{background:linear-gradient(135deg,rgba(255,215,0,0.12),rgba(255,255,255,0.02));border:1px solid rgba(255,215,0,0.18);border-radius:18px;padding:18px;margin-bottom:14px}
+.price-top{display:flex;justify-content:space-between;align-items:center}
+.badge{font-size:10px;background:#FFD700;color:#000;padding:4px 10px;border-radius:20px;font-weight:800}
+.price-main{font-size:36px;font-weight:800;margin:10px 0;letter-spacing:-1px}
+.signal-card{border-radius:20px;padding:24px;text-align:center;margin-bottom:14px;transition:0.3s}
+.signal-wait{background:#facc15;color:#000}.signal-buy{background:linear-gradient(135deg,#00b86a,#00FF88);color:#000}.signal-sell{background:linear-gradient(135deg,#ff1744,#FF456E);color:#fff}
+.signal-text{font-size:34px;font-weight:900}.signal-sub{font-size:11px;margin-top:6px;opacity:0.8;text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.details{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.detail-box{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:14px}
+.detail-box h4{font-size:9px;opacity:0.5;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}.val{font-size:14px;font-weight:700}
 .trend-up{color:#00FF88}.trend-down{color:#FF456E}
-.btn{width:100%;padding:17px;border:none;border-radius:16px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none}
-.btn-wa{background:#25D366;color:#fff;margin-bottom:12px}
-.btn-cal{background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.08)}
-.foot{margin-top:14px;text-align:center;font-size:10px;opacity:0.35}
-.candles{display:flex;gap:3px;height:36px;align-items:flex-end;margin-top:14px}.c{flex:1;border-radius:3px;min-width:4px}
+.btn{width:100%;padding:16px;border:none;border-radius:14px;font-weight:800;cursor:pointer;display:flex;justify-content:center;gap:8px;text-decoration:none;margin-bottom:10px}
+.btn-wa{background:#25D366;color:#fff}.btn-sec{background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.1)}
+.small{font-size:11px;opacity:0.5;text-align:center;margin-top:12px}
 </style>
 </head>
 <body>
 <div class="bg"></div>
-<div class="header"><div class="logo"><div class="logo-icon">W</div><div class="logo-text"><h1>Wise<span>trader</span></h1><p>XAUUSD • Professional</p></div></div></div>
+<div class="header"><div class="logo"><div class="logo-icon">W</div><div><h1 style="font-size:18px">Wisetrader <span style="color:#FFD700">GOLD</span></h1><p style="font-size:10px;opacity:0.5;letter-spacing:2px">XAUUSD • PROFESSIONAL</p></div></div></div>
 <div class="container">
 <div class="price-card">
-<div class="top"><div class="pair"><div class="badge">XAU</div><div><h3>Gold Spot</h3><span id="feed">XAUUSD • Real Price</span></div></div><div class="live">● LIVE</div></div>
-<div class="price" id="price">Loading...</div>
-<div class="change" id="change">Connecting to market...</div>
-<div class="candles" id="candles"></div>
+<div class="price-top"><div><h3 style="font-size:14px">XAUUSD Gold</h3><span style="font-size:11px;opacity:0.6" id="feed">XAUUSD • Real MT5 Price</span></div><div class="badge" id="liveBadge">● LIVE</div></div>
+<div class="price-main" id="price">Loading...</div>
+<div style="font-size:12px"><span id="change">Connecting...</span></div>
 </div>
-<div class="signal-card wait" id="card"><div class="icon" id="icon">⏳</div><div class="text" id="txt">ANALYZING</div><div class="sub" id="sub">Waiting for alignment</div></div>
-<div class="grid">
-<div class="box"><h4>M1 Trend • 10, 2.0</h4><div class="val" id="m1">—</div></div>
-<div class="box"><h4>M5 Trend • 10, 2.0</h4><div class="val" id="m5">—</div></div>
-<div class="box"><h4>Supertrend</h4><div class="val" id="st">—</div></div>
-<div class="box"><h4>Status</h4><div class="val" id="src">Real Feed</div></div>
+<div class="signal-card signal-wait" id="signalCard"><div style="font-size:40px" id="sigIcon">⏳</div><div class="signal-text" id="sigText">ANALYZING</div><div class="signal-sub" id="sigSub">Waiting for M5+M1 alignment</div></div>
+<div class="details">
+<div class="detail-box"><h4>M1 Trend (10, 2.0)</h4><div class="val" id="m1">—</div></div>
+<div class="detail-box"><h4>M5 Trend (10, 2.0)</h4><div class="val" id="m5">—</div></div>
+<div class="detail-box"><h4>Supertrend</h4><div class="val" id="st">—</div></div>
+<div class="detail-box"><h4>Source</h4><div class="val" id="source">Real Feed</div></div>
 </div>
-<a class="btn btn-wa" id="wa" href="#" target="_blank">📲 Share Signal</a>
-<button class="btn btn-cal" onclick="calibrate()">Adjust to MT5</button>
-<div class="foot" id="foot">XAUUSD • M5 + M1 Confluence • Supertrend 10, 2.0</div>
+<a class="btn btn-wa" id="waBtn" href="#" target="_blank">📲 Share Signal to WhatsApp</a>
+<button class="btn btn-sec" onclick="calibrate()">🎯 Calibrate to MT5</button>
+<div class="small" id="status">XAUUSD Gold • M5 + M1 Confluence • Supertrend 10, 2.0 • Real Price</div>
 </div>
 <script>
 let price=0,last=0,m1C=[],m5C=[],lastSig="WAIT",offset=0;let cur1=null,cur5=null;
-async function fetchReal(){
-try{let r=await fetch('https://api.gold-api.com/price/XAU');let j=await r.json();if(j&&j.price){handle(j.price,'Gold-API');return;}}catch(e){}
+async function fetchGold(){
+try{let r=await fetch('https://api.gold-api.com/price/XAU');let j=await r.json();if(j&&j.price){handle(j.price,'Gold-API Real');return;}}catch(e){}
 try{let r2=await fetch('https://data-asg.goldprice.org/dbXRates/USD');let j2=await r2.json();if(j2.items&&j2.items[0].xauPrice){handle(j2.items[0].xauPrice,'GoldPrice.org');return;}}catch(e){}
-try{let r3=await fetch('https://api.binance.com/api/v3/ticker/price?symbol=PAXGUSDT');let j3=await r3.json();let p=parseFloat(j3.price)-7.5;handle(p,'Adjusted Feed');}catch(e){document.getElementById('foot').textContent='Reconnecting...';}
+try{let r3=await fetch('https://api.binance.com/api/v3/ticker/price?symbol=PAXGUSDT');let j3=await r3.json();handle(parseFloat(j3.price)-7.5,'Adjusted to MT5');}catch(e){document.getElementById('status').textContent='Reconnecting...';}
 }
 function handle(p,src){
 let real=p+offset;if(price===0){price=real;}else{last=price;price=real;}
-document.getElementById('price').textContent='$'+real.toFixed(2);document.getElementById('src').textContent=src;
-let diff=real-last;let ch=document.getElementById('change');
-if(last!==0){if(diff>0)ch.innerHTML='<span class="up">▲ +'+diff.toFixed(2)+'</span> • XAUUSD Real Price';else if(diff<0)ch.innerHTML='<span class="down">▼ '+diff.toFixed(2)+'</span> • XAUUSD Real Price';}else{ch.textContent='XAUUSD • Real Market Price';}
-let now=Math.floor(Date.now()/1000);tick(real,now);
+document.getElementById('price').textContent="$"+real.toFixed(2);
+document.getElementById('source').textContent=src;
+let diff=real-last;let el=document.getElementById('change');
+if(last!==0){if(diff>0)el.innerHTML='<span style="color:#00FF88">▲ +'+diff.toFixed(2)+'</span> • Real MT5 Price';else el.innerHTML='<span style="color:#FF456E">▼ '+diff.toFixed(2)+'</span> • Real MT5 Price';}else{el.textContent='XAUUSD • Real Market Price';}
+let now=Math.floor(Date.now()/1000);processTick(real,now);
 }
-function tick(p,epoch){
-let m=Math.floor(epoch/60)*60;
-if(!cur1||cur1.t!==m){if(cur1)m1C.push(cur1);if(m1C.length>120)m1C.shift();cur1={o:p,h:p,l:p,c:p,t:m};}else{cur1.h=Math.max(cur1.h,p);cur1.l=Math.min(cur1.l,p);cur1.c=p;}
-let m5=Math.floor(epoch/300)*300;
-if(!cur5||cur5.t!==m5){if(cur5)m5C.push(cur5);if(m5C.length>120)m5C.shift();cur5={o:p,h:p,l:p,c:p,t:m5};}else{cur5.h=Math.max(cur5.h,p);cur5.l=Math.min(cur5.l,p);cur5.c=p;}
-if(m1C.length>20)analyze();render();
+function processTick(p,epoch){
+let m=Math.floor(epoch/60)*60;if(!cur1||cur1.t!==m){if(cur1)m1C.push(cur1);if(m1C.length>120)m1C.shift();cur1={o:p,h:p,l:p,c:p,t:m};}else{cur1.h=Math.max(cur1.h,p);cur1.l=Math.min(cur1.l,p);cur1.c=p;}
+let m5=Math.floor(epoch/300)*300;if(!cur5||cur5.t!==m5){if(cur5)m5C.push(cur5);if(m5C.length>120)m5C.shift();cur5={o:p,h:p,l:p,c:p,t:m5};}else{cur5.h=Math.max(cur5.h,p);cur5.l=Math.min(cur5.l,p);cur5.c=p;}
+if(m1C.length>20)analyze();
 }
-function atr(candles,per=10){if(candles.length<per+1)return 0;let trs=[];for(let i=1;i<candles.length;i++){let c=candles[i],pc=candles[i-1];trs.push(Math.max(c.h-c.l,Math.abs(c.h-pc.c),Math.abs(c.l-pc.c)));}return trs.slice(-per).reduce((a,b)=>a+b,0)/per;}
-function supertrend(candles,per=10,mult=2.0){if(candles.length<per)return{trend:'WAIT',val:0,a:0};let a=atr(candles,per);let last=candles[candles.length-1];let hl2=(last.h+last.l)/2;let t=last.c>hl2?'BULL':'BEAR';return{trend:t,val:hl2,a:a};}
+function atr(c,per=10){if(c.length<per+1)return 0;let t=[];for(let i=1;i<c.length;i++){let a=c[i],b=c[i-1];t.push(Math.max(a.h-a.l,Math.abs(a.h-b.c),Math.abs(a.l-b.c)));}return t.slice(-per).reduce((x,y)=>x+y,0)/per;}
+function supertrend(c,per=10,mult=2.0){if(c.length<per)return{trend:"WAIT",val:0,a:0};let a=atr(c,per);let last=c[c.length-1];let hl2=(last.h+last.l)/2;return{trend:last.c>hl2?"BULL":"BEAR",val:hl2,a:a};}
 function analyze(){
 let a1=[...m1C];if(cur1)a1.push(cur1);let a5=[...m5C];if(cur5)a5.push(cur5);
 if(a5.length<4){a5=[];for(let i=0;i<a1.length;i+=5){let s=a1.slice(i,i+5);if(s.length===5)a5.push({o:s[0].o,h:Math.max(...s.map(x=>x.h)),l:Math.min(...s.map(x=>x.l)),c:s[4].c,t:s[0].t});}}
 if(a1.length<15||a5.length<4)return;let s1=supertrend(a1,10,2.0),s5=supertrend(a5,10,2.0);
-document.getElementById('m1').innerHTML='<span class="'+(s1.trend==='BULL'?'trend-up':'trend-down')+'">'+s1.trend+'</span>';
-document.getElementById('m5').innerHTML='<span class="'+(s5.trend==='BULL'?'trend-up':'trend-down')+'">'+s5.trend+'</span>';
+document.getElementById('m1').innerHTML='<span class="'+(s1.trend==="BULL"?'trend-up':'trend-down')+'">'+s1.trend+'</span>';
+document.getElementById('m5').innerHTML='<span class="'+(s5.trend==="BULL"?'trend-up':'trend-down')+'">'+s5.trend+'</span>';
 document.getElementById('st').textContent=s1.val.toFixed(2);
-let sig='WAIT';if(s1.trend==='BULL'&&s5.trend==='BULL')sig='BUY';else if(s1.trend==='BEAR'&&s5.trend==='BEAR')sig='SELL';update(sig);
+let sig="WAIT";if(s1.trend==="BULL"&&s5.trend==="BULL")sig="BUY";else if(s1.trend==="BEAR"&&s5.trend==="BEAR")sig="SELL";
+update(sig);
 }
 function update(sig){
-if(sig===lastSig)return;let card=document.getElementById('card'),ic=document.getElementById('icon'),tx=document.getElementById('txt'),sb=document.getElementById('sub');
-if(sig==='BUY'){card.className='signal-card buy';ic.textContent='🚀';tx.textContent='BUY';sb.textContent='Strong bullish momentum';}
-else if(sig==='SELL'){card.className='signal-card sell';ic.textContent='🔻';tx.textContent='SELL';sb.textContent='Strong bearish momentum';}
-else{card.className='signal-card wait';ic.textContent='⏳';tx.textContent='WAIT';sb.textContent='Waiting for M5 & M1 alignment';}
-lastSig=sig;let msg=`*Wisetrader GOLD*%0A%0A*Pair:* XAUUSD%0A*Signal:* ${sig}%0A*Price:* $${price.toFixed(2)}%0A*Time:* ${new Date().toLocaleTimeString()}%0A*Strategy:* Supertrend M5+M1`;document.getElementById('wa').href='https://wa.me/?text='+msg;
+if(sig===lastSig)return;let card=document.getElementById('signalCard'),ic=document.getElementById('sigIcon'),tx=document.getElementById('sigText'),sb=document.getElementById('sigSub');
+if(sig==="BUY"){card.className="signal-card signal-buy";ic.textContent="🚀";tx.textContent="BUY";sb.textContent="M5 & M1 Bullish - Buy Now";}
+else if(sig==="SELL"){card.className="signal-card signal-sell";ic.textContent="🔻";tx.textContent="SELL";sb.textContent="M5 & M1 Bearish - Sell Now";}
+else{card.className="signal-card signal-wait";ic.textContent="⏳";tx.textContent="WAIT";sb.textContent="M5 & M1 not aligned";}
+lastSig=sig;let msg=`*Wisetrader GOLD*%0A%0A*Pair:* XAUUSD%0A*Signal:* ${sig}%0A*Price:* $${price.toFixed(2)}%0A*Time:* ${new Date().toLocaleTimeString()}`;document.getElementById('waBtn').href=`https://wa.me/?text=${msg}`;
 }
-function render(){let cont=document.getElementById('candles');let data=m1C.slice(-18);if(cur1)data=[...data,cur1].slice(-18);cont.innerHTML='';data.forEach(c=>{let d=document.createElement('div');d.className='c';d.style.height=Math.max(6,Math.min(36,Math.abs(c.c-c.o)*6+8))+'px';d.style.background=c.c>=c.o?'#00FF88':'#FF456E';cont.appendChild(d);});}
-function calibrate(){let v=prompt('Enter current MT5 XAUUSD price (e.g. 4125.17):');if(!v)return;let mt=parseFloat(v);if(isNaN(mt))return;offset=mt-price;document.getElementById('foot').textContent='Adjusted to MT5 • Offset '+(offset>=0?'+':'')+offset.toFixed(2);}
-setInterval(fetchReal,8000);fetchReal();
+function calibrate(){let v=prompt("Enter MT5 price (4125.17):");if(!v)return;let mt=parseFloat(v);if(isNaN(mt))return;offset=mt-price;document.getElementById('status').textContent="Adjusted to MT5 • Offset "+(offset>=0?"+":"")+offset.toFixed(2);}
+setInterval(fetchGold,8000);fetchGold();
 for(let i=0;i<28;i++){let f=4125+(Math.random()-0.5)*6;let t=Math.floor(Date.now()/1000)-(28-i)*60;m1C.push({o:f,h:f+1,l:f-1,c:f,t:t});}
 </script>
 </body>
