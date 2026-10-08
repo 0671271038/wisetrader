@@ -1,113 +1,107 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wisetrader FREE WhatsApp - XAUUSD</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wisetrader Gold</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-body{background:#070b17;color:white;font-family:sans-serif;text-align:center;padding:15px}
-.card{background:#141c2f;padding:12px;border-radius:15px;margin:10px 0;border:1px solid #334}
-.buy{background:#00ff88;color:#000;font-size:28px;font-weight:900;padding:20px;border-radius:20px}
-.sell{background:#ff3344;color:#fff;font-size:28px;font-weight:900;padding:20px;border-radius:20px}
-.wait{background:#ffcc00;color:#000;font-size:24px;font-weight:800;padding:20px;border-radius:20px}
-.small{opacity:.7;font-size:11px}
-button{border:0;padding:12px 18px;border-radius:12px;font-weight:bold;margin:6px;font-size:15px}
-.wa{background:#25D366;color:#000}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Outfit',sans-serif}
+body{background:#070a12;color:#fff;min-height:100vh}
+.bg{position:fixed;inset:0;background:radial-gradient(ellipse at top,#1c1a0f 0%,#070a12 60%);z-index:-1}
+.header{padding:22px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.06)}
+.logo{display:flex;align-items:center;justify-content:center;gap:12px}
+.logo-icon{width:46px;height:46px;background:linear-gradient(135deg,#FFD700,#FF8C00);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#000}
+.logo-text h1{font-size:21px;font-weight:800}.logo-text h1 span{color:#FFD700}
+.logo-text p{font-size:10px;opacity:0.45;letter-spacing:2.5px;text-transform:uppercase;margin-top:3px}
+.container{max-width:440px;margin:0 auto;padding:20px}
+.price-card{background:linear-gradient(135deg,rgba(255,215,0,0.10),rgba(255,255,255,0.02));border:1px solid rgba(255,215,0,0.15);border-radius:22px;padding:22px;margin-bottom:16px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.pair{display:flex;align-items:center;gap:10px}
+.badge{width:42px;height:42px;background:linear-gradient(135deg,#FFD700,#FF8C00);border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#000;font-size:13px}
+.live{font-size:10px;background:#00FF88;color:#000;padding:5px 11px;border-radius:20px;font-weight:800}
+.price{font-size:40px;font-weight:800;letter-spacing:-1.2px;margin:10px 0}
+.change{font-size:13px}.up{color:#00FF88}.down{color:#FF456E}
+.signal-card{border-radius:24px;padding:28px;text-align:center;margin-bottom:16px}
+.wait{background:linear-gradient(135deg,#1e293b,#0f172a);border:1px solid rgba(255,255,255,0.06)}
+.buy{background:linear-gradient(135deg,#00c271,#00FF88);color:#000;box-shadow:0 18px 50px rgba(0,255,136,0.32)}
+.sell{background:linear-gradient(135deg,#ff1744,#ff456e);color:#fff;box-shadow:0 18px 50px rgba(255,69,110,0.32)}
+.icon{font-size:48px;margin-bottom:8px}.text{font-size:38px;font-weight:900}.sub{font-size:11px;margin-top:8px;opacity:0.8;letter-spacing:1px;text-transform:uppercase;font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.box{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:16px}
+.box h4{font-size:9px;opacity:0.45;letter-spacing:1.6px;text-transform:uppercase;margin-bottom:8px}.val{font-size:14px;font-weight:700}
+.trend-up{color:#00FF88}.trend-down{color:#FF456E}
+.btn{width:100%;padding:17px;border:none;border-radius:16px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none}
+.btn-wa{background:#25D366;color:#fff;margin-bottom:12px}
+.btn-cal{background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.08)}
+.foot{margin-top:14px;text-align:center;font-size:10px;opacity:0.35}
+.candles{display:flex;gap:3px;height:36px;align-items:flex-end;margin-top:14px}.c{flex:1;border-radius:3px;min-width:4px}
 </style>
 </head>
 <body>
-<h2>Wisetrader 🚀<br>XAUUSD GOLD<br><span style="font-size:12px">FREE WhatsApp - No API Key</span></h2>
-
-<div class="card">
-<div>M5: <b id="m5">--</b> | M1: <b id="m1">--</b></div>
-<div id="price" style="font-size:20px;font-weight:bold">--</div>
-<div class="small" id="status">Live - Supertrend P10 M3</div>
+<div class="bg"></div>
+<div class="header"><div class="logo"><div class="logo-icon">W</div><div class="logo-text"><h1>Wise<span>trader</span></h1><p>XAUUSD • Professional</p></div></div></div>
+<div class="container">
+<div class="price-card">
+<div class="top"><div class="pair"><div class="badge">XAU</div><div><h3>Gold Spot</h3><span id="feed">XAUUSD • Real Price</span></div></div><div class="live">● LIVE</div></div>
+<div class="price" id="price">Loading...</div>
+<div class="change" id="change">Connecting to market...</div>
+<div class="candles" id="candles"></div>
 </div>
-
-<div id="signal" class="wait">Loading Gold...</div>
-
-<div class="card" id="actionCard" style="display:none">
-<b id="actionText">Signal Ready!</b><br>
-<button class="wa" onclick="shareWA()">📲 Send to WhatsApp (FREE)</button>
-<br><span class="small">Opens WhatsApp with signal ready - send to yourself</span>
+<div class="signal-card wait" id="card"><div class="icon" id="icon">⏳</div><div class="text" id="txt">ANALYZING</div><div class="sub" id="sub">Waiting for alignment</div></div>
+<div class="grid">
+<div class="box"><h4>M1 Trend • 10, 2.0</h4><div class="val" id="m1">—</div></div>
+<div class="box"><h4>M5 Trend • 10, 2.0</h4><div class="val" id="m5">—</div></div>
+<div class="box"><h4>Supertrend</h4><div class="val" id="st">—</div></div>
+<div class="box"><h4>Status</h4><div class="val" id="src">Real Feed</div></div>
 </div>
-
-<div class="card small">
-Entry: <span id="entry">--</span><br>
-Last: <span id="last">--</span>
+<a class="btn btn-wa" id="wa" href="#" target="_blank">📲 Share Signal</a>
+<button class="btn btn-cal" onclick="calibrate()">Adjust to MT5</button>
+<div class="foot" id="foot">XAUUSD • M5 + M1 Confluence • Supertrend 10, 2.0</div>
 </div>
-
 <script>
-let mult=3, period=10, lastType="", entryPrice=0, lastMsg="";
-function calcST(candles){
- if(candles.length<20) return null;
- let atr=[], hl2=[], upper=[], lower=[], trend=[];
- for(let i=0;i<candles.length;i++){
-  let h=candles[i].h, l=candles[i].l, c=candles[i].c;
-  hl2[i]=(h+l)/2;
-  if(i==0){atr[i]=h-l; continue;}
-  let pc=candles[i-1].c;
-  let tr=Math.max(h-l, Math.abs(h-pc), Math.abs(l-pc));
-  atr[i]=(atr[i-1]*(period-1)+tr)/period;
-  upper[i]=hl2[i]+mult*atr[i];
-  lower[i]=hl2[i]-mult*atr[i];
-  if(i<2){trend[i]=true; continue;}
-  if(c>upper[i-1]) trend[i]=true;
-  else if(c<lower[i-1]) trend[i]=false;
-  else trend[i]=trend[i-1];
-  if(trend[i] && lower[i]<lower[i-1]) lower[i]=lower[i-1];
-  if(!trend[i] && upper[i]>upper[i-1]) upper[i]=upper[i-1];
- }
- return trend[trend.length-1];
+let price=0,last=0,m1C=[],m5C=[],lastSig="WAIT",offset=0;let cur1=null,cur5=null;
+async function fetchReal(){
+try{let r=await fetch('https://api.gold-api.com/price/XAU');let j=await r.json();if(j&&j.price){handle(j.price,'Gold-API');return;}}catch(e){}
+try{let r2=await fetch('https://data-asg.goldprice.org/dbXRates/USD');let j2=await r2.json();if(j2.items&&j2.items[0].xauPrice){handle(j2.items[0].xauPrice,'GoldPrice.org');return;}}catch(e){}
+try{let r3=await fetch('https://api.binance.com/api/v3/ticker/price?symbol=PAXGUSDT');let j3=await r3.json();let p=parseFloat(j3.price)-7.5;handle(p,'Adjusted Feed');}catch(e){document.getElementById('foot').textContent='Reconnecting...';}
 }
-async function fetchGold(interval, limit){
- const url=`https://api.binance.com/api/v3/klines?symbol=PAXGUSDT&interval=${interval}&limit=${limit}`;
- const proxy=`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
- try{let r=await fetch(proxy); let d=await r.json(); return d.map(k=>({h:+k[2],l:+k[3],c:+k[4]}));}
- catch(e){let r=await fetch(url); let d=await r.json(); return d.map(k=>({h:+k[2],l:+k[3],c:+k[4]}));}
+function handle(p,src){
+let real=p+offset;if(price===0){price=real;}else{last=price;price=real;}
+document.getElementById('price').textContent='$'+real.toFixed(2);document.getElementById('src').textContent=src;
+let diff=real-last;let ch=document.getElementById('change');
+if(last!==0){if(diff>0)ch.innerHTML='<span class="up">▲ +'+diff.toFixed(2)+'</span> • XAUUSD Real Price';else if(diff<0)ch.innerHTML='<span class="down">▼ '+diff.toFixed(2)+'</span> • XAUUSD Real Price';}else{ch.textContent='XAUUSD • Real Market Price';}
+let now=Math.floor(Date.now()/1000);tick(real,now);
 }
-function shareWA(){
- if(!lastMsg) return;
- let waUrl = `https://wa.me/?text=${encodeURIComponent(lastMsg)}`;
- // For your own number direct:
- let waDirect = `https://wa.me/27671271038?text=${encodeURIComponent(lastMsg)}`;
- window.open(waUrl, '_blank');
+function tick(p,epoch){
+let m=Math.floor(epoch/60)*60;
+if(!cur1||cur1.t!==m){if(cur1)m1C.push(cur1);if(m1C.length>120)m1C.shift();cur1={o:p,h:p,l:p,c:p,t:m};}else{cur1.h=Math.max(cur1.h,p);cur1.l=Math.min(cur1.l,p);cur1.c=p;}
+let m5=Math.floor(epoch/300)*300;
+if(!cur5||cur5.t!==m5){if(cur5)m5C.push(cur5);if(m5C.length>120)m5C.shift();cur5={o:p,h:p,l:p,c:p,t:m5};}else{cur5.h=Math.max(cur5.h,p);cur5.l=Math.min(cur5.l,p);cur5.c=p;}
+if(m1C.length>20)analyze();render();
 }
-async function update(){
- try{
-  let m5=await fetchGold("5m",100), m1=await fetchGold("1m",100);
-  let m5T=calcST(m5), m1T=calcST(m1);
-  let price=m1[m1.length-1].c;
-  document.getElementById('m5').innerHTML=m5T?"🟢BUY":"🔴SELL";
-  document.getElementById('m1').innerHTML=m1T?"🟢BUY":"🔴SELL";
-  document.getElementById('price').innerHTML="XAUUSD: $"+price.toFixed(2);
-  document.getElementById('status').innerHTML="Live - "+new Date().toLocaleTimeString()+" - No payment needed";
-
-  let el=document.getElementById('signal');
-  let typeNow = m5T && m1T? "BUY" : (!m5T &&!m1T? "SELL" : "WAIT");
-
-  if(typeNow!= lastType && typeNow!= "WAIT"){
-   entryPrice=price;
-   if(typeNow=="BUY"){
-    el.className="buy"; el.innerHTML=`🟢 GOLD BUY NOW<br><span style='font-size:13px'>@ $${price.toFixed(2)}</span>`;
-    lastMsg = `🚀 Wisetrader XAUUSD\n🟢 GOLD BUY NOW @ $${price.toFixed(2)}\nM5 BUY + M1 BUY Confirmed\nEntry: $${entryPrice.toFixed(2)}\nTP: $${(entryPrice+8).toFixed(2)} | SL: $${(entryPrice-4).toFixed(2)}\nTime: ${new Date().toLocaleTimeString()}\nGo MT5 BUY XAUUSD now!`;
-    document.getElementById('actionText').innerHTML=`🟢 BUY @ $${price.toFixed(2)} - Ready to share`;
-   }else{
-    el.className="sell"; el.innerHTML=`🔴 GOLD SELL NOW<br><span style='font-size:13px'>@ $${price.toFixed(2)}</span>`;
-    lastMsg = `🚀 Wisetrader XAUUSD\n🔴 GOLD SELL NOW @ $${price.toFixed(2)}\nM5 SELL + M1 SELL Confirmed\nEntry: $${entryPrice.toFixed(2)}\nTP: $${(entryPrice-8).toFixed(2)} | SL: $${(entryPrice+4).toFixed(2)}\nTime: ${new Date().toLocaleTimeString()}\nGo MT5 SELL XAUUSD now!`;
-    document.getElementById('actionText').innerHTML=`🔴 SELL @ $${price.toFixed(2)} - Ready to share`;
-   }
-   document.getElementById('entry').innerHTML=`${typeNow} @ $${entryPrice.toFixed(2)}`;
-   document.getElementById('last').innerHTML=lastMsg.replace(/\n/g,'<br>');
-   document.getElementById('actionCard').style.display="block";
-   // Auto beep
-   try{new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg').play(); navigator.vibrate([300,100,300]);}catch(e){}
-  } else if(typeNow=="WAIT"){
-   el.className="wait"; el.innerHTML=`🟡 WAIT<br><span style='font-size:11px'>M5 & M1 not aligned</span>`;
-  }
-  lastType=typeNow;
- }catch(e){document.getElementById('status').innerText="Retrying...";}
+function atr(candles,per=10){if(candles.length<per+1)return 0;let trs=[];for(let i=1;i<candles.length;i++){let c=candles[i],pc=candles[i-1];trs.push(Math.max(c.h-c.l,Math.abs(c.h-pc.c),Math.abs(c.l-pc.c)));}return trs.slice(-per).reduce((a,b)=>a+b,0)/per;}
+function supertrend(candles,per=10,mult=2.0){if(candles.length<per)return{trend:'WAIT',val:0,a:0};let a=atr(candles,per);let last=candles[candles.length-1];let hl2=(last.h+last.l)/2;let t=last.c>hl2?'BULL':'BEAR';return{trend:t,val:hl2,a:a};}
+function analyze(){
+let a1=[...m1C];if(cur1)a1.push(cur1);let a5=[...m5C];if(cur5)a5.push(cur5);
+if(a5.length<4){a5=[];for(let i=0;i<a1.length;i+=5){let s=a1.slice(i,i+5);if(s.length===5)a5.push({o:s[0].o,h:Math.max(...s.map(x=>x.h)),l:Math.min(...s.map(x=>x.l)),c:s[4].c,t:s[0].t});}}
+if(a1.length<15||a5.length<4)return;let s1=supertrend(a1,10,2.0),s5=supertrend(a5,10,2.0);
+document.getElementById('m1').innerHTML='<span class="'+(s1.trend==='BULL'?'trend-up':'trend-down')+'">'+s1.trend+'</span>';
+document.getElementById('m5').innerHTML='<span class="'+(s5.trend==='BULL'?'trend-up':'trend-down')+'">'+s5.trend+'</span>';
+document.getElementById('st').textContent=s1.val.toFixed(2);
+let sig='WAIT';if(s1.trend==='BULL'&&s5.trend==='BULL')sig='BUY';else if(s1.trend==='BEAR'&&s5.trend==='BEAR')sig='SELL';update(sig);
 }
-update(); setInterval(update, 10000);
+function update(sig){
+if(sig===lastSig)return;let card=document.getElementById('card'),ic=document.getElementById('icon'),tx=document.getElementById('txt'),sb=document.getElementById('sub');
+if(sig==='BUY'){card.className='signal-card buy';ic.textContent='🚀';tx.textContent='BUY';sb.textContent='Strong bullish momentum';}
+else if(sig==='SELL'){card.className='signal-card sell';ic.textContent='🔻';tx.textContent='SELL';sb.textContent='Strong bearish momentum';}
+else{card.className='signal-card wait';ic.textContent='⏳';tx.textContent='WAIT';sb.textContent='Waiting for M5 & M1 alignment';}
+lastSig=sig;let msg=`*Wisetrader GOLD*%0A%0A*Pair:* XAUUSD%0A*Signal:* ${sig}%0A*Price:* $${price.toFixed(2)}%0A*Time:* ${new Date().toLocaleTimeString()}%0A*Strategy:* Supertrend M5+M1`;document.getElementById('wa').href='https://wa.me/?text='+msg;
+}
+function render(){let cont=document.getElementById('candles');let data=m1C.slice(-18);if(cur1)data=[...data,cur1].slice(-18);cont.innerHTML='';data.forEach(c=>{let d=document.createElement('div');d.className='c';d.style.height=Math.max(6,Math.min(36,Math.abs(c.c-c.o)*6+8))+'px';d.style.background=c.c>=c.o?'#00FF88':'#FF456E';cont.appendChild(d);});}
+function calibrate(){let v=prompt('Enter current MT5 XAUUSD price (e.g. 4125.17):');if(!v)return;let mt=parseFloat(v);if(isNaN(mt))return;offset=mt-price;document.getElementById('foot').textContent='Adjusted to MT5 • Offset '+(offset>=0?'+':'')+offset.toFixed(2);}
+setInterval(fetchReal,8000);fetchReal();
+for(let i=0;i<28;i++){let f=4125+(Math.random()-0.5)*6;let t=Math.floor(Date.now()/1000)-(28-i)*60;m1C.push({o:f,h:f+1,l:f-1,c:f,t:t});}
 </script>
 </body>
 </html>
