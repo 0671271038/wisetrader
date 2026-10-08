@@ -32,7 +32,7 @@ h1{font-size:34px;font-weight:800;line-height:1.1}
 <div class="bg"></div>
 <div class="container">
 <h1>Wisetrader 🚀<br><span style="color:#FFD700">XAUUSD</span></h1>
-<div class="sub">Real Gold • M5+M1 + RSI 14 Confirmation</div>
+<div class="sub">Real Gold • M5+M1 + RSI 60/40 Smooth</div>
 <div class="card"><div class="card-inner">
 <div class="row"><span>M5 Supertrend:</span><span id="m5">—</span></div>
 <div class="row"><span>M1 Supertrend:</span><span id="m1">—</span></div>
@@ -52,37 +52,29 @@ async function fetchGold(){
 }
 function handle(p,src){let real=p+offset;price=real;document.getElementById('price').textContent='$'+real.toFixed(2);document.getElementById('status').textContent='● LIVE '+src+' $'+real.toFixed(2);tick(real,Math.floor(Date.now()/1000));}
 function tick(p,epoch){let m=Math.floor(epoch/60)*60;if(!cur1||cur1.t!==m){if(cur1)m1C.push(cur1);if(m1C.length>150)m1C.shift();cur1={o:p,h:p,l:p,c:p,t:m};}else{cur1.h=Math.max(cur1.h,p);cur1.l=Math.min(cur1.l,p);cur1.c=p;}let m5=Math.floor(epoch/300)*300;if(!cur5||cur5.t!==m5){if(cur5)m5C.push(cur5);if(m5C.length>150)m5C.shift();cur5={o:p,h:p,l:p,c:p,t:m5};}else{cur5.h=Math.max(cur5.h,p);cur5.l=Math.min(cur5.l,p);cur5.c=p;}if(m1C.length>20)analyze();}
-function atr(c,per){if(c.length<per+1)return 0;let tr=[];for(let i=1;i<c.length;i++){let a=c[i],b=c[i-1];tr.push(Math.max(a.h-a.l,Math.abs(a.h-b.c),Math.abs(a.l-b.c)));}return tr.slice(-per).reduce((x,y)=>x+y,0)/per;}
-function st(c,per,m){if(c.length<per)return{trend:"WAIT"};let last=c[c.length-1];return{trend:last.c>(last.h+last.l)/2?"BUY":"SELL"};}
-function rsi(c,per=14){
- if(c.length<per+1) return 50;
- let gains=0,losses=0;
- for(let i=c.length-per;i<c.length;i++){let diff=c[i].c-c[i-1].c;if(diff>=0)gains+=diff;else losses-=diff;}
- if(losses===0) return 100;
- let rs=gains/losses; return 100-(100/(1+rs));
-}
+function st(c){if(c.length<10)return{trend:"WAIT"};let last=c[c.length-1];return{trend:last.c>(last.h+last.l)/2?"BUY":"SELL"};}
+function rsi(c,per=14){if(c.length<per+1)return 50;let g=0,l=0;for(let i=c.length-per;i<c.length;i++){let d=c[i].c-c[i-1].c;if(d>=0)g+=d;else l-=d;}if(l===0)return 100;return 100-(100/(1+g/l));}
 function analyze(){
  let a1=[...m1C];if(cur1)a1.push(cur1);let a5=[...m5C];if(cur5)a5.push(cur5);
  if(a5.length<3){a5=[];for(let i=0;i<a1.length;i+=5){let s=a1.slice(i,i+5);if(s.length===5)a5.push({o:s[0].o,h:Math.max(...s.map(x=>x.h)),l:Math.min(...s.map(x=>x.l)),c:s[4].c,t:s[0].t});}}
  if(a1.length<20||a5.length<3)return;
- let s1=st(a1,per,mult),s5=st(a5,per,mult),r=rsi(a1,14);
+ let s1=st(a1),s5=st(a5),r=rsi(a1,14);
  document.getElementById('m5').innerHTML='<span class="dot '+(s5.trend==="BUY"?'dot-buy':'dot-sell')+'"></span> '+s5.trend;
  document.getElementById('m1').innerHTML='<span class="dot '+(s1.trend==="BUY"?'dot-buy':'dot-sell')+'"></span> '+s1.trend;
- let rClass=r>55?'rsi-high':r<45?'rsi-low':'rsi-mid';
- document.getElementById('rsi').innerHTML='<span class="'+rClass+'">'+r.toFixed(1)+(r>55?' ▲':r<45?' ▼':'')+'</span>';
+ let rc=r>60?'rsi-high':r<40?'rsi-low':'rsi-mid';
+ document.getElementById('rsi').innerHTML='<span class="'+rc+'">'+r.toFixed(1)+(r>60?' ▲ Strong':r<40?' ▼ Strong':' ~ Neutral 40-60')+'</span>';
  let sig="WAIT";
- if(s5.trend==="BUY"&&s1.trend==="BUY"&&r>55) sig="BUY";
- else if(s5.trend==="SELL"&&s1.trend==="SELL"&&r<45) sig="SELL";
- else if(s5.trend==="BUY"&&s1.trend==="BUY"&&r>=45&&r<=55) sig="WAIT_RSI";
- else if(s5.trend==="SELL"&&s1.trend==="SELL"&&r>=45&&r<=55) sig="WAIT_RSI";
+ if(s5.trend==="BUY"&&s1.trend==="BUY"&&r>60) sig="BUY";
+ else if(s5.trend==="SELL"&&s1.trend==="SELL"&&r<40) sig="SELL";
+ else if((s5.trend==="BUY"&&s1.trend==="BUY")||(s5.trend==="SELL"&&s1.trend==="SELL")) sig="WAIT_RSI";
  update(sig,r);
 }
 function update(sig,r){
  let box=document.getElementById('sigBox'),ic=document.getElementById('sigIcon'),sb=document.getElementById('sigSub');
- if(sig==="BUY"){box.className="signal signal-buy";ic.textContent="🟢 GOLD BUY NOW";sb.textContent="M5+M1 BUY + RSI "+r.toFixed(1)+" → Strong BUY";}
- else if(sig==="SELL"){box.className="signal signal-sell";ic.textContent="🔴 GOLD SELL NOW";sb.textContent="M5+M1 SELL + RSI "+r.toFixed(1)+" → Strong SELL";}
- else if(sig==="WAIT_RSI"){box.className="signal signal-wait";ic.textContent="🟡 WAIT RSI";sb.textContent="Trends match but RSI "+r.toFixed(1)+" neutral (need >55/<45)";}
- else{box.className="signal signal-wait";ic.textContent="🟡 WAIT";sb.textContent="M5 & M1 not aligned yet";}
+ if(sig==="BUY"){box.className="signal signal-buy";ic.textContent="🟢 GOLD BUY NOW";sb.textContent="M5+M1 BUY + RSI "+r.toFixed(1)+" >60 Strong → BUY";}
+ else if(sig==="SELL"){box.className="signal signal-sell";ic.textContent="🔴 GOLD SELL NOW";sb.textContent="M5+M1 SELL + RSI "+r.toFixed(1)+" <40 Strong → SELL";}
+ else if(sig==="WAIT_RSI"){box.className="signal signal-wait";ic.textContent="🟡 WAIT RSI "+r.toFixed(0);sb.textContent="Match but RSI "+r.toFixed(1)+" in 40-60 zone, need >60 or <40";}
+ else{box.className="signal signal-wait";ic.textContent="🟡 WAIT";sb.textContent="M5 & M1 not aligned";}
 }
 function chg(d){mult=Math.max(1,Math.min(6,mult+d));document.getElementById('mult').textContent=mult.toFixed(1);if(m1C.length>20)analyze();}
 setInterval(fetchGold,7000);fetchGold();
