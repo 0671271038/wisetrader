@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wisetrader</title>
+  <style>
+    body{margin:0;font-family:system-ui;background:#0b1220;color:white;display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column}
+    h1{font-size:48px;margin:0}
+    p{opacity:.7}
+    a{color:#5ee1a0;margin-top:20px;display:inline-block;padding:12px 24px;border:1px solid #5ee1a0;border-radius:8px;text-decoration:none}
+  </style>
+</head>
+<body>
+  <h1>Wisetrader 🚀</h1>
+  <p>Live deployment works!</p>
+  <p id="status">Loading...</p>
+  <a href="https://github.com/0671271038/wisetrader">View Code</a>
+  <script>
+    document.getElementById('status').textContent = 'Deployed on ' + new Date().toLocaleString();
+  </script>
+</body>
+</html>
