@@ -1,23 +1,104 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Wisetrader</title>
-  <style>
-    body{margin:0;font-family:system-ui;background:#0b1220;color:white;display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column}
-    h1{font-size:48px;margin:0}
-    p{opacity:.7}
-    a{color:#5ee1a0;margin-top:20px;display:inline-block;padding:12px 24px;border:1px solid #5ee1a0;border-radius:8px;text-decoration:none}
-  </style>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wisetrader - XAUUSD GOLD</title>
+<style>
+body{background:#0a0f1c;color:white;font-family:sans-serif;text-align:center;padding:20px}
+.card{background:#141c2f;padding:15px;border-radius:15px;margin:15px 0;border:1px solid #223}
+.buy{background:#00ff88;color:#000;font-size:32px;font-weight:900;padding:25px;border-radius:20px}
+.sell{background:#ff3344;color:white;font-size:32px;font-weight:900;padding:25px;border-radius:20px}
+.wait{background:#ffcc00;color:#000;font-size:28px;font-weight:800;padding:25px;border-radius:20px}
+.small{opacity:0.7;font-size:12px}
+</style>
 </head>
 <body>
-  <h1>Wisetrader 🚀</h1>
-  <p>Live deployment works!</p>
-  <p id="status">Loading...</p>
-  <a href="https://github.com/0671271038/wisetrader">View Code</a>
-  <script>
-    document.getElementById('status').textContent = 'Deployed on ' + new Date().toLocaleString();
-  </script>
+<h1>Wisetrader 🚀 XAUUSD</h1>
+<h2>Real Gold - M5 + M1 Confirmation</h2>
+
+<div class="card">
+<div>M5 Trend: <b id="m5">Connecting...</b></div>
+<div>M1 Trend: <b id="m1">Connecting...</b></div>
+<div class="small" id="price">XAUUSD Price: --</div>
+<div class="small" id="status">Connecting to Gold feed...</div>
+</div>
+
+<div id="signal" class="wait">⏳ LOADING XAUUSD...</div>
+
+<script>
+let m5Candles=[], m1Candles=[];
+function calcSupertrend(candles){
+  if(candles.length < 20) return null;
+  let period=10, mult=3;
+  let atr=[], hl2=[], upper=[], lower=[], trend=[];
+  for(let i=0;i<candles.length;i++){
+    let h=candles[i].high, l=candles[i].low, c=candles[i].close;
+    hl2[i]=(h+l)/2;
+    if(i==0){atr[i]=h-l; continue;}
+    let pc=candles[i-1].close;
+    let tr=Math.max(h-l, Math.abs(h-pc), Math.abs(l-pc));
+    atr[i]=(atr[i-1]*(period-1)+tr)/period;
+    upper[i]=hl2[i]+mult*atr[i];
+    lower[i]=hl2[i]-mult*atr[i];
+    if(i<2){trend[i]=true; continue;}
+    if(c>upper[i-1]) trend[i]=true;
+    else if(c<lower[i-1]) trend[i]=false;
+    else trend[i]=trend[i-1];
+    if(trend[i] && lower[i]<lower[i-1]) lower[i]=lower[i-1];
+    if(!trend[i] && upper[i]>upper[i-1]) upper[i]=upper[i-1];
+  }
+  return trend[trend.length-1];
+}
+
+function checkSignal(){
+  if(m5Candles.length<20 || m1Candles.length<20) return;
+  let m5Trend=calcSupertrend(m5Candles);
+  let m1Trend=calcSupertrend(m1Candles);
+  if(m5Trend===null || m1Trend===null) return;
+
+  document.getElementById('m5').innerHTML=m5Trend?"🟢 BUY":"🔴 SELL";
+  document.getElementById('m1').innerHTML=m1Trend?"🟢 BUY":"🔴 SELL";
+  let price=m1Candles[m1Candles.length-1].close;
+  document.getElementById('price').innerHTML="XAUUSD: $"+price.toFixed(2);
+  document.getElementById('status').innerHTML="Live from Deriv - Matches MT5";
+
+  let el=document.getElementById('signal');
+  if(m5Trend && m1Trend){
+    el.className="buy";
+    el.innerHTML="🟢 GOLD BUY NOW<br><span style='font-size:16px'>Go MT5 → BUY XAUUSD</span>";
+  } else if(!m5Trend &&!m1Trend){
+    el.className="sell";
+    el.innerHTML="🔴 GOLD SELL NOW<br><span style='font-size:16px'>Go MT5 → SELL XAUUSD</span>";
+  } else {
+    el.className="wait";
+    el.innerHTML="🟡 WAIT<br><span style='font-size:13px'>M5 and M1 not aligned</span>";
+  }
+}
+
+// Connect to Deriv for REAL XAUUSD
+const ws=new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1089');
+ws.onopen=()=>{
+  document.getElementById('status').innerHTML="Fetching Gold candles...";
+  ws.send(JSON.stringify({ticks_history:"frxXAUUSD", style:"candles", granularity:300, count:100})); // M5
+  setTimeout(()=>{ ws.send(JSON.stringify({ticks_history:"frxXAUUSD", style:"candles", granularity:60, count:100})); }, 1000); // M1
+  setTimeout(()=>{ ws.send(JSON.stringify({ticks_history:"frxXAUUSD", style:"candles", granularity:60, count:1, subscribe:1})); }, 2000);
+};
+ws.onmessage=(msg)=>{
+  let data=JSON.parse(msg.data);
+  if(data.candles){
+    let candles=data.candles.map(c=>({high:c.high, low:c.low, close:c.close}));
+    if(data.echo_req.granularity==300){ m5Candles=candles; }
+    else { m1Candles=candles; }
+    checkSignal();
+  }
+  if(data.ohlc){ // live tick
+    let c={high:+data.ohlc.high, low:+data.ohlc.low, close:+data.ohlc.close};
+    m1Candles[m1Candles.length-1]=c;
+    document.getElementById('price').innerHTML="XAUUSD: $"+c.close.toFixed(2)+" (LIVE)";
+    checkSignal();
+  }
+};
+ws.onerror=()=>{ document.getElementById('status').innerHTML="Error - retry..."; };
+</script>
 </body>
 </html>
