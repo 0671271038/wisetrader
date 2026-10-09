@@ -38,9 +38,16 @@ header {
 .logo-container {
   width:59px;height:59px;flex-shrink:0;overflow:hidden;
   border:1px solid #675638;border-radius:16px;background:#111827;
-  box-shadow:0 0 22px #e6bd7012
+  box-shadow:0 0 22px #e6bd7012;
+  display:flex;align-items:center;justify-content:center
 }
-.app-logo {width:100%;height:100%;object-fit:contain;padding:4px}
+.app-logo {
+  display:block;width:100%;height:100%;
+  object-fit:contain;padding:4px
+}
+.logo-fallback {
+  display:none;color:var(--gold2);font-weight:900;font-size:23px
+}
 h1 {font-size:23px;letter-spacing:-.7px}
 h1 span {color:var(--gold)}
 .subtitle {margin-top:6px;font-size:9px;letter-spacing:1.7px;color:var(--muted)}
@@ -109,6 +116,13 @@ button.secondary {color:var(--text);background:#192338;border-color:var(--border
   padding:13px;border:1px solid #51462f;border-radius:12px;
   background:#e6bd7009;color:#d9c8a5;font-size:10px;line-height:1.8;overflow-wrap:anywhere
 }
+.session-box {
+  padding:15px;border:1px solid var(--border);border-radius:14px;
+  background:linear-gradient(145deg,#151f32,#101725)
+}
+.session-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.session-value {margin-top:8px;font-size:17px;font-weight:900;overflow-wrap:anywhere}
+.session-note {margin-top:6px;color:var(--muted);font-size:10px;line-height:1.6}
 .api-box {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;margin-top:12px}
 input {
   width:100%;min-width:0;padding:12px;border:1px solid var(--border);
@@ -127,6 +141,7 @@ input:focus {border-color:var(--gold)}
   .signal-title {font-size:36px}
   .indicator-list {grid-template-columns:repeat(2,minmax(0,1fr))}
   .api-box {grid-template-columns:1fr}
+  .session-grid {grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -137,8 +152,13 @@ input:focus {border-color:var(--gold)}
 <header>
   <div class="brand">
     <div class="logo-container">
-      <img src="./lgo.png" alt="Wisetrader Gold PRO" class="app-logo"
-           onerror="this.style.display='none'">
+      <img
+        src="./lgo.png"
+        alt="Wisetrader Gold PRO logo"
+        class="app-logo"
+        id="appLogo"
+      >
+      <span id="logoFallback" class="logo-fallback">W</span>
     </div>
     <div>
       <h1>Wise<span>trader</span> Gold</h1>
@@ -159,6 +179,29 @@ input:focus {border-color:var(--gold)}
   <div style="display:flex;gap:8px;flex-wrap:wrap">
     <button id="refreshBtn">REFRESH DATA</button>
     <button id="clearKeyBtn" class="secondary">CLEAR KEY</button>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">LONDON SESSION CONTROL</div>
+  <div class="session-box">
+    <div class="session-grid">
+      <div>
+        <div class="label">SOUTH AFRICAN TIME</div>
+        <div id="saClock" class="session-value gold">--:--:--</div>
+        <div class="session-note">Africa/Johannesburg</div>
+      </div>
+      <div>
+        <div class="label">LONDON LOCAL TIME</div>
+        <div id="londonClock" class="session-value blue">--:--:--</div>
+        <div id="ukTimezone" class="session-note">Checking UK time</div>
+      </div>
+      <div>
+        <div class="label">SIGNAL SESSION STATUS</div>
+        <div id="sessionStatus" class="session-value yellow">CHECKING</div>
+        <div id="sessionNote" class="session-note">Configured for 10:00–19:00 South African time.</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -255,7 +298,7 @@ input:focus {border-color:var(--gold)}
   <div id="systemMessage" class="status-box">Ready. Connect your data API to begin.</div>
 </div>
 
-<div class="footer">WISETRADER GOLD PRO · MARKET ANALYSIS · SIGNALS ONLY</div>
+<div class="footer">WISETRADER GOLD PRO · LONDON SESSION · SIGNALS ONLY</div>
 </div>
 
 <script>
@@ -266,8 +309,14 @@ const REFRESH_INTERVAL = 5 * 60 * 1000;
 const MIN_SCORE = 65;
 const LOOKBACK_SR = 50;
 
-// Prevent the same direction from being announced on every refresh.
-// A new signal can appear again after the market setup changes.
+// Signal hours use South African local time.
+// Start inclusive at 10:00; end exclusive at 19:00.
+const SESSION_START_MINUTES = 10 * 60;
+const SESSION_END_MINUTES = 19 * 60;
+
+const SA_TIMEZONE = "Africa/Johannesburg";
+const LONDON_TIMEZONE = "Europe/London";
+
 const SIGNAL_COOLDOWN_MS = 60 * 1000;
 let lastSignalDirection = "WAIT";
 let lastSignalTime = 0;
@@ -278,6 +327,93 @@ let candlesM5 = [];
 let loading = false;
 
 const $ = id => document.getElementById(id);
+
+function getZonedParts(date, timezone) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23"
+  }).formatToParts(date);
+
+  const result = {};
+  for (const part of parts) {
+    if (part.type !== "literal") result[part.type] = part.value;
+  }
+  return result;
+}
+
+function getZonedMinutes(date, timezone) {
+  const parts = getZonedParts(date, timezone);
+  return Number(parts.hour) * 60 + Number(parts.minute);
+}
+
+function getLondonOffsetLabel(date) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: LONDON_TIMEZONE,
+    timeZoneName: "short"
+  }).formatToParts(date);
+
+  const zone = parts.find(p => p.type === "timeZoneName");
+  return zone ? zone.value : "UK local time";
+}
+
+function isSessionOpen(date = new Date()) {
+  const minutes = getZonedMinutes(date, SA_TIMEZONE);
+  return minutes >= SESSION_START_MINUTES &&
+         minutes < SESSION_END_MINUTES;
+}
+
+function updateSessionDisplay() {
+  const now = new Date();
+
+  const sa = new Intl.DateTimeFormat("en-GB", {
+    timeZone: SA_TIMEZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23"
+  }).format(now);
+
+  const london = new Intl.DateTimeFormat("en-GB", {
+    timeZone: LONDON_TIMEZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23"
+  }).format(now);
+
+  $("saClock").textContent = sa;
+  $("londonClock").textContent = london;
+  $("ukTimezone").textContent = getLondonOffsetLabel(now) +
+    " · UK daylight saving handled automatically";
+
+  if (isSessionOpen(now)) {
+    $("sessionStatus").textContent = "SESSION OPEN";
+    $("sessionStatus").className = "session-value green";
+    $("sessionNote").textContent =
+      "New confirmed signals allowed until 19:00 SAST.";
+  } else {
+    $("sessionStatus").textContent = "SESSION CLOSED";
+    $("sessionStatus").className = "session-value red";
+    $("sessionNote").textContent =
+      "No BUY/SELL signals outside 10:00–19:00 SAST.";
+  }
+
+  // Enforce the restriction continuously, not only at data refresh.
+  if (!isSessionOpen(now)) {
+    showSignal(
+      "WAIT",
+      "London-session filter is active. New BUY/SELL signals are disabled outside 10:00–19:00 South African time."
+    );
+  } else if (!apiKey) {
+    showSignal("WAIT", "Enter your Twelve Data API key to begin analysis.");
+  }
+}
 
 function setConnection(message, state = "") {
   $("connection").textContent = message;
@@ -410,31 +546,45 @@ async function refreshData() {
     const latest = m1[m1.length-1];
     $("price").textContent = fmt(latest.close);
     $("priceNote").textContent =
-      "Latest returned M1 candle: " + new Date(latest.time).toLocaleString();
+      "Latest returned M1 candle: " +
+      new Date(latest.time).toLocaleString(SA_TIMEZONE);
 
     setConnection("DATA CONNECTED","ok");
     setStatus(
       "DATA LOADED","green",
       "M1: " + m1.length + " candles | M5: " + m5.length +
-      " candles | Updated: " + new Date().toLocaleTimeString()
+      " candles | Updated: " +
+      new Date().toLocaleTimeString("en-GB",{timeZone:SA_TIMEZONE})
     );
 
     $("marketInfo").textContent = "Source: Twelve Data · XAU/USD · Candle data";
     analyse();
 
     systemMessage(
-      "Data loaded. Compare the signal with your broker chart. Signals are not guarantees."
+      isSessionOpen()
+        ? "Data loaded. London-session signals are enabled. Confirm prices and risk on your broker chart."
+        : "Data loaded, but signal generation is disabled because the London signal session is closed."
     );
   } catch (error) {
     setConnection("DATA ERROR","bad");
     setStatus("ERROR","red",error.message);
     $("marketInfo").textContent = "Market data could not be loaded.";
-    resetAnalysis("Market data unavailable. No signal.");
+
+    if (isSessionOpen()) {
+      resetAnalysis("Market data unavailable. No signal.");
+    } else {
+      showSignal(
+        "WAIT",
+        "London-session filter is active. No signals outside 10:00–19:00 SAST."
+      );
+    }
+
     systemMessage(error.message);
   } finally {
     loading = false;
     $("refreshBtn").disabled = false;
     $("saveKeyBtn").disabled = false;
+    updateSessionDisplay();
   }
 }
 
@@ -511,10 +661,6 @@ function atr(candles,period=14) {
   return series.length ? series[series.length-1] : null;
 }
 
-/*
-  Wilder-style ATR with carried upper/lower SuperTrend bands.
-  Uses completed candles passed in by analyse().
-*/
 function superTrend(candles,period=10,factor=3) {
   if (candles.length < period+2) {
     return {direction:"WAIT",line:null};
@@ -580,10 +726,6 @@ function getTrend(candles) {
   return "SIDEWAYS";
 }
 
-/*
-  Support and resistance are calculated only from candles before
-  the latest completed candle used to confirm a breakout.
-*/
 function supportResistance(candles,lookback=LOOKBACK_SR) {
   const closed=candles.slice(-lookback);
   if (closed.length<10) return {support:null,resistance:null};
@@ -697,7 +839,6 @@ function detectPullback(candles,trend,fast,slow,long,atrValue) {
       last.close>fast &&
       last.close>long;
 
-    // Do not chase a candle that has already travelled too far.
     const notExtended=last.close-fast<=atrValue*1.20;
 
     if (hadPullback && resumed && notExtended) {
@@ -728,15 +869,21 @@ function detectPullback(candles,trend,fast,slow,long,atrValue) {
 }
 
 function analyse() {
+  // Hard session gate: no candidate signals can be generated outside hours.
+  if (!isSessionOpen()) {
+    showSignal(
+      "WAIT",
+      "London-session filter is active. Signals are available only from 10:00 to 19:00 South African time."
+    );
+    return;
+  }
+
   if (candlesM1.length<205 || candlesM5.length<205) {
     resetAnalysis("Waiting for sufficient candle history.");
     return;
   }
 
-  /*
-    Twelve Data may include a candle that has not finished yet.
-    Drop the latest returned candle on both timeframes.
-  */
+  // Exclude the latest potentially unfinished candle.
   const m1=candlesM1.slice(0,-1);
   const m5=candlesM5.slice(0,-1);
 
@@ -754,12 +901,7 @@ function analyse() {
   const atr5=atr(m5,14);
   const st=superTrend(m1,10,3);
   const last=m1[m1.length-1];
-  const prev=m1[m1.length-2];
 
-  /*
-    Levels exclude the latest closed M5 candle. This allows that candle
-    to break a previously established level.
-  */
   const levelCandles=m5.slice(0,-1);
   const levels=supportResistance(levelCandles,LOOKBACK_SR);
   const breakout=detectBreakout(m5,levels,atr5);
@@ -818,27 +960,21 @@ function analyse() {
   let buyScore=0;
   let sellScore=0;
 
-  // M5 trend is the primary directional filter.
   if (trend==="UP") buyScore+=20;
   if (trend==="DOWN") sellScore+=20;
 
-  // M1 trend alignment.
   if (entryTrend==="UP") buyScore+=10;
   if (entryTrend==="DOWN") sellScore+=10;
 
-  // EMA 9 / EMA 20 alignment.
   if (emaDirection==="UP") buyScore+=15;
   if (emaDirection==="DOWN") sellScore+=15;
 
-  // Long-term filter.
   if (last.close>long) buyScore+=10;
   if (last.close<long) sellScore+=10;
 
-  // Momentum: avoid buying at very high RSI or selling at very low RSI.
   if (momentum>=52 && momentum<70) buyScore+=15;
   if (momentum<=48 && momentum>30) sellScore+=15;
 
-  // Corrected SuperTrend direction.
   if (st.direction==="UP") buyScore+=10;
   if (st.direction==="DOWN") sellScore+=10;
 
@@ -849,7 +985,6 @@ function analyse() {
   const buyPullback=pullback==="BULLISH PULLBACK";
   const sellPullback=pullback==="BEARISH PULLBACK";
 
-  // One setup bonus only, avoiding double-counting multiple patterns.
   if (buyBreakout || buyReversal || buyPullback) buyScore+=20;
   if (sellBreakout || sellReversal || sellPullback) sellScore+=20;
 
@@ -861,15 +996,6 @@ function analyse() {
   $("scoreNote").textContent=
     "Indicator alignment only. A 65/100 score is not a 65% chance of winning.";
 
-  /*
-    Entry conditions:
-    - M5 must agree with the intended direction.
-    - EMA 9/20 and EMA 200 must agree.
-    - SuperTrend must agree.
-    - RSI must be within the momentum band.
-    - A closed-candle setup must be present.
-    - Avoid chasing entries that are too far from EMA 9.
-  */
   const notExtendedBuy=Number.isFinite(atr1) &&
     last.close-fast<=atr1*1.20;
 
@@ -894,11 +1020,6 @@ function analyse() {
     st.direction==="DOWN" &&
     notExtendedSell;
 
-  /*
-    Allow a confirmed M1 pullback to qualify even if the entire M1
-    trend filter is not yet fully aligned. Other trend filters remain.
-    This can create more opportunities without removing all confirmation.
-  */
   const buySetup=buyBreakout || buyReversal || buyPullback;
   const sellSetup=sellBreakout || sellReversal || sellPullback;
 
@@ -906,19 +1027,11 @@ function analyse() {
   let setup="--";
   let reason="";
 
-  if (
-    buyTrendOK &&
-    buySetup &&
-    buyScore>=MIN_SCORE
-  ) {
+  if (buyTrendOK && buySetup && buyScore>=MIN_SCORE) {
     candidate="BUY";
     setup=buyBreakout ? "BREAKOUT" :
       buyPullback ? "PULLBACK" : "REVERSAL";
-  } else if (
-    sellTrendOK &&
-    sellSetup &&
-    sellScore>=MIN_SCORE
-  ) {
+  } else if (sellTrendOK && sellSetup && sellScore>=MIN_SCORE) {
     candidate="SELL";
     setup=sellBreakout ? "BREAKOUT" :
       sellPullback ? "PULLBACK" : "REVERSAL";
@@ -931,25 +1044,13 @@ function analyse() {
       reason="Gold may be overextended. Avoid chasing a high-RSI BUY.";
     } else if (trend==="DOWN" && momentum<=30) {
       reason="Gold may be overextended. Avoid chasing a low-RSI SELL.";
-    } else if (
-      trend==="UP" &&
-      !buySetup
-    ) {
+    } else if (trend==="UP" && !buySetup) {
       reason="Uptrend detected. Waiting for a confirmed breakout, rejection or pullback.";
-    } else if (
-      trend==="DOWN" &&
-      !sellSetup
-    ) {
+    } else if (trend==="DOWN" && !sellSetup) {
       reason="Downtrend detected. Waiting for a confirmed breakdown, rejection or pullback.";
-    } else if (
-      trend==="UP" &&
-      !notExtendedBuy
-    ) {
+    } else if (trend==="UP" && !notExtendedBuy) {
       reason="BUY setup is too far from EMA 9. Wait for a better entry.";
-    } else if (
-      trend==="DOWN" &&
-      !notExtendedSell
-    ) {
+    } else if (trend==="DOWN" && !notExtendedSell) {
       reason="SELL setup is too far from EMA 9. Wait for a better entry.";
     } else if (best<MIN_SCORE) {
       reason="Score is below "+MIN_SCORE+"/100. Waiting for stronger alignment.";
@@ -958,11 +1059,15 @@ function analyse() {
     }
   }
 
-  // The signal is only refreshed when a valid candidate is found.
-  // WAIT is displayed when the setup is no longer valid.
   if (candidate==="WAIT") {
     showSignal("WAIT",reason);
     lastSignalDirection="WAIT";
+    return;
+  }
+
+  // Recheck session immediately before displaying a signal.
+  if (!isSessionOpen()) {
+    showSignal("WAIT","Signal session has closed. No new signals are allowed.");
     return;
   }
 
@@ -985,6 +1090,18 @@ function analyse() {
     setup
   );
 }
+
+// Logo fallback: if lgo.png is missing or the filename is wrong,
+// display a simple W instead of an empty logo box.
+$("appLogo").addEventListener("error",()=>{
+  $("appLogo").style.display="none";
+  $("logoFallback").style.display="block";
+});
+
+$("appLogo").addEventListener("load",()=>{
+  $("appLogo").style.display="block";
+  $("logoFallback").style.display="none";
+});
 
 $("saveKeyBtn").addEventListener("click",()=>{
   const entered=$("apiKey").value.trim();
@@ -1024,8 +1141,12 @@ setInterval(()=>{
   if (apiKey && !loading) refreshData();
 },REFRESH_INTERVAL);
 
+// Update the displayed session clock every second.
+updateSessionDisplay();
+setInterval(updateSessionDisplay,1000);
+
 setConnection("API KEY REQUIRED");
 setStatus("WAITING","yellow","No data request has been made.");
 </script>
 </body>
-</html>
+                                             </html>
