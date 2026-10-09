@@ -18,90 +18,334 @@
   --red:#ff6378;
   --yellow:#ffd078;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{
+
+* {
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body {
   background:radial-gradient(ellipse at top,#17294a 0%,var(--bg) 58%);
   color:var(--text);
   font-family:Arial,Helvetica,sans-serif;
   min-height:100vh;
   padding:16px;
 }
-.container{max-width:1150px;margin:auto}
-header{
-  display:flex;justify-content:space-between;align-items:center;
-  flex-wrap:wrap;gap:15px;margin:8px 0 24px
+
+.container {
+  max-width:1150px;
+  margin:auto;
 }
-.brand{display:flex;align-items:center;gap:12px}
-.logo{
-  width:48px;height:48px;border-radius:15px;
-  display:grid;place-items:center;font-weight:900;font-size:23px;
+
+header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:15px;
+  margin:8px 0 16px;
+}
+
+.brand {
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.logo {
+  width:48px;
+  height:48px;
+  border-radius:15px;
+  display:grid;
+  place-items:center;
+  font-weight:900;
+  font-size:23px;
   background:linear-gradient(135deg,#477dff,#26c6da);
-  box-shadow:0 8px 28px #316bff35
+  box-shadow:0 8px 28px #316bff35;
 }
-h1{font-size:25px;letter-spacing:-.7px}
-h1 span{color:var(--blue)}
-.subtitle{font-size:11px;color:var(--muted);margin-top:5px}
-.connection{
-  display:flex;align-items:center;gap:9px;padding:11px 13px;
-  border:1px solid var(--border);border-radius:12px;
-  background:#0d1728;font-size:11px;color:var(--muted)
+
+h1 {
+  font-size:25px;
+  letter-spacing:-.7px;
 }
-.dot{width:9px;height:9px;border-radius:50%;background:var(--yellow)}
-.dot.ok{background:var(--green)}
-.dot.bad{background:var(--red)}
-.toolbar{display:flex;justify-content:space-between;gap:12px;
-  align-items:center;flex-wrap:wrap;margin-bottom:16px}
-.market-name{font-size:16px;font-weight:bold}
-.small{font-size:11px;color:var(--muted);margin-top:5px}
-button{
-  background:#192743;color:var(--text);border:1px solid var(--border);
-  border-radius:9px;padding:10px 13px;cursor:pointer
+
+h1 span {
+  color:var(--blue);
 }
-.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.card{
+
+.subtitle {
+  font-size:11px;
+  color:var(--muted);
+  margin-top:5px;
+}
+
+.connection {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:11px 13px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#0d1728;
+  font-size:11px;
+  color:var(--muted);
+}
+
+.dot {
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:var(--yellow);
+  flex-shrink:0;
+}
+
+.dot.ok {
+  background:var(--green);
+}
+
+.dot.bad {
+  background:var(--red);
+}
+
+.toolbar {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+}
+
+.market-name {
+  font-size:16px;
+  font-weight:bold;
+}
+
+.small {
+  font-size:11px;
+  color:var(--muted);
+  margin-top:5px;
+}
+
+button {
+  background:#192743;
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:10px 13px;
+  cursor:pointer;
+}
+
+button:disabled {
+  opacity:.55;
+  cursor:wait;
+}
+
+.grid {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+}
+
+.card {
   background:linear-gradient(150deg,#14213a,#0d1526);
-  border:1px solid var(--border);border-radius:16px;
-  padding:18px;min-width:0
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:18px;
+  min-width:0;
 }
-.label{font-size:11px;color:var(--muted)}
-.value{font-size:25px;font-weight:800;margin-top:13px;overflow-wrap:anywhere}
-.note{font-size:11px;line-height:1.7;color:var(--muted);margin-top:9px}
-.blue{color:var(--blue)}.green{color:var(--green)}
-.red{color:var(--red)}.yellow{color:var(--yellow)}
-.section{margin-top:17px}
-.section-title{font-size:14px;font-weight:bold;margin-bottom:12px}
-.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.indicator{font-size:27px;font-weight:900;margin-top:16px}
-.track{height:8px;background:#293650;border-radius:8px;overflow:hidden;margin-top:15px}
-.fill{height:100%;width:0;background:var(--blue);transition:width .3s}
-.signal{
-  border:1px solid var(--border);border-radius:19px;padding:25px 16px;
-  text-align:center;background:linear-gradient(145deg,#14213a,#0c1425)
+
+.label {
+  font-size:11px;
+  color:var(--muted);
 }
-.signal.buy{border-color:#20df9a80;background:linear-gradient(145deg,#10352e,#0c1924)}
-.signal.sell{border-color:#ff637880;background:linear-gradient(145deg,#3b1928,#151321)}
-.signal.wait{border-color:#ffd07860}
-.signal-title{font-size:34px;font-weight:900;margin:13px 0}
-.signal-desc{font-size:13px;line-height:1.7;color:#c4d0e4;max-width:650px;margin:auto}
-.chips{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:17px}
-.chip{font-size:11px;padding:8px 10px;background:#ffffff0a;
-  border:1px solid #ffffff13;border-radius:8px}
-canvas{display:block;width:100%;height:240px;margin-top:12px}
-.history{width:100%;border-collapse:collapse;font-size:12px}
-.history th,.history td{text-align:left;padding:12px 8px;
-  border-bottom:1px solid #ffffff10;white-space:nowrap}
-.history th{color:var(--muted);font-weight:600}
-.history-wrap{overflow-x:auto}
-.warning{
-  border:1px solid #ffd07845;background:#ffd0780a;color:#e8d5a9;
-  padding:13px;border-radius:12px;font-size:11px;line-height:1.8;margin-top:15px
+
+.value {
+  font-size:25px;
+  font-weight:800;
+  margin-top:13px;
+  overflow-wrap:anywhere;
 }
-.footer{text-align:center;color:#72819b;font-size:11px;padding:24px 0 8px}
-@media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:480px){
- body{padding:11px}h1{font-size:21px}.card{padding:14px}
- .value{font-size:22px}.grid{gap:9px}.two{gap:9px}
- .signal-title{font-size:30px}
+
+.note {
+  font-size:11px;
+  line-height:1.7;
+  color:var(--muted);
+  margin-top:9px;
+}
+
+.blue {
+  color:var(--blue);
+}
+
+.green {
+  color:var(--green);
+}
+
+.red {
+  color:var(--red);
+}
+
+.yellow {
+  color:var(--yellow);
+}
+
+.section {
+  margin-top:17px;
+}
+
+.section-title {
+  font-size:14px;
+  font-weight:bold;
+  margin-bottom:12px;
+}
+
+.two {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+.signal {
+  border:1px solid var(--border);
+  border-radius:19px;
+  padding:22px 16px;
+  text-align:center;
+  background:linear-gradient(145deg,#14213a,#0c1425);
+}
+
+.signal.buy {
+  border-color:#20df9a80;
+  background:linear-gradient(145deg,#10352e,#0c1924);
+}
+
+.signal.sell {
+  border-color:#ff637880;
+  background:linear-gradient(145deg,#3b1928,#151321);
+}
+
+.signal.wait {
+  border-color:#ffd07860;
+}
+
+.signal-title {
+  font-size:32px;
+  font-weight:900;
+  margin:12px 0;
+  overflow-wrap:anywhere;
+}
+
+.signal-desc {
+  font-size:13px;
+  line-height:1.7;
+  color:#c4d0e4;
+  max-width:650px;
+  margin:auto;
+}
+
+.chips {
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:15px;
+}
+
+.chip {
+  font-size:11px;
+  padding:8px 10px;
+  background:#ffffff0a;
+  border:1px solid #ffffff13;
+  border-radius:8px;
+}
+
+canvas {
+  display:block;
+  width:100%;
+  height:240px;
+  margin-top:12px;
+}
+
+.history {
+  width:100%;
+  border-collapse:collapse;
+  font-size:12px;
+}
+
+.history th,
+.history td {
+  text-align:left;
+  padding:12px 8px;
+  border-bottom:1px solid #ffffff10;
+  white-space:nowrap;
+}
+
+.history th {
+  color:var(--muted);
+  font-weight:600;
+}
+
+.history-wrap {
+  overflow-x:auto;
+}
+
+.warning {
+  border:1px solid #ffd07845;
+  background:#ffd0780a;
+  color:#e8d5a9;
+  padding:13px;
+  border-radius:12px;
+  font-size:11px;
+  line-height:1.8;
+  margin-top:12px;
+}
+
+.footer {
+  text-align:center;
+  color:#72819b;
+  font-size:11px;
+  padding:24px 0 8px;
+}
+
+@media(max-width:760px) {
+  .grid {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+@media(max-width:480px) {
+  body {
+    padding:11px;
+  }
+
+  h1 {
+    font-size:21px;
+  }
+
+  .card {
+    padding:14px;
+  }
+
+  .value {
+    font-size:22px;
+  }
+
+  .grid {
+    gap:9px;
+  }
+
+  .two {
+    gap:9px;
+  }
+
+  .signal-title {
+    font-size:28px;
+  }
+
+  .connection {
+    max-width:100%;
+  }
 }
 </style>
 </head>
@@ -114,101 +358,162 @@ canvas{display:block;width:100%;height:240px;margin-top:12px}
     <div class="logo">W</div>
     <div>
       <h1>Wise<span>trader</span> Gold</h1>
-      <div class="subtitle">GOLD MARKET MONITOR · PRACTICE MODE</div>
+      <div class="subtitle">
+        GOLD MARKET MONITOR · PRACTICE MODE
+      </div>
     </div>
   </div>
+
   <div class="connection">
     <span id="dot" class="dot"></span>
     <span id="connection">CONNECTING TO GOLD DATA</span>
   </div>
 </header>
 
+<!-- SIGNAL MONITOR: MOVED ABOVE THE PRICE HISTORY -->
+
+<div class="section" id="topSignal">
+  <div class="section-title">
+    PRACTICE SIGNAL MONITOR
+  </div>
+
+  <div id="signalCard" class="signal wait">
+    <div class="label">WISETRADER OBSERVATION</div>
+
+    <div id="signal" class="signal-title yellow">
+      WAIT
+    </div>
+
+    <div id="signalDesc" class="signal-desc">
+      Waiting for valid data before displaying a practice signal.
+    </div>
+
+    <div class="chips">
+      <span id="chipDirection" class="chip">
+        Direction: --
+      </span>
+
+      <span id="chipRsi" class="chip">
+        RSI: --
+      </span>
+
+      <span class="chip">
+        Mode: Practice only
+      </span>
+    </div>
+  </div>
+</div>
+
 <div class="toolbar">
   <div>
     <div class="market-name">XAU/USD · Gold Spot</div>
-    <div class="small">Online reference price · Not a Deriv quote</div>
+    <div class="small">
+      Online reference price · Not a Deriv quote
+    </div>
   </div>
+
   <button id="refresh">Refresh data</button>
 </div>
 
 <div class="grid">
+
   <div class="card">
     <div class="label">GOLD SPOT PRICE</div>
     <div id="price" class="value blue">Loading…</div>
-    <div id="priceNote" class="note">Fetching reference price</div>
+    <div id="priceNote" class="note">
+      Fetching reference price
+    </div>
   </div>
+
   <div class="card">
     <div class="label">SAMPLED-SERIES RSI (14)</div>
     <div id="rsi" class="value yellow">--</div>
-    <div id="rsiNote" class="note">Waiting for enough observations</div>
-    <div class="track"><div id="rsiFill" class="fill"></div></div>
+    <div id="rsiNote" class="note">
+      Waiting for enough observations
+    </div>
+    <div class="track">
+      <div id="rsiFill" class="fill"></div>
+    </div>
   </div>
+
   <div class="card">
     <div class="label">SAMPLED PRICE DIRECTION</div>
     <div id="direction" class="value yellow">WAIT</div>
-    <div id="directionNote" class="note">Waiting for price observations</div>
+    <div id="directionNote" class="note">
+      Waiting for price observations
+    </div>
   </div>
+
   <div class="card">
     <div class="label">DATA FRESHNESS</div>
     <div id="freshness" class="value yellow">CHECKING</div>
-    <div id="updated" class="note">Checking provider timestamp</div>
+    <div id="updated" class="note">
+      Checking provider timestamp
+    </div>
   </div>
+
 </div>
 
 <div class="section">
   <div class="section-title">GOLD PRICE HISTORY</div>
-  <div class="card">
-    <div class="label">XAUS intraday observations · approximately 2-minute sampling</div>
-    <canvas id="chart" width="1000" height="300"></canvas>
-    <div id="chartNote" class="note">Loading intraday observations…</div>
-  </div>
-</div>
 
-<div class="section">
-  <div class="section-title">PRACTICE SIGNAL MONITOR</div>
-  <div id="signalCard" class="signal wait">
-    <div class="label">WISETRADER OBSERVATION</div>
-    <div id="signal" class="signal-title yellow">WAIT</div>
-    <div id="signalDesc" class="signal-desc">
-      Waiting for valid data before displaying a practice signal.
+  <div class="card">
+    <div class="label">
+      XAU intraday observations · approximately 2-minute sampling
     </div>
-    <div class="chips">
-      <span id="chipDirection" class="chip">Direction: --</span>
-      <span id="chipRsi" class="chip">RSI: --</span>
-      <span class="chip">Mode: Practice only</span>
+
+    <canvas id="chart" width="1000" height="300"></canvas>
+
+    <div id="chartNote" class="note">
+      Loading intraday observations…
     </div>
-  </div>
-  <div class="warning">
-    <strong>Data and risk notice:</strong> The displayed price is an
-    indicative global gold spot reference, not necessarily the price offered
-    by Deriv. This provider's intraday series contains sampled prices rather
-    than complete M1/M5 OHLC candles. The direction and RSI below are
-    calculated from those observations; they are not SuperTrend signals,
-    verified trade entries, or a guarantee of profit. Do not use this version
-    as the sole basis for a financial decision.
   </div>
 </div>
 
 <div class="section">
   <div class="card">
     <div class="section-title">RECENT DATA OBSERVATIONS</div>
+
     <div class="history-wrap">
       <table class="history">
-        <thead><tr><th>TIME</th><th>REFERENCE PRICE (USD/OZ)</th></tr></thead>
+        <thead>
+          <tr>
+            <th>TIME</th>
+            <th>REFERENCE PRICE (USD/OZ)</th>
+          </tr>
+        </thead>
+
         <tbody id="history">
-          <tr><td colspan="2">Waiting for data…</td></tr>
+          <tr>
+            <td colspan="2">Waiting for data…</td>
+          </tr>
         </tbody>
       </table>
     </div>
+
     <div class="note">
-      Data source: XAUS public Gold Data API. The spot endpoint is normally
-      cached for about 30 seconds; the intraday series is sampled
-      approximately every two minutes.
+      Data source: XAUS public Gold Data API. The spot endpoint
+      may be cached, and the intraday series is sampled rather than
+      a complete set of M1/M5 OHLC candles.
     </div>
   </div>
 </div>
 
-<div class="footer">WISETRADER GOLD PRO · MARKET MONITOR · PRACTICE MODE</div>
+<div class="warning">
+  <strong>Data and risk notice:</strong>
+  The displayed price is an indicative global gold spot reference,
+  not necessarily the price offered by Deriv. The intraday series
+  contains sampled prices rather than complete M1/M5 OHLC candles.
+  The direction and RSI are calculated from these observations.
+  They are not SuperTrend signals, verified trade entries, or a
+  guarantee of profit. Do not use this version as the sole basis
+  for a financial decision.
+</div>
+
+<div class="footer">
+  WISETRADER GOLD PRO · MARKET MONITOR · PRACTICE MODE
+</div>
+
 </div>
 
 <script>
@@ -219,7 +524,6 @@ const REFRESH_MS = 30000;
 const MAX_AGE_MS = 5 * 60 * 1000;
 
 let points = [];
-let lastSpotAt = 0;
 let requestRunning = false;
 
 const $ = id => document.getElementById(id);
@@ -231,9 +535,10 @@ function setConnection(text, state) {
 
 function number(value, decimals = 2) {
   if (!Number.isFinite(value)) return "--";
+
   return value.toLocaleString("en-US", {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals
+    minimumFractionDigits:decimals,
+    maximumFractionDigits:decimals
   });
 }
 
@@ -241,16 +546,19 @@ function pointTime(value) {
   if (typeof value === "number") {
     return new Date(value < 1e12 ? value * 1000 : value);
   }
+
   return new Date(value);
 }
 
-function validTime(date) {
-  return date instanceof Date && Number.isFinite(date.getTime());
-}
-
 async function fetchJSON(url) {
-  const response = await fetch(url, { cache: "no-store" });
-  if (!response.ok) throw new Error("HTTP " + response.status);
+  const response = await fetch(url, {
+    cache:"no-store"
+  });
+
+  if (!response.ok) {
+    throw new Error("HTTP " + response.status);
+  }
+
   return await response.json();
 }
 
@@ -258,23 +566,44 @@ function getPriceState(data) {
   const state = data && data.data_state;
   const asOf = data && (data.price_as_of || data.updated_at);
   const timestamp = asOf ? new Date(asOf).getTime() : NaN;
-  const age = Number.isFinite(timestamp) ? Date.now() - timestamp : Infinity;
 
-  if (data.stale === true ||
-      (state && state.status === "stale") ||
-      age > MAX_AGE_MS) {
-    return { label: "STALE", fresh: false, timestamp, age };
+  const age = Number.isFinite(timestamp)
+    ? Date.now() - timestamp
+    : Infinity;
+
+  if (
+    data.stale === true ||
+    (state && state.status === "stale") ||
+    age > MAX_AGE_MS
+  ) {
+    return {
+      label:"STALE",
+      fresh:false,
+      timestamp
+    };
   }
 
   if (state && state.status === "unavailable") {
-    return { label: "UNAVAILABLE", fresh: false, timestamp, age };
+    return {
+      label:"UNAVAILABLE",
+      fresh:false,
+      timestamp
+    };
   }
 
   if (!Number.isFinite(timestamp)) {
-    return { label: "UNVERIFIED", fresh: false, timestamp, age };
+    return {
+      label:"UNVERIFIED",
+      fresh:false,
+      timestamp
+    };
   }
 
-  return { label: "FRESH", fresh: true, timestamp, age };
+  return {
+    label:"FRESH",
+    fresh:true,
+    timestamp
+  };
 }
 
 async function loadSpot() {
@@ -289,11 +618,13 @@ async function loadSpot() {
   const state = getPriceState(data);
 
   $("price").textContent = "$" + number(price);
+
   $("priceNote").textContent =
     "USD per troy ounce · " +
     (data.price_source || data.source || "XAUS reference data");
 
   $("freshness").textContent = state.label;
+
   $("freshness").className =
     "value " + (state.fresh ? "green" : "yellow");
 
@@ -301,15 +632,10 @@ async function loadSpot() {
     ? "Price timestamp: " + new Date(state.timestamp).toLocaleString()
     : "Provider timestamp could not be verified";
 
-  lastSpotAt = state.timestamp;
-
-  if (state.fresh) {
-    setConnection("GOLD DATA CONNECTED", "ok");
-  } else {
-    setConnection("PRICE FRESHNESS NOT VERIFIED", "bad");
-  }
-
-  return { price, state };
+  return {
+    price,
+    state
+  };
 }
 
 function normalizePoints(data) {
@@ -320,9 +646,10 @@ function normalizePoints(data) {
   return data.points
     .map(p => {
       const date = pointTime(p.t);
+
       return {
-        time: date.getTime(),
-        price: Number(p.p)
+        time:date.getTime(),
+        price:Number(p.p)
       };
     })
     .filter(p =>
@@ -331,7 +658,9 @@ function normalizePoints(data) {
       p.price > 0
     )
     .sort((a, b) => a.time - b.time)
-    .filter((p, i, arr) => i === 0 || p.time !== arr[i - 1].time);
+    .filter((p, i, arr) =>
+      i === 0 || p.time !== arr[i - 1].time
+    );
 }
 
 function calculateRSI(values, period = 14) {
@@ -342,6 +671,7 @@ function calculateRSI(values, period = 14) {
 
   for (let i = 1; i <= period; i++) {
     const change = values[i] - values[i - 1];
+
     gain += Math.max(change, 0);
     loss += Math.max(-change, 0);
   }
@@ -351,8 +681,12 @@ function calculateRSI(values, period = 14) {
 
   for (let i = period + 1; i < values.length; i++) {
     const change = values[i] - values[i - 1];
-    avgGain = (avgGain * (period - 1) + Math.max(change, 0)) / period;
-    avgLoss = (avgLoss * (period - 1) + Math.max(-change, 0)) / period;
+
+    avgGain =
+      (avgGain * (period - 1) + Math.max(change, 0)) / period;
+
+    avgLoss =
+      (avgLoss * (period - 1) + Math.max(-change, 0)) / period;
   }
 
   if (avgGain === 0 && avgLoss === 0) return 50;
@@ -360,6 +694,7 @@ function calculateRSI(values, period = 14) {
   if (avgGain === 0) return 0;
 
   const rs = avgGain / avgLoss;
+
   return 100 - 100 / (1 + rs);
 }
 
@@ -370,27 +705,33 @@ function calculateDirection(values) {
   const first = recent[0];
   const last = recent[recent.length - 1];
 
-  if (!Number.isFinite(first) || first === 0) return "WAIT";
+  if (!Number.isFinite(first) || first === 0) {
+    return "WAIT";
+  }
 
   const changePct = ((last - first) / first) * 100;
 
   if (changePct > 0.03) return "UP";
   if (changePct < -0.03) return "DOWN";
+
   return "SIDEWAYS";
 }
 
 function renderChart() {
   const canvas = $("chart");
   const ctx = canvas.getContext("2d");
+
   const w = canvas.width;
   const h = canvas.height;
 
   ctx.clearRect(0, 0, w, h);
+
   ctx.fillStyle = "#0c1527";
   ctx.fillRect(0, 0, w, h);
 
   if (points.length < 2) {
-    $("chartNote").textContent = "Not enough observations to draw the chart.";
+    $("chartNote").textContent =
+      "Not enough observations to draw the chart.";
     return;
   }
 
@@ -405,6 +746,7 @@ function renderChart() {
 
   for (let i = 1; i <= 4; i++) {
     const y = pad + (h - 2 * pad) * i / 5;
+
     ctx.beginPath();
     ctx.moveTo(pad, y);
     ctx.lineTo(w - pad, y);
@@ -416,8 +758,11 @@ function renderChart() {
   ctx.beginPath();
 
   values.forEach((v, i) => {
-    const x = pad + i * (w - 2 * pad) / (values.length - 1);
-    const y = h - pad - ((v - min) / range) * (h - 2 * pad);
+    const x =
+      pad + i * (w - 2 * pad) / (values.length - 1);
+
+    const y =
+      h - pad - ((v - min) / range) * (h - 2 * pad);
 
     if (i === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
@@ -427,6 +772,7 @@ function renderChart() {
 
   ctx.fillStyle = "#91a0ba";
   ctx.font = "13px Arial";
+
   ctx.fillText("$" + number(max), pad, 17);
   ctx.fillText("$" + number(min), pad, h - 5);
 
@@ -437,16 +783,16 @@ function renderChart() {
     points.length + " observations · " +
     new Date(first).toLocaleTimeString() + " to " +
     new Date(last).toLocaleTimeString() +
-    " · Sampled price series, not OHLC candles.";
+    " · Sampled prices, not OHLC candles.";
 }
 
 function renderHistory() {
   const body = $("history");
-
   const recent = points.slice(-10).reverse();
 
   if (!recent.length) {
-    body.innerHTML = '<tr><td colspan="2">No observations available.</td></tr>';
+    body.innerHTML =
+      '<tr><td colspan="2">No observations available.</td></tr>';
     return;
   }
 
@@ -459,60 +805,108 @@ function renderHistory() {
 
 function renderIndicators(state) {
   const values = points.map(p => p.price);
+
   const rsi = calculateRSI(values);
   const direction = calculateDirection(values);
 
-  $("rsi").textContent = rsi === null ? "--" : number(rsi);
-  $("rsi").className = "value " +
-    (rsi === null ? "yellow" : rsi >= 60 ? "green" : rsi <= 40 ? "red" : "yellow");
+  $("rsi").textContent =
+    rsi === null ? "--" : number(rsi);
 
-  $("rsiFill").style.width = rsi === null ? "0%" : rsi + "%";
+  $("rsi").className =
+    "value " +
+    (
+      rsi === null
+        ? "yellow"
+        : rsi >= 60
+          ? "green"
+          : rsi <= 40
+            ? "red"
+            : "yellow"
+    );
 
-  $("rsiNote").textContent = rsi === null
-    ? "Collecting enough sampled observations"
-    : "RSI calculated from sampled prices; not M1/M5 candle RSI";
+  $("rsiFill").style.width =
+    rsi === null ? "0%" : rsi + "%";
+
+  $("rsiNote").textContent =
+    rsi === null
+      ? "Collecting enough sampled observations"
+      : "RSI calculated from sampled prices; not M1/M5 candle RSI";
 
   $("direction").textContent = direction;
-  $("direction").className = "value " +
-    (direction === "UP" ? "green" :
-     direction === "DOWN" ? "red" : "yellow");
+
+  $("direction").className =
+    "value " +
+    (
+      direction === "UP"
+        ? "green"
+        : direction === "DOWN"
+          ? "red"
+          : "yellow"
+    );
 
   $("directionNote").textContent =
     "Direction of the last 10 available observations; not SuperTrend.";
 
   let signal = "WAIT";
-  let explanation = "Waiting for sufficient fresh data or indicator agreement.";
+
+  let explanation =
+    "Waiting for sufficient fresh data or indicator agreement.";
 
   if (!state.fresh) {
-    explanation = "The gold reference price is stale or its freshness could not be verified.";
+    explanation =
+      "The gold reference price or intraday data is stale or its freshness could not be verified.";
   } else if (rsi === null || direction === "WAIT") {
-    explanation = "More sampled observations are needed before a practice signal can be calculated.";
+    explanation =
+      "More sampled observations are needed before a practice signal can be calculated.";
   } else if (direction === "UP" && rsi >= 60) {
     signal = "BULLISH BIAS";
-    explanation = "Recent sampled prices are rising and RSI is at least 60. This is an observation, not a trade instruction.";
+
+    explanation =
+      "Recent sampled prices are rising and RSI is at least 60. This is an observation, not a trade instruction.";
   } else if (direction === "DOWN" && rsi <= 40) {
     signal = "BEARISH BIAS";
-    explanation = "Recent sampled prices are falling and RSI is at most 40. This is an observation, not a trade instruction.";
+
+    explanation =
+      "Recent sampled prices are falling and RSI is at most 40. This is an observation, not a trade instruction.";
   } else {
-    explanation = "The sampled-price direction and RSI do not meet the practice conditions.";
+    explanation =
+      "The sampled-price direction and RSI do not meet the practice conditions.";
   }
 
   $("signal").textContent = signal;
-  $("signal").className = "signal-title " +
-    (signal === "BULLISH BIAS" ? "green" :
-     signal === "BEARISH BIAS" ? "red" : "yellow");
 
-  $("signalCard").className = "signal " +
-    (signal === "BULLISH BIAS" ? "buy" :
-     signal === "BEARISH BIAS" ? "sell" : "wait");
+  $("signal").className =
+    "signal-title " +
+    (
+      signal === "BULLISH BIAS"
+        ? "green"
+        : signal === "BEARISH BIAS"
+          ? "red"
+          : "yellow"
+    );
+
+  $("signalCard").className =
+    "signal " +
+    (
+      signal === "BULLISH BIAS"
+        ? "buy"
+        : signal === "BEARISH BIAS"
+          ? "sell"
+          : "wait"
+    );
 
   $("signalDesc").textContent = explanation;
-  $("chipDirection").textContent = "Direction: " + direction;
-  $("chipRsi").textContent = "RSI: " + (rsi === null ? "--" : number(rsi));
+
+  $("chipDirection").textContent =
+    "Direction: " + direction;
+
+  $("chipRsi").textContent =
+    "RSI: " + (rsi === null ? "--" : number(rsi));
 }
 
 async function refreshData() {
   if (requestRunning) return;
+
   requestRunning = true;
   $("refresh").disabled = true;
 
@@ -521,7 +915,9 @@ async function refreshData() {
 
     const [spotResult, intradayData] = await Promise.all([
       loadSpot(),
-      fetchJSON(API + "/intraday?symbol=xau&hours=24&fresh=" + Date.now())
+      fetchJSON(
+        API + "/intraday?symbol=xau&hours=24&fresh=" + Date.now()
+      )
     ]);
 
     const newPoints = normalizePoints(intradayData);
@@ -531,26 +927,32 @@ async function refreshData() {
     }
 
     const intradayState = intradayData.data_state;
-    const intradayAsOf = intradayState && intradayState.as_of
-      ? new Date(intradayState.as_of).getTime()
-      : NaN;
 
-    const intradayAge = Number.isFinite(intradayAsOf)
-      ? Date.now() - intradayAsOf
-      : Infinity;
+    const intradayAsOf =
+      intradayState && intradayState.as_of
+        ? new Date(intradayState.as_of).getTime()
+        : NaN;
 
-    const intradayFresh =
+    const intradayAge =
+      Number.isFinite(intradayAsOf)
+        ? Date.now() - intradayAsOf
+        : Infinity;
+
+    const intradayFresh = Boolean(
       intradayState &&
       intradayState.status === "fresh" &&
       intradayAge >= -60000 &&
-      intradayAge <= MAX_AGE_MS;
+      intradayAge <= MAX_AGE_MS
+    );
 
     const combinedState = {
-      fresh: Boolean(spotResult.state.fresh && intradayFresh)
+      fresh:Boolean(spotResult.state.fresh && intradayFresh)
     };
 
     if (!intradayFresh) {
       setConnection("INTRADAY DATA NOT FRESH", "bad");
+    } else if (combinedState.fresh) {
+      setConnection("GOLD DATA CONNECTED", "ok");
     }
 
     renderChart();
@@ -561,16 +963,26 @@ async function refreshData() {
       $("freshness").textContent = "CHECK DATA";
       $("freshness").className = "value yellow";
     }
+
   } catch (error) {
     console.error(error);
+
     setConnection("DATA CONNECTION ERROR", "bad");
+
     $("freshness").textContent = "ERROR";
     $("freshness").className = "value red";
-    $("updated").textContent = error.message || "Could not retrieve data.";
+
+    $("updated").textContent =
+      error.message || "Could not retrieve data.";
+
     $("signal").textContent = "WAIT";
+    $("signal").className = "signal-title yellow";
+
     $("signalDesc").textContent =
       "Data could not be verified. No practice signal is available.";
+
     $("signalCard").className = "signal wait";
+
   } finally {
     requestRunning = false;
     $("refresh").disabled = false;
@@ -580,7 +992,9 @@ async function refreshData() {
 $("refresh").addEventListener("click", refreshData);
 
 refreshData();
+
 setInterval(refreshData, REFRESH_MS);
 </script>
+
 </body>
 </html>
