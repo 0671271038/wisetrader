@@ -165,7 +165,7 @@ input:focus {border-color:var(--gold)}
 <div class="section">
   <div class="section-title">LIVE TRADE SIGNAL</div>
   <div id="signalCard" class="signal">
-    <div class="label">WISETRADER BALANCED SETUP</div>
+    <div class="label">WISETRADER SCALP SETUP · 65+ SCORE</div>
     <div id="signal" class="signal-title yellow">WAIT</div>
     <div id="signalDesc" class="signal-desc">Connect your API to analyse Gold candles.</div>
     <div class="chips">
@@ -203,20 +203,20 @@ input:focus {border-color:var(--gold)}
       <div class="indicator-item"><div class="indicator-name">EMA 9 / 20</div><div id="emaStatus" class="indicator-status yellow">WAIT</div></div>
       <div class="indicator-item"><div class="indicator-name">EMA 200</div><div id="ema200Status" class="indicator-status yellow">WAIT</div></div>
       <div class="indicator-item"><div class="indicator-name">RSI (14)</div><div id="rsiStatus" class="indicator-status yellow">WAIT</div></div>
-      <div class="indicator-item"><div class="indicator-name">SUPERTREND</div><div id="stStatus" class="indicator-status yellow">WAIT</div></div>
+      <div class="indicator-item"><div class="indicator-name">SUPERTREND (10, 3)</div><div id="stStatus" class="indicator-status yellow">WAIT</div></div>
     </div>
     <div class="label" style="margin-top:20px">INDICATOR ALIGNMENT SCORE</div>
     <div id="score" class="value gold">--</div>
     <div class="track"><div id="scoreFill" class="fill"></div></div>
-    <div id="scoreNote" class="note">This score measures indicator alignment, not winning probability.</div>
+    <div id="scoreNote" class="note">Alignment score is not a probability of winning.</div>
   </div>
 </div>
 
 <div class="section">
   <div class="section-title">SUPPORT & RESISTANCE</div>
   <div class="grid">
-    <div class="card"><div class="label">NEAREST SUPPORT</div><div id="support" class="level-value green">--</div><div class="level-note">Recent closed M5 candle lows.</div></div>
-    <div class="card"><div class="label">NEAREST RESISTANCE</div><div id="resistance" class="level-value red">--</div><div class="level-note">Recent closed M5 candle highs.</div></div>
+    <div class="card"><div class="label">NEAREST SUPPORT</div><div id="support" class="level-value green">--</div><div class="level-note">Recent closed M5 swing lows.</div></div>
+    <div class="card"><div class="label">NEAREST RESISTANCE</div><div id="resistance" class="level-value red">--</div><div class="level-note">Recent closed M5 swing highs.</div></div>
   </div>
 </div>
 
@@ -245,9 +245,8 @@ input:focus {border-color:var(--gold)}
       <button id="saveKeyBtn">SAVE & CONNECT</button>
     </div>
     <div class="api-help">
-      The API key is held in page memory and must be entered again after a reload.
-      Requests use the key to retrieve market data. This is intended for personal
-      testing, not secure public deployment. Never enter your trading-account password.
+      The API key stays in page memory and must be entered again after a reload.
+      Use a personal testing deployment. Do not enter your trading-account password.
     </div>
   </div>
 </div>
@@ -265,6 +264,13 @@ input:focus {border-color:var(--gold)}
 const API_URL = "https://api.twelvedata.com/time_series";
 const REFRESH_INTERVAL = 5 * 60 * 1000;
 const MIN_SCORE = 65;
+const LOOKBACK_SR = 50;
+
+// Prevent the same direction from being announced on every refresh.
+// A new signal can appear again after the market setup changes.
+const SIGNAL_COOLDOWN_MS = 60 * 1000;
+let lastSignalDirection = "WAIT";
+let lastSignalTime = 0;
 
 let apiKey = "";
 let candlesM1 = [];
@@ -302,8 +308,8 @@ function paintIndicator(id, text, state) {
 }
 
 function stateFor(direction) {
-  if (["UP","BUY","ABOVE EMA 200"].includes(direction)) return "green";
-  if (["DOWN","SELL","BELOW EMA 200"].includes(direction)) return "red";
+  if (["UP","BUY","ABOVE EMA 200","BULLISH PULLBACK","BULLISH REVERSAL","BREAKOUT UP"].includes(direction)) return "green";
+  if (["DOWN","SELL","BELOW EMA 200","BEARISH PULLBACK","BEARISH REVERSAL","BREAKOUT DOWN"].includes(direction)) return "red";
   return "yellow";
 }
 
@@ -337,7 +343,9 @@ async function fetchCandles(interval) {
     cache: "no-store"
   });
 
-  if (!response.ok) throw new Error("Market data HTTP error: " + response.status);
+  if (!response.ok) {
+    throw new Error("Market data HTTP error: " + response.status);
+  }
 
   const data = await response.json();
 
@@ -357,13 +365,17 @@ async function fetchCandles(interval) {
     Number.isFinite(c.high) &&
     Number.isFinite(c.low) &&
     Number.isFinite(c.close) &&
-    c.high >= c.low
+    c.high >= c.low &&
+    c.high >= Math.max(c.open,c.close) &&
+    c.low <= Math.min(c.open,c.close)
   );
 
   result.sort((a,b) => a.time - b.time);
 
   if (result.length < 205) {
-    throw new Error("Not enough " + interval + " candles for EMA 200. Returned: " + result.length);
+    throw new Error(
+      "Not enough " + interval + " candles for EMA 200. Returned: " + result.length
+    );
   }
 
   return result;
@@ -387,7 +399,7 @@ async function refreshData() {
   systemMessage("Loading market data.");
 
   try {
-    const [m1, m5] = await Promise.all([
+    const [m1,m5] = await Promise.all([
       fetchCandles("1min"),
       fetchCandles("5min")
     ]);
@@ -395,27 +407,27 @@ async function refreshData() {
     candlesM1 = m1;
     candlesM5 = m5;
 
-    const latest = m1[m1.length - 1];
+    const latest = m1[m1.length-1];
     $("price").textContent = fmt(latest.close);
-    $("priceNote").textContent = "Latest returned M1 candle: " +
-      new Date(latest.time).toLocaleString();
+    $("priceNote").textContent =
+      "Latest returned M1 candle: " + new Date(latest.time).toLocaleString();
 
-    setConnection("DATA CONNECTED", "ok");
-    setStatus("DATA LOADED", "green",
+    setConnection("DATA CONNECTED","ok");
+    setStatus(
+      "DATA LOADED","green",
       "M1: " + m1.length + " candles | M5: " + m5.length +
-      " candles | Updated: " + new Date().toLocaleTimeString());
+      " candles | Updated: " + new Date().toLocaleTimeString()
+    );
 
-    $("marketInfo").textContent =
-      "Source: Twelve Data · XAU/USD · Candle data";
-
+    $("marketInfo").textContent = "Source: Twelve Data · XAU/USD · Candle data";
     analyse();
 
     systemMessage(
-      "Data loaded. Check the price and signal against your broker chart. Signals are not guarantees."
+      "Data loaded. Compare the signal with your broker chart. Signals are not guarantees."
     );
   } catch (error) {
-    setConnection("DATA ERROR", "bad");
-    setStatus("ERROR", "red", error.message);
+    setConnection("DATA ERROR","bad");
+    setStatus("ERROR","red",error.message);
     $("marketInfo").textContent = "Market data could not be loaded.";
     resetAnalysis("Market data unavailable. No signal.");
     systemMessage(error.message);
@@ -426,340 +438,562 @@ async function refreshData() {
   }
 }
 
-function ema(values, period) {
+function ema(values,period) {
   if (values.length < period) return null;
-  let result = values.slice(0, period).reduce((a,b) => a+b, 0) / period;
-  const alpha = 2 / (period + 1);
-  for (let i = period; i < values.length; i++) {
-    result = alpha * values[i] + (1-alpha) * result;
+
+  let result = values.slice(0,period).reduce((a,b)=>a+b,0)/period;
+  const alpha = 2/(period+1);
+
+  for (let i=period;i<values.length;i++) {
+    result = alpha*values[i] + (1-alpha)*result;
   }
   return result;
 }
 
-function rsi(values, period = 14) {
-  if (values.length < period + 1) return null;
-  let gains = 0, losses = 0;
+function rsi(values,period=14) {
+  if (values.length < period+1) return null;
 
-  for (let i=1; i<=period; i++) {
-    const change = values[i] - values[i-1];
-    gains += Math.max(0, change);
-    losses += Math.max(0, -change);
+  let gains=0,losses=0;
+  for (let i=1;i<=period;i++) {
+    const change=values[i]-values[i-1];
+    gains+=Math.max(0,change);
+    losses+=Math.max(0,-change);
   }
 
-  let avgGain = gains / period;
-  let avgLoss = losses / period;
+  let avgGain=gains/period;
+  let avgLoss=losses/period;
 
-  for (let i=period+1; i<values.length; i++) {
-    const change = values[i] - values[i-1];
-    avgGain = (avgGain*(period-1) + Math.max(0,change))/period;
-    avgLoss = (avgLoss*(period-1) + Math.max(0,-change))/period;
+  for (let i=period+1;i<values.length;i++) {
+    const change=values[i]-values[i-1];
+    avgGain=(avgGain*(period-1)+Math.max(0,change))/period;
+    avgLoss=(avgLoss*(period-1)+Math.max(0,-change))/period;
   }
 
-  if (avgGain === 0 && avgLoss === 0) return 50;
-  if (avgLoss === 0) return 100;
-  if (avgGain === 0) return 0;
-  return 100 - 100/(1 + avgGain/avgLoss);
+  if (avgGain===0 && avgLoss===0) return 50;
+  if (avgLoss===0) return 100;
+  if (avgGain===0) return 0;
+
+  return 100-100/(1+avgGain/avgLoss);
 }
 
-function atr(candles, period = 10) {
-  if (candles.length < period + 1) return null;
-  const ranges = [];
+function atrSeries(candles,period=10) {
+  const trs=[];
 
-  for (let i=1; i<candles.length; i++) {
-    const c = candles[i], p = candles[i-1];
-    ranges.push(Math.max(
-      c.high-c.low,
-      Math.abs(c.high-p.close),
-      Math.abs(c.low-p.close)
-    ));
+  for (let i=0;i<candles.length;i++) {
+    const c=candles[i];
+    if (i===0) {
+      trs.push(c.high-c.low);
+    } else {
+      const p=candles[i-1];
+      trs.push(Math.max(
+        c.high-c.low,
+        Math.abs(c.high-p.close),
+        Math.abs(c.low-p.close)
+      ));
+    }
   }
 
-  return ranges.slice(-period).reduce((a,b)=>a+b,0)/period;
+  if (trs.length<period) return [];
+  const result=[];
+  let current=trs.slice(0,period).reduce((a,b)=>a+b,0)/period;
+  result[period-1]=current;
+
+  for (let i=period;i<trs.length;i++) {
+    current=(current*(period-1)+trs[i])/period;
+    result[i]=current;
+  }
+
+  return result;
 }
 
-/* Simplified SuperTrend-style direction filter; not a full band-carrying implementation. */
-function superTrend(candles, period = 10, factor = 3) {
-  if (candles.length < period + 2) return {direction:"WAIT",line:null};
-  const last = candles[candles.length-1];
-  const prev = candles[candles.length-2];
-  const averageRange = atr(candles, period);
-  if (!Number.isFinite(averageRange)) return {direction:"WAIT",line:null};
+function atr(candles,period=14) {
+  const series=atrSeries(candles,period);
+  return series.length ? series[series.length-1] : null;
+}
 
-  const middle = (last.high+last.low)/2;
-  const upper = middle+factor*averageRange;
-  const lower = middle-factor*averageRange;
+/*
+  Wilder-style ATR with carried upper/lower SuperTrend bands.
+  Uses completed candles passed in by analyse().
+*/
+function superTrend(candles,period=10,factor=3) {
+  if (candles.length < period+2) {
+    return {direction:"WAIT",line:null};
+  }
 
-  let direction = "SIDEWAYS";
-  if (last.close > upper) direction = "UP";
-  else if (last.close < lower) direction = "DOWN";
-  else if (last.close > prev.close) direction = "UP";
-  else if (last.close < prev.close) direction = "DOWN";
+  const atrs=atrSeries(candles,period);
+  const finalUpper=[];
+  const finalLower=[];
+  const trend=[];
 
-  return {direction,line:direction==="UP"?lower:upper};
+  for (let i=0;i<candles.length;i++) {
+    if (!Number.isFinite(atrs[i])) continue;
+
+    const c=candles[i];
+    const mid=(c.high+c.low)/2;
+    const basicUpper=mid+factor*atrs[i];
+    const basicLower=mid-factor*atrs[i];
+
+    if (i===period-1 || !Number.isFinite(finalUpper[i-1])) {
+      finalUpper[i]=basicUpper;
+      finalLower[i]=basicLower;
+      trend[i]=c.close>=mid ? 1 : -1;
+      continue;
+    }
+
+    const prev=candles[i-1];
+
+    finalUpper[i]=
+      basicUpper<finalUpper[i-1] || prev.close>finalUpper[i-1]
+        ? basicUpper : finalUpper[i-1];
+
+    finalLower[i]=
+      basicLower>finalLower[i-1] || prev.close<finalLower[i-1]
+        ? basicLower : finalLower[i-1];
+
+    if (trend[i-1]===-1) {
+      trend[i]=c.close>finalUpper[i] ? 1 : -1;
+    } else {
+      trend[i]=c.close<finalLower[i] ? -1 : 1;
+    }
+  }
+
+  const i=candles.length-1;
+  if (!Number.isFinite(trend[i])) return {direction:"WAIT",line:null};
+
+  return {
+    direction:trend[i]===1 ? "UP" : "DOWN",
+    line:trend[i]===1 ? finalLower[i] : finalUpper[i]
+  };
 }
 
 function getTrend(candles) {
-  const closes = candles.map(c=>c.close);
-  if (closes.length < 200) return "WAIT";
-  const fast = ema(closes,9);
-  const slow = ema(closes,20);
-  const long = ema(closes,200);
-  const price = closes[closes.length-1];
+  const closes=candles.map(c=>c.close);
+  if (closes.length<200) return "WAIT";
 
-  if (fast > slow && price > long) return "UP";
-  if (fast < slow && price < long) return "DOWN";
+  const fast=ema(closes,9);
+  const slow=ema(closes,20);
+  const long=ema(closes,200);
+  const price=closes[closes.length-1];
+
+  if (fast>slow && price>long) return "UP";
+  if (fast<slow && price<long) return "DOWN";
   return "SIDEWAYS";
 }
 
-function supportResistance(candles, lookback=50) {
-  const closed = candles.slice(-lookback);
-  if (closed.length < 10) return {support:null,resistance:null};
+/*
+  Support and resistance are calculated only from candles before
+  the latest completed candle used to confirm a breakout.
+*/
+function supportResistance(candles,lookback=LOOKBACK_SR) {
+  const closed=candles.slice(-lookback);
+  if (closed.length<10) return {support:null,resistance:null};
+
   return {
     support:Math.min(...closed.map(c=>c.low)),
     resistance:Math.max(...closed.map(c=>c.high))
   };
 }
 
-function detectBreakout(candles, levels) {
-  if (candles.length < 3 || levels.support===null || levels.resistance===null) return "WAIT";
+function detectBreakout(candles,levels,atrValue) {
+  if (candles.length<3 || levels.support===null || levels.resistance===null) {
+    return "WAIT";
+  }
 
-  const previous = candles[candles.length-2];
-  const last = candles[candles.length-1];
+  const last=candles[candles.length-1];
+  const previous=candles[candles.length-2];
+  const buffer=Number.isFinite(atrValue) ? atrValue*0.05 : 0;
 
-  if (previous.close <= levels.resistance && last.close > levels.resistance) return "BREAKOUT UP";
-  if (previous.close >= levels.support && last.close < levels.support) return "BREAKOUT DOWN";
+  if (
+    previous.close<=levels.resistance &&
+    last.close>levels.resistance+buffer &&
+    last.close>last.open
+  ) return "BREAKOUT UP";
+
+  if (
+    previous.close>=levels.support &&
+    last.close<levels.support-buffer &&
+    last.close<last.open
+  ) return "BREAKOUT DOWN";
+
   return "NONE";
 }
 
-function detectReversal(candles, levels) {
-  if (candles.length < 3 || levels.support===null || levels.resistance===null) return "WAIT";
+function detectReversal(candles,levels) {
+  if (candles.length<3 || levels.support===null || levels.resistance===null) {
+    return "WAIT";
+  }
 
-  const previous = candles[candles.length-2];
-  const last = candles[candles.length-1];
+  const last=candles[candles.length-1];
+  const previous=candles[candles.length-2];
 
-  const bullish = last.close>last.open &&
+  const range=Math.max(last.high-last.low,0.000001);
+  const lowerWick=Math.min(last.open,last.close)-last.low;
+  const upperWick=last.high-Math.max(last.open,last.close);
+
+  const bullishEngulfing=
+    last.close>last.open &&
     previous.close<previous.open &&
     last.close>=previous.open &&
     last.open<=previous.close;
 
-  const bearish = last.close<last.open &&
+  const bearishEngulfing=
+    last.close<last.open &&
     previous.close>previous.open &&
     last.close<=previous.open &&
     last.open>=previous.close;
 
-  if (bullish && last.low<=levels.support) return "BULLISH REVERSAL";
-  if (bearish && last.high>=levels.resistance) return "BEARISH REVERSAL";
+  const bullishRejection=
+    last.close>last.open &&
+    lowerWick/range>=0.40 &&
+    last.close>last.low+range*0.60;
+
+  const bearishRejection=
+    last.close<last.open &&
+    upperWick/range>=0.40 &&
+    last.close<last.high-range*0.60;
+
+  if (
+    last.low<=levels.support &&
+    (bullishEngulfing || bullishRejection) &&
+    last.close>levels.support
+  ) return "BULLISH REVERSAL";
+
+  if (
+    last.high>=levels.resistance &&
+    (bearishEngulfing || bearishRejection) &&
+    last.close<levels.resistance
+  ) return "BEARISH REVERSAL";
+
   return "NONE";
 }
 
-/*
-  Pullback heuristic:
-  - Overall M5 direction must be established.
-  - Recent M1 candles must have pulled back towards EMA 9/20.
-  - Latest closed candle must resume the M5 direction.
-  This is a screening rule, not proof of a profitable entry.
-*/
-function detectPullback(candles, trend, fast, slow, long) {
-  if (candles.length < 5 || !["UP","DOWN"].includes(trend)) return "WAIT";
+function detectPullback(candles,trend,fast,slow,long,atrValue) {
+  if (
+    candles.length<6 ||
+    !["UP","DOWN"].includes(trend) ||
+    !Number.isFinite(fast) ||
+    !Number.isFinite(slow) ||
+    !Number.isFinite(long) ||
+    !Number.isFinite(atrValue) ||
+    atrValue<=0
+  ) return "WAIT";
 
-  const n = candles.length;
-  const last = candles[n-1];
-  const prev = candles[n-2];
-  const before = candles[n-3];
-  const recent = candles.slice(n-4,n-1);
-  const avg = (fast+slow)/2;
+  const n=candles.length;
+  const last=candles[n-1];
+  const prev=candles[n-2];
+  const recent=candles.slice(n-4,n-1);
+  const zoneHigh=Math.max(fast,slow);
+  const zoneLow=Math.min(fast,slow);
 
-  if (trend === "UP") {
-    const hadPullback = recent.some(c => c.low <= avg || c.close < fast);
-    const resumed = last.close > last.open &&
-      last.close > prev.high &&
-      last.close > fast &&
-      last.close > long;
+  if (trend==="UP") {
+    const hadPullback=recent.some(c =>
+      c.low<=zoneHigh+atrValue*0.10 &&
+      c.low>=zoneLow-atrValue*0.80
+    );
 
-    if (hadPullback && resumed) return "BULLISH PULLBACK";
+    const resumed=
+      last.close>last.open &&
+      last.close>prev.high &&
+      last.close>fast &&
+      last.close>long;
+
+    // Do not chase a candle that has already travelled too far.
+    const notExtended=last.close-fast<=atrValue*1.20;
+
+    if (hadPullback && resumed && notExtended) {
+      return "BULLISH PULLBACK";
+    }
   }
 
-  if (trend === "DOWN") {
-    const hadPullback = recent.some(c => c.high >= avg || c.close > fast);
-    const resumed = last.close < last.open &&
-      last.close < prev.low &&
-      last.close < fast &&
-      last.close < long;
+  if (trend==="DOWN") {
+    const hadPullback=recent.some(c =>
+      c.high>=zoneLow-atrValue*0.10 &&
+      c.high<=zoneHigh+atrValue*0.80
+    );
 
-    if (hadPullback && resumed) return "BEARISH PULLBACK";
+    const resumed=
+      last.close<last.open &&
+      last.close<prev.low &&
+      last.close<fast &&
+      last.close<long;
+
+    const notExtended=fast-last.close<=atrValue*1.20;
+
+    if (hadPullback && resumed && notExtended) {
+      return "BEARISH PULLBACK";
+    }
   }
 
   return "NONE";
 }
 
 function analyse() {
-  /*
-    Remove the latest returned candle to avoid treating a potentially
-    unfinished candle as a confirmed entry.
-  */
-  if (candlesM1.length < 205 || candlesM5.length < 205) {
+  if (candlesM1.length<205 || candlesM5.length<205) {
     resetAnalysis("Waiting for sufficient candle history.");
     return;
   }
 
-  const m1 = candlesM1.slice(0,-1);
-  const m5 = candlesM5.slice(0,-1);
-  const closes1 = m1.map(c=>c.close);
-  const closes5 = m5.map(c=>c.close);
+  /*
+    Twelve Data may include a candle that has not finished yet.
+    Drop the latest returned candle on both timeframes.
+  */
+  const m1=candlesM1.slice(0,-1);
+  const m5=candlesM5.slice(0,-1);
 
-  const trend = getTrend(m5);
-  const entryTrend = getTrend(m1);
-  const fast = ema(closes1,9);
-  const slow = ema(closes1,20);
-  const long = ema(closes1,200);
-  const momentum = rsi(closes1,14);
-  const st = superTrend(m1);
-  const last = m1[m1.length-1];
+  const closes1=m1.map(c=>c.close);
+  const closes5=m5.map(c=>c.close);
 
-  const levels = supportResistance(m5.slice(0,-1),50);
-  const breakout = detectBreakout(m5,levels);
-  const reversal = detectReversal(m5,levels);
-  const pullback = detectPullback(m1,trend,fast,slow,long);
+  const trend=getTrend(m5);
+  const entryTrend=getTrend(m1);
 
-  $("support").textContent = fmt(levels.support);
-  $("resistance").textContent = fmt(levels.resistance);
+  const fast=ema(closes1,9);
+  const slow=ema(closes1,20);
+  const long=ema(closes1,200);
+  const momentum=rsi(closes1,14);
+  const atr1=atr(m1,14);
+  const atr5=atr(m5,14);
+  const st=superTrend(m1,10,3);
+  const last=m1[m1.length-1];
+  const prev=m1[m1.length-2];
 
-  $("chipTrend").textContent = "M5 Trend: " + trend;
-  $("chipEntry").textContent = "M1 Trend: " + entryTrend;
-  $("chipRsi").textContent = "RSI: " + fmt(momentum);
+  /*
+    Levels exclude the latest closed M5 candle. This allows that candle
+    to break a previously established level.
+  */
+  const levelCandles=m5.slice(0,-1);
+  const levels=supportResistance(levelCandles,LOOKBACK_SR);
+  const breakout=detectBreakout(m5,levels,atr5);
+  const reversal=detectReversal(m5,levels);
+  const pullback=detectPullback(m1,trend,fast,slow,long,atr1);
+
+  $("support").textContent=fmt(levels.support);
+  $("resistance").textContent=fmt(levels.resistance);
+
+  $("chipTrend").textContent="M5 Trend: "+trend;
+  $("chipEntry").textContent="M1 Trend: "+entryTrend;
+  $("chipRsi").textContent="RSI: "+fmt(momentum);
 
   paintIndicator("trendStatus",trend,stateFor(trend));
   paintIndicator("entryStatus",entryTrend,stateFor(entryTrend));
 
-  const emaDirection = fast>slow ? "UP" : fast<slow ? "DOWN" : "SIDEWAYS";
+  const emaDirection=fast>slow ? "UP" : fast<slow ? "DOWN" : "SIDEWAYS";
   paintIndicator("emaStatus",emaDirection,stateFor(emaDirection));
 
-  const longDirection = last.close>long ? "ABOVE EMA 200" : "BELOW EMA 200";
+  const longDirection=last.close>long ? "ABOVE EMA 200" : "BELOW EMA 200";
   paintIndicator("ema200Status",longDirection,stateFor(longDirection));
 
-  paintIndicator("rsiStatus",fmt(momentum),
-    momentum>=55 && momentum<70 ? "green" :
-    momentum<=45 && momentum>30 ? "red" : "yellow");
+  paintIndicator(
+    "rsiStatus",
+    fmt(momentum),
+    momentum>=52 && momentum<70 ? "green" :
+    momentum<=48 && momentum>30 ? "red" : "yellow"
+  );
 
   paintIndicator("stStatus",st.direction,stateFor(st.direction));
 
-  $("breakout").textContent = breakout;
-  $("breakout").className = "value " +
+  $("breakout").textContent=breakout;
+  $("breakout").className="value "+
     (breakout==="BREAKOUT UP" ? "green" :
      breakout==="BREAKOUT DOWN" ? "red" : "yellow");
-  $("breakoutNote").textContent = "Based on closed M5 candles and recent levels.";
 
-  $("reversal").textContent = reversal;
-  $("reversal").className = "value " +
+  $("breakoutNote").textContent=
+    "Closed M5 candle compared with previously established levels.";
+
+  $("reversal").textContent=reversal;
+  $("reversal").className="value "+
     (reversal==="BULLISH REVERSAL" ? "green" :
      reversal==="BEARISH REVERSAL" ? "red" : "yellow");
-  $("reversalNote").textContent = "Candlestick pattern; reversal is not guaranteed.";
 
-  $("pullback").textContent = pullback;
-  $("pullback").className = "value " +
+  $("reversalNote").textContent=
+    "Engulfing/rejection pattern near support or resistance; confirmation is essential.";
+
+  $("pullback").textContent=pullback;
+  $("pullback").className="value "+
     (pullback==="BULLISH PULLBACK" ? "green" :
      pullback==="BEARISH PULLBACK" ? "red" : "yellow");
-  $("pullbackNote").textContent =
-    "A pullback pattern is only a candidate. Confirm it on your broker chart.";
 
-  let buyScore=0, sellScore=0;
+  $("pullbackNote").textContent=
+    "Looks for a pullback, resumed momentum and an entry that is not too extended.";
 
-  if (trend==="UP") buyScore+=25;
-  if (trend==="DOWN") sellScore+=25;
+  let buyScore=0;
+  let sellScore=0;
 
+  // M5 trend is the primary directional filter.
+  if (trend==="UP") buyScore+=20;
+  if (trend==="DOWN") sellScore+=20;
+
+  // M1 trend alignment.
   if (entryTrend==="UP") buyScore+=10;
   if (entryTrend==="DOWN") sellScore+=10;
 
+  // EMA 9 / EMA 20 alignment.
   if (emaDirection==="UP") buyScore+=15;
   if (emaDirection==="DOWN") sellScore+=15;
 
+  // Long-term filter.
   if (last.close>long) buyScore+=10;
   if (last.close<long) sellScore+=10;
 
+  // Momentum: avoid buying at very high RSI or selling at very low RSI.
   if (momentum>=52 && momentum<70) buyScore+=15;
   if (momentum<=48 && momentum>30) sellScore+=15;
 
+  // Corrected SuperTrend direction.
   if (st.direction==="UP") buyScore+=10;
   if (st.direction==="DOWN") sellScore+=10;
 
-  const buyTrigger =
-    breakout==="BREAKOUT UP" ||
-    reversal==="BULLISH REVERSAL" ||
-    pullback==="BULLISH PULLBACK";
+  const buyBreakout=breakout==="BREAKOUT UP";
+  const sellBreakout=breakout==="BREAKOUT DOWN";
+  const buyReversal=reversal==="BULLISH REVERSAL";
+  const sellReversal=reversal==="BEARISH REVERSAL";
+  const buyPullback=pullback==="BULLISH PULLBACK";
+  const sellPullback=pullback==="BEARISH PULLBACK";
 
-  const sellTrigger =
-    breakout==="BREAKOUT DOWN" ||
-    reversal==="BEARISH REVERSAL" ||
-    pullback==="BEARISH PULLBACK";
+  // One setup bonus only, avoiding double-counting multiple patterns.
+  if (buyBreakout || buyReversal || buyPullback) buyScore+=20;
+  if (sellBreakout || sellReversal || sellPullback) sellScore+=20;
 
-  if (buyTrigger) buyScore+=15;
-  if (sellTrigger) sellScore+=15;
+  const best=Math.min(100,Math.max(buyScore,sellScore));
 
-  const best = Math.max(buyScore,sellScore);
-  $("score").textContent = best+"/100";
-  $("scoreFill").style.width = best+"%";
-  $("chipScore").textContent = "Score: "+best+"/100";
-  $("scoreNote").textContent =
-    "Alignment score only. It is not the probability of a winning trade.";
+  $("score").textContent=best+"/100";
+  $("scoreFill").style.width=best+"%";
+  $("chipScore").textContent="Score: "+best+"/100";
+  $("scoreNote").textContent=
+    "Indicator alignment only. A 65/100 score is not a 65% chance of winning.";
 
-  let candidate="WAIT", setup="--", reason="";
+  /*
+    Entry conditions:
+    - M5 must agree with the intended direction.
+    - EMA 9/20 and EMA 200 must agree.
+    - SuperTrend must agree.
+    - RSI must be within the momentum band.
+    - A closed-candle setup must be present.
+    - Avoid chasing entries that are too far from EMA 9.
+  */
+  const notExtendedBuy=Number.isFinite(atr1) &&
+    last.close-fast<=atr1*1.20;
 
-  const buyTrendOK = trend==="UP" &&
+  const notExtendedSell=Number.isFinite(atr1) &&
+    fast-last.close<=atr1*1.20;
+
+  const buyTrendOK=
+    trend==="UP" &&
     emaDirection==="UP" &&
     last.close>long &&
-    momentum>=52 && momentum<70 &&
-    st.direction==="UP";
+    momentum>=52 &&
+    momentum<70 &&
+    st.direction==="UP" &&
+    notExtendedBuy;
 
-  const sellTrendOK = trend==="DOWN" &&
+  const sellTrendOK=
+    trend==="DOWN" &&
     emaDirection==="DOWN" &&
     last.close<long &&
-    momentum<=48 && momentum>30 &&
-    st.direction==="DOWN";
+    momentum<=48 &&
+    momentum>30 &&
+    st.direction==="DOWN" &&
+    notExtendedSell;
 
-  if (buyTrendOK && buyTrigger && buyScore>=MIN_SCORE) {
+  /*
+    Allow a confirmed M1 pullback to qualify even if the entire M1
+    trend filter is not yet fully aligned. Other trend filters remain.
+    This can create more opportunities without removing all confirmation.
+  */
+  const buySetup=buyBreakout || buyReversal || buyPullback;
+  const sellSetup=sellBreakout || sellReversal || sellPullback;
+
+  let candidate="WAIT";
+  let setup="--";
+  let reason="";
+
+  if (
+    buyTrendOK &&
+    buySetup &&
+    buyScore>=MIN_SCORE
+  ) {
     candidate="BUY";
-    setup = breakout==="BREAKOUT UP" ? "BREAKOUT" :
-      reversal==="BULLISH REVERSAL" ? "REVERSAL" : "PULLBACK";
-  } else if (sellTrendOK && sellTrigger && sellScore>=MIN_SCORE) {
+    setup=buyBreakout ? "BREAKOUT" :
+      buyPullback ? "PULLBACK" : "REVERSAL";
+  } else if (
+    sellTrendOK &&
+    sellSetup &&
+    sellScore>=MIN_SCORE
+  ) {
     candidate="SELL";
-    setup = breakout==="BREAKOUT DOWN" ? "BREAKOUT" :
-      reversal==="BEARISH REVERSAL" ? "REVERSAL" : "PULLBACK";
+    setup=sellBreakout ? "BREAKOUT" :
+      sellPullback ? "PULLBACK" : "REVERSAL";
   } else {
     if (trend==="SIDEWAYS" || trend==="WAIT") {
-      reason="M5 trend is not clearly established.";
-    } else if (trend==="UP" && entryTrend!=="UP" && pullback!=="BULLISH PULLBACK") {
-      reason="Waiting for M1 bullish confirmation or a completed pullback.";
-    } else if (trend==="DOWN" && entryTrend!=="DOWN" && pullback!=="BEARISH PULLBACK") {
-      reason="Waiting for M1 bearish confirmation or a completed pullback.";
-    } else if (trend==="UP" && momentum<52) {
-      reason="Bullish momentum is not strong enough.";
-    } else if (trend==="DOWN" && momentum>48) {
-      reason="Bearish momentum is not strong enough.";
+      reason="M5 trend is unclear. Wait for a stronger directional move.";
+    } else if (!Number.isFinite(atr1) || atr1<=0) {
+      reason="ATR data is unavailable. Waiting for valid candle data.";
+    } else if (trend==="UP" && momentum>=70) {
+      reason="Gold may be overextended. Avoid chasing a high-RSI BUY.";
+    } else if (trend==="DOWN" && momentum<=30) {
+      reason="Gold may be overextended. Avoid chasing a low-RSI SELL.";
+    } else if (
+      trend==="UP" &&
+      !buySetup
+    ) {
+      reason="Uptrend detected. Waiting for a confirmed breakout, rejection or pullback.";
+    } else if (
+      trend==="DOWN" &&
+      !sellSetup
+    ) {
+      reason="Downtrend detected. Waiting for a confirmed breakdown, rejection or pullback.";
+    } else if (
+      trend==="UP" &&
+      !notExtendedBuy
+    ) {
+      reason="BUY setup is too far from EMA 9. Wait for a better entry.";
+    } else if (
+      trend==="DOWN" &&
+      !notExtendedSell
+    ) {
+      reason="SELL setup is too far from EMA 9. Wait for a better entry.";
     } else if (best<MIN_SCORE) {
-      reason="Alignment score is below the minimum "+MIN_SCORE+"/100.";
+      reason="Score is below "+MIN_SCORE+"/100. Waiting for stronger alignment.";
     } else {
-      reason="Waiting for a confirmed breakout, reversal, or pullback.";
+      reason="Filters disagree. Waiting for a cleaner entry.";
     }
   }
 
+  // The signal is only refreshed when a valid candidate is found.
+  // WAIT is displayed when the setup is no longer valid.
   if (candidate==="WAIT") {
     showSignal("WAIT",reason);
+    lastSignalDirection="WAIT";
     return;
+  }
+
+  const now=Date.now();
+  const changedDirection=candidate!==lastSignalDirection;
+  const sameDirectionStillInCooldown=
+    !changedDirection &&
+    now-lastSignalTime<SIGNAL_COOLDOWN_MS;
+
+  if (!sameDirectionStillInCooldown) {
+    lastSignalDirection=candidate;
+    lastSignalTime=now;
   }
 
   showSignal(
     candidate,
-    candidate+" candidate detected from closed candles. Verify the entry, spread and risk on your broker chart.",
+    candidate+" candidate · "+setup+
+    " · Score "+(candidate==="BUY" ? buyScore : sellScore)+
+    "/100. Confirm price, spread and risk on your broker chart.",
     setup
   );
 }
 
 $("saveKeyBtn").addEventListener("click",()=>{
   const entered=$("apiKey").value.trim();
+
   if (!entered) {
     systemMessage("Enter your data API key first.");
     return;
   }
+
   apiKey=entered;
   refreshData();
 });
@@ -771,12 +1005,17 @@ $("clearKeyBtn").addEventListener("click",()=>{
   $("apiKey").value="";
   candlesM1=[];
   candlesM5=[];
+  lastSignalDirection="WAIT";
+  lastSignalTime=0;
+
   setConnection("API KEY CLEARED","bad");
   setStatus("WAITING","yellow","Enter your API key to reconnect.");
+
   $("price").textContent="--";
   $("priceNote").textContent="Waiting for market data.";
   $("support").textContent="--";
   $("resistance").textContent="--";
+
   resetAnalysis("API key cleared. Connect again to analyse the market.");
   systemMessage("The key has been cleared from this page.");
 });
@@ -789,4 +1028,4 @@ setConnection("API KEY REQUIRED");
 setStatus("WAITING","yellow","No data request has been made.");
 </script>
 </body>
-  </html>
+</html>
