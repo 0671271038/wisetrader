@@ -523,66 +523,89 @@ button:disabled {
 <div class="footer">
   WISETRADER GOLD PRO · DERIV MARKET DATA · SIGNALS ONLY
 </div>
-
 </div>
-
 <script>
 "use strict";
 
 /*
-  WISETRADER GOLD PRO
-  Read-only Deriv WebSocket market-data monitor.
-
-  No account token is requested.
-  No orders are placed.
+ WISETRADER GOLD PRO
+ Public market data only.
+ Does not place trades or request your account password.
 */
 
 const APP_ID = 1089;
+
 const WS_URL =
   "wss://ws.derivws.com/websockets/v3?app_id=" + APP_ID;
 
 const REFRESH_INTERVAL = 30000;
-const COOLDOWN_MS = 60000;
+const REQUEST_TIMEOUT = 15000;
 const MIN_SCORE = 65;
 
 let ws = null;
 let requestId = 0;
-let reconnectTimer = null;
-let heartbeatTimer = null;
-let refreshTimer = null;
-
 let connected = false;
+let connecting = false;
 let selectedSymbol = null;
-let activeRequests = new Map();
 
+let reconnectTimer = null;
+let refreshTimer = null;
+let heartbeatTimer = null;
+
+let pending = new Map();
 let candlesM1 = [];
 let candlesM5 = [];
-
-let lastQuote = null;
-let lastAnalysisKey = "";
-let lastSignal = "WAIT";
+let lastAnalysisKey = null;
 let lastSignalTime = 0;
 
 const $ = id => document.getElementById(id);
 
-function setStatus(text, state) {
-  $("connection").textContent = text;
-  $("dot").className = "dot " + (state || "");
+function setConnection(message, state = "") {
+  $("connection").textContent = message;
+  $("dot").className = "dot " + state;
 }
 
-function fmt(n) {
-  return Number.isFinite(n)
-    ? n.toLocaleString("en-US", {
-        minimumFractionDigits:2,
-        maximumFractionDigits:3
-      })
-    : "--";
+function setDataStatus(message, state = "yellow", note = "") {
+  $("dataStatus").textContent = message;
+  $("dataStatus").className = "value " + state;
+
+  if (note) {
+    $("dataNote").textContent = note;
+  }
 }
 
-function send(payload) {
+function fmt(value) {
+  if (!Number.isFinite(value)) return "--";
+
+  return value.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 3
+  });
+}
+
+function rejectPending(reason) {
+  for (const item of pending.values()) {
+    clearTimeout(item.timer);
+    item.reject(new Error(reason));
+  }
+
+  pending.clear();
+}
+
+function stopTimers() {
+  clearTimeout(reconnectTimer);
+  clearInterval(refreshTimer);
+  clearInterval(heartbeatTimer);
+
+  reconnectTimer = null;
+  refreshTimer = null;
+  heartbeatTimer = null;
+}
+
+function sendRequest(payload) {
   return new Promise((resolve, reject) => {
     if (!ws || ws.readyState !== WebSocket.OPEN) {
-      reject(new Error("Deriv WebSocket is not connected."));
+      reject(new Error("WebSocket is not open."));
       return;
     }
 
@@ -590,17 +613,19 @@ function send(payload) {
     payload.req_id = id;
 
     const timer = setTimeout(() => {
-      activeRequests.delete(id);
-      reject(new Error("Deriv request timed out."));
-    }, 15000);
+      pending.delete(id);
+      reject(new Error("Deriv did not answer the request in time."));
+    }, REQUEST_TIMEOUT);
 
-    activeRequests.set(id, {
-      resolve,
-      reject,
-      timer
-    });
+    pending.set(id, { resolve, reject, timer });
 
-    ws.send(JSON.stringify(payload));
+    try {
+      ws.send(JSON.stringify(payload));
+    } catch (error) {
+      clearTimeout(timer);
+      pending.delete(id);
+      reject(error);
+    }
   });
 }
 
@@ -613,16 +638,16 @@ function handleMessage(event) {
     return;
   }
 
-  if (data.req_id && activeRequests.has(data.req_id)) {
-    const pending = activeRequests.get(data.req_id);
+  if (data.req_id && pending.has(data.req_id)) {
+    const item = pending.get(data.req_id);
 
-    clearTimeout(pending.timer);
-    activeRequests.delete(data.req_id);
+    clearTimeout(item.timer);
+    pending.delete(data.req_id);
 
     if (data.error) {
-      pending.reject(new Error(data.error.message));
+      item.reject(new Error(data.error.message));
     } else {
-      pending.resolve(data);
+      item.resolve(data);
     }
   }
 
@@ -630,49 +655,54 @@ function handleMessage(event) {
     const quote = Number(data.tick.quote);
 
     if (Number.isFinite(quote)) {
-      lastQuote = quote;
       $("price").textContent = fmt(quote);
+
       $("priceNote").textContent =
-        "Deriv quote · " +
-        new Date(data.tick.epoch * 1000).toLocaleTimeString();
+        "Last quote: " +
+        new Date(Number(data.tick.epoch) * 1000)
+          .toLocaleTimeString();
     }
   }
-
-  if (data.error && !data.req_id) {
-    $("dataNote").textContent = data.error.message;
-  }
 }
 
-function clearPending(reason) {
-  for (const pending of activeRequests.values()) {
-    clearTimeout(pending.timer);
-    pending.reject(new Error(reason));
-  }
-
-  activeRequests.clear();
+function showWait(message) {
+  $("signal").textContent = "WAIT";
+  $("signal").className = "signal-title yellow";
+  $("signalCard").className = "signal";
+  $("signalDesc").textContent = message;
 }
 
-function stopTimers() {
-  clearInterval(heartbeatTimer);
-  clearInterval(refreshTimer);
-  clearTimeout(reconnectTimer);
+function scheduleReconnect() {
+  if (reconnectTimer) return;
+
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = null;
+    connect();
+  }, 5000);
 }
 
 function connect() {
   stopTimers();
-  clearPending("Reconnecting to Deriv.");
+  rejectPending("Connection is restarting.");
 
   connected = false;
+  connecting = false;
   selectedSymbol = null;
+
   candlesM1 = [];
   candlesM5 = [];
-  lastQuote = null;
+  lastAnalysisKey = null;
 
-  setStatus("CONNECTING TO DERIV", "");
-  $("dataStatus").textContent = "CONNECTING";
-  $("dataStatus").className = "value yellow";
-  $("marketInfo").textContent =
-    "Connecting to Deriv public market data...";
+  setConnection("CONNECTING TO DERIV");
+  setDataStatus(
+    "CONNECTING",
+    "yellow",
+    "Opening the public market-data connection."
+  );
+
+  $("marketInfo").textContent = "Connecting to Deriv...";
+
+  showWait("Waiting for the Deriv connection.");
 
   try {
     if (ws) {
@@ -691,158 +721,187 @@ function connect() {
 
     ws = new WebSocket(WS_URL);
   } catch (error) {
-    connectionFailed(error.message);
+    connectionFailure("Could not create connection: " + error.message);
     return;
   }
 
-  ws.onopen = async () => {
+  const thisSocket = ws;
+
+  thisSocket.onopen = async () => {
+    if (ws !== thisSocket) return;
+
     connected = true;
-    setStatus("DERIV CONNECTED", "ok");
+    connecting = true;
+
+    setConnection("CONNECTED — CHECKING SYMBOL", "ok");
 
     heartbeatTimer = setInterval(() => {
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ping:1}));
+      if (
+        ws === thisSocket &&
+        thisSocket.readyState === WebSocket.OPEN
+      ) {
+        try {
+          thisSocket.send(JSON.stringify({ ping: 1 }));
+        } catch {
+          // The close handler will report a dropped connection.
+        }
       }
-    }, 25000);
+    }, 12000);
 
     try {
-      await discoverSymbol();
+      await discoverGoldSymbol();
+
+      if (ws !== thisSocket || !connected) return;
+
+      connecting = false;
+
+      setConnection("DERIV CONNECTED", "ok");
+
+      await loadCandles();
+
+      if (ws === thisSocket && connected) {
+        refreshTimer = setInterval(loadCandles, REFRESH_INTERVAL);
+      }
     } catch (error) {
+      if (ws !== thisSocket) return;
+
+      connecting = false;
+
+      setDataStatus("REQUEST ERROR", "red", error.message);
+
+      setConnection("CONNECTED — DATA REQUEST FAILED", "bad");
+
       $("marketInfo").textContent =
-        "Could not find a usable gold symbol: " + error.message;
+        "Connection opened, but market data could not be loaded.";
 
-      setStatus("GOLD SYMBOL NOT VERIFIED", "bad");
-      $("dataStatus").textContent = "SYMBOL ERROR";
-      $("dataStatus").className = "value red";
+      showWait("Market data could not be verified. No signal generated.");
     }
   };
 
-  ws.onmessage = handleMessage;
-
-  ws.onerror = () => {
-    setStatus("DERIV CONNECTION ERROR", "bad");
+  thisSocket.onmessage = event => {
+    if (ws === thisSocket) handleMessage(event);
   };
 
-  ws.onclose = () => {
+  thisSocket.onerror = () => {
+    if (ws !== thisSocket) return;
+
+    setConnection("WEBSOCKET ERROR", "bad");
+
+    $("dataNote").textContent =
+      "The browser reported a WebSocket error. Check the connection " +
+      "and App ID. The browser may not provide a detailed reason.";
+  };
+
+  thisSocket.onclose = event => {
+    if (ws !== thisSocket) return;
+
     connected = false;
-    setStatus("DISCONNECTED", "bad");
+    connecting = false;
 
-    clearPending("Deriv connection closed.");
+    clearInterval(heartbeatTimer);
+    clearInterval(refreshTimer);
 
-    if (!reconnectTimer) {
-      reconnectTimer = setTimeout(() => {
-        reconnectTimer = null;
-        connect();
-      }, 5000);
-    }
+    heartbeatTimer = null;
+    refreshTimer = null;
+
+    rejectPending("Deriv connection closed.");
+
+    const reason = event.reason || "No reason supplied";
+    const detail = "Close code: " + event.code + " — " + reason;
+
+    setConnection("DISCONNECTED", "bad");
+
+    setDataStatus("DISCONNECTED", "red", detail);
+
+    $("marketInfo").textContent =
+      "Deriv closed the connection. " + detail;
+
+    showWait(
+      "Disconnected from Deriv. Waiting to reconnect. " +
+      "No new signal can be confirmed."
+    );
+
+    scheduleReconnect();
   };
 }
 
-function connectionFailed(message) {
-  setStatus("CONNECTION FAILED", "bad");
-  $("dataStatus").textContent = "ERROR";
-  $("dataStatus").className = "value red";
-  $("dataNote").textContent = message;
+function connectionFailure(message) {
+  connected = false;
+  connecting = false;
 
-  if (!reconnectTimer) {
-    reconnectTimer = setTimeout(() => {
-      reconnectTimer = null;
-      connect();
-    }, 5000);
-  }
+  setConnection("CONNECTION FAILED", "bad");
+  setDataStatus("ERROR", "red", message);
+
+  $("marketInfo").textContent = message;
+
+  showWait("Connection failed. No market signal is available.");
+
+  scheduleReconnect();
 }
 
-async function discoverSymbol() {
-  const response = await send({
-    active_symbols:"brief",
-    product_type:"basic"
+async function discoverGoldSymbol() {
+  const response = await sendRequest({
+    active_symbols: "brief"
   });
 
   const symbols = response.active_symbols || [];
 
-  /*
-    Prefer exact XAUUSD, then common gold symbol names.
-    The selected symbol is displayed for verification.
-  */
-  const exact = symbols.filter(s =>
-    String(s.symbol).toUpperCase() === "XAUUSD"
-  );
-
-  const goldCandidates = symbols.filter(s => {
-    const symbol = String(s.symbol || "").toUpperCase();
-    const name = String(s.display_name || "").toLowerCase();
+  const candidates = symbols.filter(item => {
+    const symbol = String(item.symbol || "").toUpperCase();
+    const name = String(item.display_name || "").toLowerCase();
 
     return (
-      symbol === "FRXAUUSD" ||
       symbol.includes("XAUUSD") ||
       (name.includes("gold") && name.includes("usd"))
     );
   });
 
-  const choices = [...exact, ...goldCandidates];
-
-  if (!choices.length) {
+  if (!candidates.length) {
     throw new Error(
-      "No matching gold symbol was returned. Check the available " +
-      "symbols on your Deriv account."
+      "Deriv did not return a matching Gold/USD symbol. " +
+      "We need to check the symbols available to this API."
     );
   }
 
-  /*
-    Remove duplicate symbols.
-  */
-  const unique = [
-    ...new Map(choices.map(s => [s.symbol,s])).values()
-  ];
+  const exact = candidates.find(item =>
+    String(item.symbol).toUpperCase() === "XAUUSD"
+  );
 
-  const chosen =
-    unique.find(s =>
-      String(s.symbol).toUpperCase() === "XAUUSD"
-    ) || unique[0];
+  const chosen = exact || candidates[0];
 
   selectedSymbol = chosen.symbol;
 
   $("marketInfo").textContent =
     "Selected symbol: " + chosen.symbol +
-    " · " + (chosen.display_name || "Gold");
+    " — " + (chosen.display_name || "Gold");
 
-  /*
-    Subscribe to live quotes.
-  */
-  await send({
-    ticks:selectedSymbol,
-    subscribe:1
+  await sendRequest({
+    ticks: selectedSymbol,
+    subscribe: 1
   });
-
-  /*
-    Request genuine one-minute and five-minute candles.
-  */
-  await loadCandles();
-
-  refreshTimer = setInterval(loadCandles, REFRESH_INTERVAL);
 }
 
 async function getCandles(granularity) {
-  const response = await send({
-    ticks_history:selectedSymbol,
-    adjust_start_time:1,
-    count:300,
-    end:"latest",
-    granularity,
-    style:"candles"
+  const response = await sendRequest({
+    ticks_history: selectedSymbol,
+    adjust_start_time: 1,
+    count: 300,
+    end: "latest",
+    granularity: granularity,
+    style: "candles"
   });
 
-  if (!response.candles || !response.candles.length) {
+  if (!response.candles || response.candles.length === 0) {
     throw new Error("No candles returned for " + granularity + ".");
   }
 
   return response.candles
     .map(c => ({
-      time:Number(c.epoch),
-      open:Number(c.open),
-      high:Number(c.high),
-      low:Number(c.low),
-      close:Number(c.close)
+      time: Number(c.epoch),
+      open: Number(c.open),
+      high: Number(c.high),
+      low: Number(c.low),
+      close: Number(c.close)
     }))
     .filter(c =>
       Number.isFinite(c.time) &&
@@ -852,500 +911,455 @@ async function getCandles(granularity) {
       Number.isFinite(c.close) &&
       c.high >= c.low
     )
-    .sort((a,b) => a.time-b.time);
+    .sort((a, b) => a.time - b.time);
 }
 
 async function loadCandles() {
   if (!connected || !selectedSymbol) return;
 
   try {
-    const [m1,m5] = await Promise.all([
+    const [m1, m5] = await Promise.all([
       getCandles(60),
       getCandles(300)
     ]);
 
+    if (!connected) return;
+
     candlesM1 = m1;
     candlesM5 = m5;
 
-    $("dataStatus").textContent = "LIVE DATA";
-    $("dataStatus").className = "value green";
+    setDataStatus(
+      "LIVE DATA",
+      "green",
+      "M1 candles: " + m1.length +
+      " | M5 candles: " + m5.length +
+      " | Updated: " + new Date().toLocaleTimeString()
+    );
 
-    $("dataNote").textContent =
-      "M1 candles: " + candlesM1.length +
-      " · M5 candles: " + candlesM5.length +
-      " · Updated: " + new Date().toLocaleTimeString();
+    setConnection("DERIV CONNECTED", "ok");
 
     analyse();
-
   } catch (error) {
-    $("dataStatus").textContent = "DATA ERROR";
-    $("dataStatus").className = "value red";
-    $("dataNote").textContent = error.message;
+    setDataStatus("DATA ERROR", "red", error.message);
 
-    setStatus("CANDLE DATA ERROR", "bad");
-    showWait("Unable to retrieve reliable candle data.");
+    showWait("Candle data could not be verified. Waiting for valid data.");
   }
 }
 
 function ema(values, period) {
   if (values.length < period) return null;
 
-  let result = values
-    .slice(0,period)
-    .reduce((a,b) => a+b,0) / period;
+  let result = values.slice(0, period)
+    .reduce((sum, value) => sum + value, 0) / period;
 
-  const alpha = 2/(period+1);
+  const alpha = 2 / (period + 1);
 
-  for (let i=period;i<values.length;i++) {
-    result = alpha*values[i] + (1-alpha)*result;
+  for (let i = period; i < values.length; i++) {
+    result = alpha * values[i] + (1 - alpha) * result;
   }
 
   return result;
 }
 
-function rsi(values, period=14) {
-  if (values.length < period+1) return null;
+function rsi(values, period = 14) {
+  if (values.length < period + 1) return null;
 
-  let gains=0;
-  let losses=0;
+  let gains = 0;
+  let losses = 0;
 
-  for (let i=1;i<=period;i++) {
-    const change=values[i]-values[i-1];
+  for (let i = 1; i <= period; i++) {
+    const change = values[i] - values[i - 1];
 
-    gains += Math.max(0,change);
-    losses += Math.max(0,-change);
+    gains += Math.max(0, change);
+    losses += Math.max(0, -change);
   }
 
-  let avgGain=gains/period;
-  let avgLoss=losses/period;
+  let avgGain = gains / period;
+  let avgLoss = losses / period;
 
-  for (let i=period+1;i<values.length;i++) {
-    const change=values[i]-values[i-1];
+  for (let i = period + 1; i < values.length; i++) {
+    const change = values[i] - values[i - 1];
 
-    avgGain=(avgGain*(period-1)+Math.max(0,change))/period;
-    avgLoss=(avgLoss*(period-1)+Math.max(0,-change))/period;
+    avgGain =
+      (avgGain * (period - 1) + Math.max(0, change)) / period;
+
+    avgLoss =
+      (avgLoss * (period - 1) + Math.max(0, -change)) / period;
   }
 
-  if (avgGain===0 && avgLoss===0) return 50;
-  if (avgLoss===0) return 100;
-  if (avgGain===0) return 0;
+  if (avgGain === 0 && avgLoss === 0) return 50;
+  if (avgLoss === 0) return 100;
+  if (avgGain === 0) return 0;
 
-  return 100-100/(1+avgGain/avgLoss);
+  return 100 - 100 / (1 + avgGain / avgLoss);
 }
 
-function atr(candles, period=10) {
-  if (candles.length < period+1) return null;
+function atr(candles, period = 10) {
+  if (candles.length < period + 1) return null;
 
-  const trs=[];
+  const ranges = [];
 
-  for (let i=1;i<candles.length;i++) {
-    const c=candles[i];
-    const prev=candles[i-1];
+  for (let i = 1; i < candles.length; i++) {
+    const current = candles[i];
+    const previous = candles[i - 1];
 
-    trs.push(Math.max(
-      c.high-c.low,
-      Math.abs(c.high-prev.close),
-      Math.abs(c.low-prev.close)
+    ranges.push(Math.max(
+      current.high - current.low,
+      Math.abs(current.high - previous.close),
+      Math.abs(current.low - previous.close)
     ));
   }
 
-  return trs.slice(-period).reduce((a,b)=>a+b,0)/period;
+  return ranges.slice(-period)
+    .reduce((sum, value) => sum + value, 0) / period;
 }
 
-/*
-  Standard-style SuperTrend calculation using candle OHLC.
-*/
-function superTrend(candles, period=10, factor=3) {
-  if (candles.length < period+2) {
-    return {direction:"WAIT",line:null};
+function superTrend(candles, period = 10, factor = 3) {
+  if (candles.length < period + 2) {
+    return { direction: "WAIT", line: null };
   }
 
-  const a=atr(candles,period);
-
-  if (!Number.isFinite(a)) {
-    return {direction:"WAIT",line:null};
+  const averageRange = atr(candles, period);
+  if (!Number.isFinite(averageRange)) {
+    return { direction: "WAIT", line: null };
   }
 
-  const c=candles[candles.length-1];
-  const previous=candles[candles.length-2];
+  const last = candles[candles.length - 1];
+  const previous = candles[candles.length - 2];
 
-  const middle=(c.high+c.low)/2;
+  const middle = (last.high + last.low) / 2;
+  const upper = middle + factor * averageRange;
+  const lower = middle - factor * averageRange;
 
-  const upper=middle+factor*a;
-  const lower=middle-factor*a;
+  let direction = "SIDEWAYS";
 
-  let direction;
-
-  if (c.close > upper) direction="UP";
-  else if (c.close < lower) direction="DOWN";
-  else if (c.close > previous.close) direction="UP";
-  else if (c.close < previous.close) direction="DOWN";
-  else direction="SIDEWAYS";
+  if (last.close > upper) direction = "UP";
+  else if (last.close < lower) direction = "DOWN";
+  else if (last.close > previous.close) direction = "UP";
+  else if (last.close < previous.close) direction = "DOWN";
 
   return {
     direction,
-    line:direction==="UP" ? lower : upper
+    line: direction === "UP" ? lower : upper
   };
 }
 
 function getTrend(candles) {
-  const closes=candles.map(c=>c.close);
+  const closes = candles.map(c => c.close);
 
-  if (closes.length < 201) return "WAIT";
+  if (closes.length < 200) return "WAIT";
 
-  const fast=ema(closes,9);
-  const slow=ema(closes,20);
-  const long=ema(closes,200);
-  const last=closes[closes.length-1];
+  const fast = ema(closes, 9);
+  const slow = ema(closes, 20);
+  const long = ema(closes, 200);
+  const price = closes[closes.length - 1];
 
-  if (fast>slow && last>long) return "UP";
-  if (fast<slow && last<long) return "DOWN";
+  if (fast > slow && price > long) return "UP";
+  if (fast < slow && price < long) return "DOWN";
 
   return "SIDEWAYS";
 }
 
-function supportResistance(candles,lookback=50) {
-  if (candles.length < 10) {
-    return {support:null,resistance:null};
+function supportResistance(candles, lookback = 50) {
+  const closed = candles.slice(0, -1).slice(-lookback);
+
+  if (closed.length < 10) {
+    return { support: null, resistance: null };
   }
 
-  /*
-    Exclude the current candle to avoid using an unfinished candle
-    as a support/resistance level.
-  */
-  const closed=candles.slice(0,-1).slice(-lookback);
-
   return {
-    support:Math.min(...closed.map(c=>c.low)),
-    resistance:Math.max(...closed.map(c=>c.high))
+    support: Math.min(...closed.map(c => c.low)),
+    resistance: Math.max(...closed.map(c => c.high))
   };
 }
 
-function detectBreakout(candles,sr) {
-  if (candles.length < 3 || sr.support===null) return "WAIT";
+function detectBreakout(candles, levels) {
+  if (
+    candles.length < 3 ||
+    levels.support === null ||
+    levels.resistance === null
+  ) return "WAIT";
 
-  const prev=candles[candles.length-2];
-  const last=candles[candles.length-1];
+  const previous = candles[candles.length - 2];
+  const last = candles[candles.length - 1];
 
-  if (prev.close <= sr.resistance && last.close > sr.resistance) {
-    return "BREAKOUT UP";
-  }
+  if (
+    previous.close <= levels.resistance &&
+    last.close > levels.resistance
+  ) return "BREAKOUT UP";
 
-  if (prev.close >= sr.support && last.close < sr.support) {
-    return "BREAKOUT DOWN";
-  }
+  if (
+    previous.close >= levels.support &&
+    last.close < levels.support
+  ) return "BREAKOUT DOWN";
 
   return "NONE";
 }
 
-function detectReversal(candles,sr) {
-  if (candles.length < 3 || sr.support===null) return "WAIT";
+function detectReversal(candles, levels) {
+  if (
+    candles.length < 3 ||
+    levels.support === null ||
+    levels.resistance === null
+  ) return "WAIT";
 
-  const prev=candles[candles.length-2];
-  const last=candles[candles.length-1];
+  const previous = candles[candles.length - 2];
+  const last = candles[candles.length - 1];
 
   const bullish =
-    last.close>last.open &&
-    prev.close<prev.open &&
-    last.close>=prev.open &&
-    last.open<=prev.close;
+    last.close > last.open &&
+    previous.close < previous.open &&
+    last.close >= previous.open &&
+    last.open <= previous.close;
 
   const bearish =
-    last.close<last.open &&
-    prev.close>prev.open &&
-    last.close<=prev.open &&
-    last.open>=prev.close;
+    last.close < last.open &&
+    previous.close > previous.open &&
+    last.close <= previous.open &&
+    last.open >= previous.close;
 
-  if (bullish && last.low <= sr.support) return "BULLISH REVERSAL";
-  if (bearish && last.high >= sr.resistance) return "BEARISH REVERSAL";
+  if (bullish && last.low <= levels.support) {
+    return "BULLISH REVERSAL";
+  }
+
+  if (bearish && last.high >= levels.resistance) {
+    return "BEARISH REVERSAL";
+  }
 
   return "NONE";
 }
 
-function indicator(id,text,color) {
-  $(id).textContent=text;
-  $(id).className="indicator-status "+color;
+function indicator(id, text, color) {
+  $(id).textContent = text;
+  $(id).className = "indicator-status " + color;
 }
 
-function setSignal(name,description,setup="--") {
-  $("signal").textContent=name;
+function showSignal(name, description, setup = "--") {
+  $("signal").textContent = name;
 
-  $("signal").className="signal-title "+(
-    name==="BUY" ? "green" :
-    name==="SELL" ? "red" : "yellow"
-  );
+  $("signal").className = "signal-title " +
+    (name === "BUY" ? "green" :
+     name === "SELL" ? "red" : "yellow");
 
-  $("signalCard").className="signal "+(
-    name==="BUY" ? "buy" :
-    name==="SELL" ? "sell" : ""
-  );
+  $("signalCard").className = "signal " +
+    (name === "BUY" ? "buy" :
+     name === "SELL" ? "sell" : "");
 
-  $("signalDesc").textContent=description;
-  $("chipSetup").textContent="Setup: "+setup;
-}
-
-function showWait(message) {
-  lastSignal="WAIT";
-
-  setSignal("WAIT",message);
-
-  $("chipScore").textContent="Score: --";
-  $("score").textContent="--";
-  $("scoreFill").style.width="0%";
+  $("signalDesc").textContent = description;
+  $("chipSetup").textContent = "Setup: " + setup;
 }
 
 function analyse() {
-  if (
-    candlesM1.length < 205 ||
-    candlesM5.length < 205
-  ) {
-    showWait(
-      "Waiting for at least 205 M1 and M5 candles. " +
-      "No signal will be generated until the indicators are ready."
-    );
+  if (candlesM1.length < 205 || candlesM5.length < 205) {
+    showWait("Waiting for sufficient candles to calculate the indicators.");
 
-    $("scoreNote").textContent=
-      "Insufficient candles for EMA 200 on both timeframes.";
+    $("score").textContent = "--";
+    $("scoreFill").style.width = "0%";
+    $("scoreNote").textContent =
+      "Need at least 205 candles on both timeframes.";
 
     return;
   }
 
-  const closedM1=candlesM1.slice(0,-1);
-  const closedM5=candlesM5.slice(0,-1);
+  // Use closed candles for indicator calculations.
+  const m1 = candlesM1.slice(0, -1);
+  const m5 = candlesM5.slice(0, -1);
 
-  const close1=closedM1.map(c=>c.close);
-  const close5=closedM5.map(c=>c.close);
+  const close1 = m1.map(c => c.close);
 
-  const trend=getTrend(closedM5);
-  const entryTrend=getTrend(closedM1);
+  const trend = getTrend(m5);
+  const entryTrend = getTrend(m1);
 
-  const fast=ema(close1,9);
-  const slow=ema(close1,20);
-  const long=ema(close1,200);
-  const momentum=rsi(close1,14);
-  const st=superTrend(closedM1);
+  const fast = ema(close1, 9);
+  const slow = ema(close1, 20);
+  const long = ema(close1, 200);
+  const momentum = rsi(close1, 14);
+  const st = superTrend(m1);
 
-  const sr=supportResistance(closedM5,50);
+  const last = close1[close1.length - 1];
 
-  const breakout=detectBreakout(closedM5,sr);
-  const reversal=detectReversal(closedM5,sr);
+  const levels = supportResistance(m5, 50);
+  const breakout = detectBreakout(m5, levels);
+  const reversal = detectReversal(m5, levels);
 
-  $("support").textContent=
-    sr.support===null ? "--" : fmt(sr.support);
+  $("support").textContent = fmt(levels.support);
+  $("resistance").textContent = fmt(levels.resistance);
 
-  $("resistance").textContent=
-    sr.resistance===null ? "--" : fmt(sr.resistance);
+  $("supportNote").textContent = "Approximate M5 swing low.";
+  $("resistanceNote").textContent = "Approximate M5 swing high.";
 
-  $("supportNote").textContent=
-    "M5 recent swing low · Approximate level";
+  $("chipTrend").textContent = "M5 Trend: " + trend;
+  $("chipEntry").textContent = "M1 Trend: " + entryTrend;
+  $("chipRsi").textContent = "RSI: " + fmt(momentum);
 
-  $("resistanceNote").textContent=
-    "M5 recent swing high · Approximate level";
+  indicator("trendStatus", trend,
+    trend === "UP" ? "green" :
+    trend === "DOWN" ? "red" : "yellow");
 
-  $("chipTrend").textContent="M5 Trend: "+trend;
-  $("chipEntry").textContent="M1: "+entryTrend;
-  $("chipRsi").textContent="RSI: "+fmt(momentum);
+  indicator("entryStatus", entryTrend,
+    entryTrend === "UP" ? "green" :
+    entryTrend === "DOWN" ? "red" : "yellow");
 
-  indicator(
-    "trendStatus",trend,
-    trend==="UP" ? "green" :
-    trend==="DOWN" ? "red" : "yellow"
-  );
+  const emaDirection =
+    fast > slow ? "UP" : fast < slow ? "DOWN" : "SIDEWAYS";
 
-  indicator(
-    "entryStatus",entryTrend,
-    entryTrend==="UP" ? "green" :
-    entryTrend==="DOWN" ? "red" : "yellow"
-  );
+  indicator("emaStatus", emaDirection,
+    emaDirection === "UP" ? "green" :
+    emaDirection === "DOWN" ? "red" : "yellow");
 
-  const emaDirection=fast>slow ? "UP" : fast<slow ? "DOWN" : "SIDEWAYS";
+  const longDirection = last > long ? "ABOVE EMA 200" : "BELOW EMA 200";
 
-  indicator(
-    "emaStatus",emaDirection,
-    emaDirection==="UP" ? "green" :
-    emaDirection==="DOWN" ? "red" : "yellow"
-  );
+  indicator("ema200Status", longDirection,
+    last > long ? "green" : "red");
 
-  const last=close1[close1.length-1];
+  indicator("rsiStatus", fmt(momentum),
+    momentum >= 55 ? "green" :
+    momentum <= 45 ? "red" : "yellow");
 
-  const longDirection=last>long ? "ABOVE EMA 200" : "BELOW EMA 200";
+  indicator("stStatus", st.direction,
+    st.direction === "UP" ? "green" :
+    st.direction === "DOWN" ? "red" : "yellow");
 
-  indicator(
-    "ema200Status",longDirection,
-    last>long ? "green" : "red"
-  );
+  $("breakout").textContent = breakout;
+  $("breakout").className = "value " +
+    (breakout === "BREAKOUT UP" ? "green" :
+     breakout === "BREAKOUT DOWN" ? "red" : "yellow");
 
-  indicator(
-    "rsiStatus",fmt(momentum),
-    momentum>=55 ? "green" :
-    momentum<=45 ? "red" : "yellow"
-  );
+  $("breakoutNote").textContent =
+    "Based on closed M5 candles and recent swing levels.";
 
-  indicator(
-    "stStatus",st.direction,
-    st.direction==="UP" ? "green" :
-    st.direction==="DOWN" ? "red" : "yellow"
-  );
+  $("reversal").textContent = reversal;
+  $("reversal").className = "value " +
+    (reversal === "BULLISH REVERSAL" ? "green" :
+     reversal === "BEARISH REVERSAL" ? "red" : "yellow");
 
-  $("breakout").textContent=breakout;
-  $("breakout").className="value "+(
-    breakout==="BREAKOUT UP" ? "green" :
-    breakout==="BREAKOUT DOWN" ? "red" : "yellow"
-  );
+  $("reversalNote").textContent =
+    "A possible reversal pattern, not a guarantee.";
 
-  $("breakoutNote").textContent=
-    "Uses closed M5 candles and recent swing levels.";
+  let buyScore = 0;
+  let sellScore = 0;
 
-  $("reversal").textContent=reversal;
-  $("reversal").className="value "+(
-    reversal==="BULLISH REVERSAL" ? "green" :
-    reversal==="BEARISH REVERSAL" ? "red" : "yellow"
-  );
+  if (trend === "UP") buyScore += 30;
+  if (trend === "DOWN") sellScore += 30;
 
-  $("reversalNote").textContent=
-    "Potential reversal pattern near a swing level; not guaranteed.";
+  if (emaDirection === "UP") buyScore += 15;
+  if (emaDirection === "DOWN") sellScore += 15;
 
-  /*
-    Balanced setup scoring.
-    Trend alignment and at least one entry trigger are required.
-  */
-  let buyScore=0;
-  let sellScore=0;
+  if (last > long) buyScore += 10;
+  if (last < long) sellScore += 10;
 
-  if (trend==="UP") buyScore+=30;
-  if (trend==="DOWN") sellScore+=30;
+  if (momentum >= 52 && momentum < 70) buyScore += 15;
+  if (momentum <= 48 && momentum > 30) sellScore += 15;
 
-  if (emaDirection==="UP") buyScore+=15;
-  if (emaDirection==="DOWN") sellScore+=15;
+  if (st.direction === "UP") buyScore += 15;
+  if (st.direction === "DOWN") sellScore += 15;
 
-  if (last>long) buyScore+=10;
-  if (last<long) sellScore+=10;
+  if (breakout === "BREAKOUT UP" ||
+      reversal === "BULLISH REVERSAL") buyScore += 15;
 
-  if (momentum>=52 && momentum<70) buyScore+=15;
-  if (momentum<=48 && momentum>30) sellScore+=15;
+  if (breakout === "BREAKOUT DOWN" ||
+      reversal === "BEARISH REVERSAL") sellScore += 15;
 
-  if (st.direction==="UP") buyScore+=15;
-  if (st.direction==="DOWN") sellScore+=15;
+  const best = Math.max(buyScore, sellScore);
 
-  if (
-    breakout==="BREAKOUT UP" ||
-    reversal==="BULLISH REVERSAL"
-  ) buyScore+=15;
+  $("score").textContent = best + "/100";
+  $("scoreFill").style.width = best + "%";
+  $("chipScore").textContent = "Score: " + best + "/100";
 
-  if (
-    breakout==="BREAKOUT DOWN" ||
-    reversal==="BEARISH REVERSAL"
-  ) sellScore+=15;
+  $("scoreNote").textContent =
+    "Alignment score only; it is not a probability of winning.";
 
-  const best=Math.max(buyScore,sellScore);
-
-  $("score").textContent=best+"/100";
-  $("scoreFill").style.width=best+"%";
-  $("chipScore").textContent="Score: "+best+"/100";
-
-  $("scoreNote").textContent=
-    "Technical alignment score, not a probability of winning.";
-
-  let candidate="WAIT";
-  let setup="--";
+  let candidate = "WAIT";
+  let setup = "--";
 
   const buyTrigger =
-    breakout==="BREAKOUT UP" ||
-    reversal==="BULLISH REVERSAL";
+    breakout === "BREAKOUT UP" ||
+    reversal === "BULLISH REVERSAL";
 
   const sellTrigger =
-    breakout==="BREAKOUT DOWN" ||
-    reversal==="BEARISH REVERSAL";
+    breakout === "BREAKOUT DOWN" ||
+    reversal === "BEARISH REVERSAL";
 
   if (
-    trend==="UP" &&
-    entryTrend==="UP" &&
-    emaDirection==="UP" &&
-    momentum>=52 &&
-    momentum<70 &&
-    st.direction==="UP" &&
+    trend === "UP" &&
+    entryTrend === "UP" &&
+    emaDirection === "UP" &&
+    momentum >= 52 &&
+    momentum < 70 &&
+    st.direction === "UP" &&
     buyTrigger &&
-    buyScore>=MIN_SCORE
+    buyScore >= MIN_SCORE
   ) {
-    candidate="BUY";
-    setup=breakout==="BREAKOUT UP" ? "BREAKOUT" : "REVERSAL";
-  }
-
-  if (
-    trend==="DOWN" &&
-    entryTrend==="DOWN" &&
-    emaDirection==="DOWN" &&
-    momentum<=48 &&
-    momentum>30 &&
-    st.direction==="DOWN" &&
+    candidate = "BUY";
+    setup = breakout === "BREAKOUT UP" ? "BREAKOUT" : "REVERSAL";
+  } else if (
+    trend === "DOWN" &&
+    entryTrend === "DOWN" &&
+    emaDirection === "DOWN" &&
+    momentum <= 48 &&
+    momentum > 30 &&
+    st.direction === "DOWN" &&
     sellTrigger &&
-    sellScore>=MIN_SCORE
+    sellScore >= MIN_SCORE
   ) {
-    candidate="SELL";
-    setup=breakout==="BREAKOUT DOWN" ? "BREAKOUT" : "REVERSAL";
+    candidate = "SELL";
+    setup = breakout === "BREAKOUT DOWN" ? "BREAKOUT" : "REVERSAL";
   }
 
-  /*
-    Do not count the same closed candle as a new confirmation.
-    Confirmation occurs only after a new M1 candle is received.
-  */
-  const key=closedM1[closedM1.length-1].time;
+  const candleKey = m1[m1.length - 1].time;
 
-  if (key===lastAnalysisKey) {
-    if (lastSignal==="WAIT") {
-      setSignal(
-        "WAIT",
-        "Waiting for a new closed M1 candle and a valid setup."
-      );
-    }
+  // Avoid repeating a signal for the same closed candle.
+  if (candleKey === lastAnalysisKey) return;
+  lastAnalysisKey = candleKey;
 
-    return;
-  }
-
-  lastAnalysisKey=key;
-
-  const now=Date.now();
-
-  if (candidate==="WAIT") {
-    lastSignal="WAIT";
-
-    setSignal(
+  if (candidate === "WAIT") {
+    showSignal(
       "WAIT",
-      "No qualifying setup. Wait for a breakout or reversal with aligned trend and momentum."
+      "No qualifying setup. Wait for trend, momentum and entry conditions to align."
     );
-
     return;
   }
 
-  if (now-lastSignalTime<COOLDOWN_MS) {
-    setSignal(
-      "WAIT",
-      "A setup was detected, but the signal cooldown is active. Wait for the next valid setup."
-    );
-
+  if (Date.now() - lastSignalTime < 60000) {
+    showSignal("WAIT", "Signal cooldown active. Wait for another closed candle.");
     return;
   }
 
-  lastSignal=candidate;
-  lastSignalTime=now;
+  lastSignalTime = Date.now();
 
-  setSignal(
+  showSignal(
     candidate,
-    candidate+" setup detected on closed candles. Confirm the setup and current price on Deriv MT5 before making any decision.",
+    candidate + " setup detected. Confirm the price and conditions independently. This is not a guaranteed trade.",
     setup
   );
 }
 
-$("reconnect").addEventListener("click",() => {
-  if (reconnectTimer) {
-    clearTimeout(reconnectTimer);
-    reconnectTimer=null;
+$("reconnect").addEventListener("click", () => {
+  stopTimers();
+
+  if (ws) {
+    const old = ws;
+    ws = null;
+
+    old.onopen = null;
+    old.onmessage = null;
+    old.onerror = null;
+    old.onclose = null;
+
+    try {
+      old.close();
+    } catch {}
   }
 
   connect();
 });
 
 connect();
-</script>
+  </script>
+
+
+
+    
+  
 </body>
     </html>
