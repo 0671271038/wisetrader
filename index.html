@@ -3,20 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#080d19">
+<meta name="theme-color" content="#090d17">
 <title>Wisetrader Gold PRO</title>
 
 <style>
 :root {
-  --bg:#080d19;
-  --panel:#111b2e;
-  --border:#263550;
-  --text:#edf3ff;
-  --muted:#91a0ba;
-  --blue:#6395ff;
-  --green:#20df9a;
-  --red:#ff6378;
+  --bg:#090d17;
+  --panel:#111827;
+  --panel2:#151e30;
+  --border:#2b3549;
+  --text:#edf2ff;
+  --muted:#8d9bb3;
+  --gold:#e6bd70;
+  --gold2:#ffdf9b;
+  --green:#23dda0;
+  --red:#ff6279;
   --yellow:#ffd078;
+  --blue:#75a6ff;
 }
 
 * {
@@ -26,15 +29,18 @@
 }
 
 body {
-  background:radial-gradient(ellipse at top,#17294a 0%,var(--bg) 58%);
-  color:var(--text);
-  font-family:Arial,Helvetica,sans-serif;
   min-height:100vh;
   padding:14px;
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  background:
+    radial-gradient(ellipse at top,#1b2940 0%,transparent 48%),
+    var(--bg);
 }
 
 .container {
-  max-width:1000px;
+  width:100%;
+  max-width:1050px;
   margin:auto;
 }
 
@@ -42,9 +48,9 @@ header {
   display:flex;
   justify-content:space-between;
   align-items:center;
-  flex-wrap:wrap;
   gap:14px;
-  margin:8px 0 22px;
+  flex-wrap:wrap;
+  padding:12px 0 20px;
 }
 
 .brand {
@@ -54,16 +60,14 @@ header {
 }
 
 .logo-container {
-  width:60px;
-  height:60px;
-  border:1px solid var(--border);
-  border-radius:14px;
-  background:var(--panel);
-  overflow:hidden;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  width:59px;
+  height:59px;
   flex-shrink:0;
+  overflow:hidden;
+  border:1px solid #675638;
+  border-radius:16px;
+  background:#111827;
+  box-shadow:0 0 22px #e6bd7012;
 }
 
 .app-logo {
@@ -75,18 +79,18 @@ header {
 
 h1 {
   font-size:23px;
-  letter-spacing:-.6px;
+  letter-spacing:-.7px;
 }
 
 h1 span {
-  color:var(--blue);
+  color:var(--gold);
 }
 
 .subtitle {
+  margin-top:6px;
+  font-size:9px;
+  letter-spacing:1.7px;
   color:var(--muted);
-  font-size:10px;
-  margin-top:5px;
-  letter-spacing:.5px;
 }
 
 .connection {
@@ -94,19 +98,18 @@ h1 span {
   align-items:center;
   gap:8px;
   padding:10px 12px;
-  background:#0d1728;
   border:1px solid var(--border);
   border-radius:10px;
-  font-size:11px;
+  background:#0d1421;
   color:var(--muted);
+  font-size:10px;
 }
 
 .dot {
-  width:9px;
-  height:9px;
+  width:8px;
+  height:8px;
   border-radius:50%;
   background:var(--yellow);
-  flex-shrink:0;
 }
 
 .dot.ok {background:var(--green);}
@@ -114,37 +117,60 @@ h1 span {
 
 .toolbar {
   display:flex;
-  align-items:center;
   justify-content:space-between;
-  flex-wrap:wrap;
+  align-items:center;
   gap:12px;
+  flex-wrap:wrap;
   margin-bottom:14px;
+  padding:16px;
+  border:1px solid #4b402c;
+  border-radius:15px;
+  background:linear-gradient(130deg,#1d2430,#111827);
 }
 
 .market-name {
-  font-size:16px;
-  font-weight:bold;
+  font-size:17px;
+  font-weight:800;
 }
 
-.small {
-  font-size:11px;
-  color:var(--muted);
+.market-sub {
   margin-top:5px;
-  line-height:1.6;
+  color:var(--muted);
+  font-size:11px;
 }
 
 button {
-  background:#192743;
-  color:var(--text);
-  border:1px solid var(--border);
+  border:1px solid #7d6946;
   border-radius:9px;
   padding:11px 14px;
+  color:#16130c;
+  background:linear-gradient(135deg,var(--gold2),var(--gold));
+  font-weight:800;
+  font-size:11px;
   cursor:pointer;
 }
 
 button:disabled {
-  opacity:.5;
+  opacity:.55;
   cursor:wait;
+}
+
+button.secondary {
+  color:var(--text);
+  background:#192338;
+  border-color:var(--border);
+}
+
+.section {
+  margin-top:17px;
+}
+
+.section-title {
+  margin-bottom:10px;
+  color:var(--gold);
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:1.6px;
 }
 
 .grid {
@@ -154,183 +180,217 @@ button:disabled {
 }
 
 .card {
-  background:linear-gradient(150deg,#14213a,#0d1526);
+  min-width:0;
+  padding:16px;
   border:1px solid var(--border);
   border-radius:15px;
-  padding:16px;
-  min-width:0;
+  background:linear-gradient(145deg,#151f32,#101725);
+  box-shadow:0 7px 25px #0000000c;
 }
 
 .label {
-  font-size:10px;
   color:var(--muted);
-  letter-spacing:.4px;
+  font-size:9px;
+  letter-spacing:1px;
 }
 
 .value {
-  font-size:25px;
-  font-weight:800;
   margin-top:10px;
+  font-size:25px;
+  font-weight:900;
   overflow-wrap:anywhere;
 }
 
 .note {
-  font-size:11px;
-  line-height:1.7;
-  color:var(--muted);
   margin-top:8px;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.7;
+  overflow-wrap:anywhere;
 }
 
+.gold {color:var(--gold2);}
 .blue {color:var(--blue);}
 .green {color:var(--green);}
 .red {color:var(--red);}
 .yellow {color:var(--yellow);}
 
-.section {
-  margin-top:16px;
-}
-
-.section-title {
-  font-size:13px;
-  font-weight:bold;
-  margin-bottom:10px;
-  letter-spacing:.3px;
-}
-
 .signal {
-  border:1px solid var(--border);
-  border-radius:18px;
-  padding:22px 15px;
+  position:relative;
+  overflow:hidden;
+  padding:25px 16px;
   text-align:center;
-  background:linear-gradient(145deg,#14213a,#0c1425);
+  border:1px solid #51462f;
+  border-radius:18px;
+  background:
+    radial-gradient(ellipse at top,#e6bd7012,transparent 65%),
+    linear-gradient(145deg,#151f32,#0e1523);
 }
 
 .signal.buy {
-  border-color:#20df9a80;
-  background:linear-gradient(145deg,#10352e,#0c1924);
+  border-color:#23dda080;
+  background:linear-gradient(145deg,#10372d,#101925);
 }
 
 .signal.sell {
-  border-color:#ff637880;
-  background:linear-gradient(145deg,#3b1928,#151321);
+  border-color:#ff627980;
+  background:linear-gradient(145deg,#3a1a28,#151623);
 }
 
 .signal-title {
-  font-size:35px;
+  margin:13px 0;
+  font-size:43px;
   font-weight:900;
-  margin:12px 0;
-  overflow-wrap:anywhere;
+  letter-spacing:1px;
 }
 
 .signal-desc {
-  font-size:12px;
-  line-height:1.8;
-  color:#c4d0e4;
   max-width:650px;
   margin:auto;
+  color:#c2cee0;
+  font-size:11px;
+  line-height:1.8;
 }
 
 .chips {
   display:flex;
   justify-content:center;
-  gap:7px;
   flex-wrap:wrap;
-  margin-top:14px;
+  gap:7px;
+  margin-top:17px;
 }
 
 .chip {
-  font-size:10px;
-  padding:8px 9px;
-  background:#ffffff0a;
-  border:1px solid #ffffff13;
+  padding:8px 10px;
+  border:1px solid #ffffff15;
   border-radius:8px;
+  background:#ffffff06;
+  color:#dce5f5;
+  font-size:10px;
 }
 
 .indicator-list {
   display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-columns:repeat(3,minmax(0,1fr));
   gap:9px;
 }
 
 .indicator-item {
-  padding:12px;
-  border:1px solid #ffffff12;
-  border-radius:10px;
-  background:#ffffff05;
   min-width:0;
+  padding:13px 10px;
+  border:1px solid #ffffff12;
+  border-radius:11px;
+  background:#ffffff04;
 }
 
 .indicator-name {
   color:var(--muted);
-  font-size:10px;
+  font-size:9px;
+  line-height:1.5;
 }
 
 .indicator-status {
-  margin-top:7px;
-  font-size:13px;
-  font-weight:bold;
+  margin-top:8px;
+  font-size:12px;
+  font-weight:800;
   overflow-wrap:anywhere;
 }
 
 .track {
   height:7px;
-  background:#ffffff12;
-  border-radius:10px;
+  margin-top:13px;
   overflow:hidden;
-  margin-top:12px;
+  border-radius:20px;
+  background:#ffffff12;
 }
 
 .fill {
-  height:100%;
   width:0;
-  background:var(--blue);
-  transition:width .3s ease;
+  height:100%;
+  background:linear-gradient(90deg,#9e7b40,var(--gold2));
+  transition:width .3s;
 }
 
 .level {
-  padding:12px;
-  background:#ffffff05;
-  border:1px solid #ffffff12;
-  border-radius:10px;
   margin-top:9px;
-}
-
-.level strong {
-  font-size:12px;
+  padding:13px;
+  border:1px solid #ffffff12;
+  border-radius:11px;
+  background:#ffffff04;
 }
 
 .level-value {
-  font-size:17px;
-  font-weight:bold;
-  margin-top:7px;
+  margin-top:8px;
+  font-size:20px;
+  font-weight:900;
   overflow-wrap:anywhere;
 }
 
-.warning {
-  border:1px solid #ffd07845;
-  background:#ffd0780a;
-  color:#e8d5a9;
-  padding:12px;
-  border-radius:11px;
-  font-size:11px;
+.level-note {
+  margin-top:6px;
+  color:var(--muted);
+  font-size:10px;
+}
+
+.status-box {
+  padding:13px;
+  border:1px solid #51462f;
+  border-radius:12px;
+  background:#e6bd7009;
+  color:#d9c8a5;
+  font-size:10px;
   line-height:1.8;
+  overflow-wrap:anywhere;
+}
+
+.api-box {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:9px;
+  margin-top:12px;
+}
+
+input {
+  width:100%;
+  min-width:0;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  outline:none;
+  background:#0a1120;
+  color:var(--text);
+  font-size:12px;
+}
+
+input:focus {
+  border-color:var(--gold);
+}
+
+.api-help {
+  margin-top:8px;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.7;
 }
 
 .footer {
+  padding:25px 0 10px;
+  color:#697790;
   text-align:center;
-  color:#72819b;
-  font-size:10px;
-  padding:23px 0 8px;
+  font-size:9px;
+  letter-spacing:1px;
 }
 
-@media(max-width:480px) {
+@media(max-width:520px) {
   body {padding:10px;}
   h1 {font-size:20px;}
-  .logo-container {width:52px;height:52px;}
+  .logo-container {width:51px;height:51px;}
+  .connection {font-size:9px;}
   .card {padding:13px;}
   .value {font-size:22px;}
-  .signal-title {font-size:29px;}
-  .connection {font-size:10px;}
+  .signal-title {font-size:36px;}
+  .indicator-list {grid-template-columns:repeat(2,minmax(0,1fr));}
+  .api-box {grid-template-columns:1fr;}
 }
 </style>
 </head>
@@ -342,48 +402,50 @@ button:disabled {
   <div class="brand">
     <div class="logo-container">
       <img src="./lgo.png"
-           alt="Wisetrader Gold PRO Logo"
+           alt="Wisetrader Gold PRO"
            class="app-logo"
-           onerror="this.style.display='none';">
+           onerror="this.style.display='none'">
     </div>
 
     <div>
-      <h1>Wise<span>trader</span> Gold PRO</h1>
-      <div class="subtitle">DERIV GOLD SIGNAL MONITOR</div>
+      <h1>Wise<span>trader</span> Gold</h1>
+      <div class="subtitle">GOLD MARKET ANALYSIS</div>
     </div>
   </div>
 
   <div class="connection">
     <span id="dot" class="dot"></span>
-    <span id="connection">CONNECTING TO DERIV</span>
+    <span id="connection">DATA NOT CONNECTED</span>
   </div>
 </header>
 
 <div class="toolbar">
   <div>
-    <div class="market-name">XAUUSD · Gold</div>
-    <div class="small" id="marketInfo">
-      Checking available Deriv gold symbols...
+    <div class="market-name">XAU/USD · GOLD</div>
+    <div id="marketInfo" class="market-sub">
+      Enter your market-data API key to begin.
     </div>
   </div>
-  <button id="reconnect">Reconnect</button>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button id="refreshBtn">REFRESH DATA</button>
+    <button id="clearKeyBtn" class="secondary">CLEAR KEY</button>
+  </div>
 </div>
 
 <div class="section">
-  <div class="section-title">LIVE SIGNAL</div>
+  <div class="section-title">LIVE TRADE SIGNAL</div>
 
   <div id="signalCard" class="signal">
-    <div class="label">WISETRADER TRADE SETUP</div>
-
+    <div class="label">WISETRADER SETUP</div>
     <div id="signal" class="signal-title yellow">WAIT</div>
-
     <div id="signalDesc" class="signal-desc">
-      Connecting to Deriv and loading market candles.
+      Enter a valid data key and refresh to load Gold candles.
     </div>
 
     <div class="chips">
       <span id="chipTrend" class="chip">M5 Trend: --</span>
-      <span id="chipEntry" class="chip">M1 Setup: --</span>
+      <span id="chipEntry" class="chip">M1 Trend: --</span>
       <span id="chipRsi" class="chip">RSI: --</span>
       <span id="chipScore" class="chip">Score: --</span>
       <span id="chipSetup" class="chip">Setup: --</span>
@@ -396,18 +458,16 @@ button:disabled {
 
   <div class="grid">
     <div class="card">
-      <div class="label">DERIV MARKET PRICE</div>
-      <div id="price" class="value blue">--</div>
-      <div id="priceNote" class="note">
-        Waiting for a valid Deriv quote.
-      </div>
+      <div class="label">LATEST GOLD PRICE</div>
+      <div id="price" class="value gold">--</div>
+      <div id="priceNote" class="note">Waiting for market data.</div>
     </div>
 
     <div class="card">
       <div class="label">DATA STATUS</div>
       <div id="dataStatus" class="value yellow">WAITING</div>
       <div id="dataNote" class="note">
-        Candles have not been verified.
+        No market data has been verified.
       </div>
     </div>
   </div>
@@ -418,19 +478,18 @@ button:disabled {
 
   <div class="card">
     <div class="indicator-list">
-
       <div class="indicator-item">
         <div class="indicator-name">M5 TREND</div>
         <div id="trendStatus" class="indicator-status yellow">WAIT</div>
       </div>
 
       <div class="indicator-item">
-        <div class="indicator-name">M1 ENTRY DIRECTION</div>
+        <div class="indicator-name">M1 ENTRY TREND</div>
         <div id="entryStatus" class="indicator-status yellow">WAIT</div>
       </div>
 
       <div class="indicator-item">
-        <div class="indicator-name">EMA 9 / EMA 20</div>
+        <div class="indicator-name">EMA 9 / 20</div>
         <div id="emaStatus" class="indicator-status yellow">WAIT</div>
       </div>
 
@@ -448,21 +507,17 @@ button:disabled {
         <div class="indicator-name">SUPERTREND</div>
         <div id="stStatus" class="indicator-status yellow">WAIT</div>
       </div>
-
     </div>
 
-    <div class="label" style="margin-top:18px">
-      SIGNAL ALIGNMENT
-    </div>
-
-    <div id="score" class="value blue">--</div>
+    <div class="label" style="margin-top:20px">INDICATOR ALIGNMENT SCORE</div>
+    <div id="score" class="value gold">--</div>
 
     <div class="track">
       <div id="scoreFill" class="fill"></div>
     </div>
 
     <div id="scoreNote" class="note">
-      Waiting for M1 and M5 candle data.
+      The score measures indicator alignment, not the probability of a winning trade.
     </div>
   </div>
 </div>
@@ -474,89 +529,91 @@ button:disabled {
     <div class="card">
       <div class="label">NEAREST SUPPORT</div>
       <div id="support" class="level-value green">--</div>
-      <div id="supportNote" class="note">
-        Waiting for M5 candles.
-      </div>
+      <div class="level-note">Based on recent M5 lows.</div>
     </div>
 
     <div class="card">
       <div class="label">NEAREST RESISTANCE</div>
       <div id="resistance" class="level-value red">--</div>
-      <div id="resistanceNote" class="note">
-        Waiting for M5 candles.
-      </div>
+      <div class="level-note">Based on recent M5 highs.</div>
     </div>
   </div>
 </div>
 
 <div class="section">
-  <div class="section-title">BREAKOUT & REVERSAL DETECTION</div>
+  <div class="section-title">BREAKOUT & REVERSAL</div>
 
   <div class="grid">
     <div class="card">
       <div class="label">BREAKOUT STATUS</div>
       <div id="breakout" class="value yellow">WAIT</div>
-      <div id="breakoutNote" class="note">
-        Waiting for a confirmed candle close.
-      </div>
+      <div id="breakoutNote" class="note">Waiting for candles.</div>
     </div>
 
     <div class="card">
       <div class="label">REVERSAL STATUS</div>
       <div id="reversal" class="value yellow">WAIT</div>
-      <div id="reversalNote" class="note">
-        Waiting for a potential reversal pattern.
-      </div>
+      <div id="reversalNote" class="note">Waiting for candles.</div>
     </div>
   </div>
 </div>
 
-<div class="section warning">
-  <strong>Important:</strong>
-  This application displays technical-analysis signals only.
-  It does not place trades. Deriv WebSocket data availability
-  depends on the market and account. Confirm all signals on your
-  Deriv MT5 chart before considering a trade. Indicators cannot
-  guarantee profitable results.
+<div class="section">
+  <div class="section-title">MARKET DATA CONNECTION</div>
+
+  <div class="card">
+    <div class="label">TWELVE DATA API KEY</div>
+
+    <div class="api-box">
+      <input id="apiKey"
+             type="password"
+             autocomplete="off"
+             placeholder="Paste your API key here">
+
+      <button id="saveKeyBtn">SAVE & CONNECT</button>
+    </div>
+
+    <div class="api-help">
+      The key is kept in this browser session and is not written into
+      the HTML source. It is still used by browser requests, so this
+      is intended for personal testing, not a secure public deployment.
+      Never enter your Exness password or trading-account credentials here.
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div id="systemMessage" class="status-box">
+    Ready. A valid data key is required before live signals can be calculated.
+  </div>
 </div>
 
 <div class="footer">
-  WISETRADER GOLD PRO · DERIV MARKET DATA · SIGNALS ONLY
+  WISETRADER GOLD PRO · MARKET ANALYSIS · SIGNALS ONLY
 </div>
+
 </div>
+
 <script>
 "use strict";
 
 /*
- WISETRADER GOLD PRO
- Public market data only.
- Does not place trades or request your account password.
+  Wisetrader Gold PRO
+  Market data: Twelve Data time-series API
+  Symbol: XAU/USD
+  Timeframes: 1 minute and 5 minutes
+  Signals only. Does not place trades.
 */
 
-const APP_ID = 1089;
-
-const WS_URL =
-  "wss://ws.derivws.com/websockets/v3?app_id=" + APP_ID;
-
-const REFRESH_INTERVAL = 30000;
-const REQUEST_TIMEOUT = 15000;
+const API_URL = "https://api.twelvedata.com/time_series";
+const REFRESH_INTERVAL = 5 * 60 * 1000;
 const MIN_SCORE = 65;
 
-let ws = null;
-let requestId = 0;
-let connected = false;
-let connecting = false;
-let selectedSymbol = null;
-
-let reconnectTimer = null;
-let refreshTimer = null;
-let heartbeatTimer = null;
-
-let pending = new Map();
+let apiKey = "";
 let candlesM1 = [];
 let candlesM5 = [];
-let lastAnalysisKey = null;
-let lastSignalTime = 0;
+let loading = false;
+let lastSignalCandle = null;
 
 const $ = id => document.getElementById(id);
 
@@ -565,13 +622,15 @@ function setConnection(message, state = "") {
   $("dot").className = "dot " + state;
 }
 
-function setDataStatus(message, state = "yellow", note = "") {
+function setStatus(message, state = "yellow", note = "") {
   $("dataStatus").textContent = message;
   $("dataStatus").className = "value " + state;
 
-  if (note) {
-    $("dataNote").textContent = note;
-  }
+  if (note) $("dataNote").textContent = note;
+}
+
+function systemMessage(message) {
+  $("systemMessage").textContent = message;
 }
 
 function fmt(value) {
@@ -583,366 +642,160 @@ function fmt(value) {
   });
 }
 
-function rejectPending(reason) {
-  for (const item of pending.values()) {
-    clearTimeout(item.timer);
-    item.reject(new Error(reason));
-  }
-
-  pending.clear();
-}
-
-function stopTimers() {
-  clearTimeout(reconnectTimer);
-  clearInterval(refreshTimer);
-  clearInterval(heartbeatTimer);
-
-  reconnectTimer = null;
-  refreshTimer = null;
-  heartbeatTimer = null;
-}
-
-function sendRequest(payload) {
-  return new Promise((resolve, reject) => {
-    if (!ws || ws.readyState !== WebSocket.OPEN) {
-      reject(new Error("WebSocket is not open."));
-      return;
-    }
-
-    const id = ++requestId;
-    payload.req_id = id;
-
-    const timer = setTimeout(() => {
-      pending.delete(id);
-      reject(new Error("Deriv did not answer the request in time."));
-    }, REQUEST_TIMEOUT);
-
-    pending.set(id, { resolve, reject, timer });
-
-    try {
-      ws.send(JSON.stringify(payload));
-    } catch (error) {
-      clearTimeout(timer);
-      pending.delete(id);
-      reject(error);
-    }
-  });
-}
-
-function handleMessage(event) {
-  let data;
-
-  try {
-    data = JSON.parse(event.data);
-  } catch {
-    return;
-  }
-
-  if (data.req_id && pending.has(data.req_id)) {
-    const item = pending.get(data.req_id);
-
-    clearTimeout(item.timer);
-    pending.delete(data.req_id);
-
-    if (data.error) {
-      item.reject(new Error(data.error.message));
-    } else {
-      item.resolve(data);
-    }
-  }
-
-  if (data.msg_type === "tick" && data.tick) {
-    const quote = Number(data.tick.quote);
-
-    if (Number.isFinite(quote)) {
-      $("price").textContent = fmt(quote);
-
-      $("priceNote").textContent =
-        "Last quote: " +
-        new Date(Number(data.tick.epoch) * 1000)
-          .toLocaleTimeString();
-    }
-  }
-}
-
-function showWait(message) {
+function resetSignal(message) {
   $("signal").textContent = "WAIT";
   $("signal").className = "signal-title yellow";
   $("signalCard").className = "signal";
   $("signalDesc").textContent = message;
 }
 
-function scheduleReconnect() {
-  if (reconnectTimer) return;
-
-  reconnectTimer = setTimeout(() => {
-    reconnectTimer = null;
-    connect();
-  }, 5000);
+function paintIndicator(id, text, state) {
+  $(id).textContent = text;
+  $(id).className = "indicator-status " + state;
 }
 
-function connect() {
-  stopTimers();
-  rejectPending("Connection is restarting.");
+function stateFor(direction) {
+  if (direction === "UP" || direction === "BUY") return "green";
+  if (direction === "DOWN" || direction === "SELL") return "red";
+  return "yellow";
+}
 
-  connected = false;
-  connecting = false;
-  selectedSymbol = null;
+function showSignal(name, description, setup = "--") {
+  $("signal").textContent = name;
+  $("signal").className =
+    "signal-title " +
+    (name === "BUY" ? "green" :
+     name === "SELL" ? "red" : "yellow");
 
-  candlesM1 = [];
-  candlesM5 = [];
-  lastAnalysisKey = null;
+  $("signalCard").className =
+    "signal " +
+    (name === "BUY" ? "buy" :
+     name === "SELL" ? "sell" : "");
 
-  setConnection("CONNECTING TO DERIV");
-  setDataStatus(
-    "CONNECTING",
-    "yellow",
-    "Opening the public market-data connection."
+  $("signalDesc").textContent = description;
+  $("chipSetup").textContent = "Setup: " + setup;
+}
+
+async function fetchCandles(interval) {
+  const url = new URL(API_URL);
+
+  url.searchParams.set("symbol", "XAU/USD");
+  url.searchParams.set("interval", interval);
+  url.searchParams.set("outputsize", "250");
+  url.searchParams.set("timezone", "UTC");
+  url.searchParams.set("apikey", apiKey);
+
+  const response = await fetch(url.toString(), {
+    method: "GET",
+    cache: "no-store"
+  });
+
+  if (!response.ok) {
+    throw new Error("HTTP " + response.status + " from the data provider.");
+  }
+
+  const data = await response.json();
+
+  if (data.status === "error" || data.code || !Array.isArray(data.values)) {
+    throw new Error(
+      data.message ||
+      "No candle data returned. Check your key, symbol access and API limits."
+    );
+  }
+
+  const result = data.values.map(c => ({
+    time: Date.parse(c.datetime + " UTC"),
+    open: Number(c.open),
+    high: Number(c.high),
+    low: Number(c.low),
+    close: Number(c.close)
+  })).filter(c =>
+    Number.isFinite(c.time) &&
+    Number.isFinite(c.open) &&
+    Number.isFinite(c.high) &&
+    Number.isFinite(c.low) &&
+    Number.isFinite(c.close) &&
+    c.high >= c.low
   );
 
-  $("marketInfo").textContent = "Connecting to Deriv...";
+  result.sort((a, b) => a.time - b.time);
 
-  showWait("Waiting for the Deriv connection.");
+  if (result.length < 205) {
+    throw new Error(
+      "Only " + result.length +
+      " candles returned for " + interval +
+      ". At least 205 are needed for EMA 200."
+    );
+  }
 
-  try {
-    if (ws) {
-      ws.onopen = null;
-      ws.onmessage = null;
-      ws.onerror = null;
-      ws.onclose = null;
+  return result;
+}
 
-      if (
-        ws.readyState === WebSocket.OPEN ||
-        ws.readyState === WebSocket.CONNECTING
-      ) {
-        ws.close();
-      }
-    }
+async function refreshData() {
+  if (loading) return;
 
-    ws = new WebSocket(WS_URL);
-  } catch (error) {
-    connectionFailure("Could not create connection: " + error.message);
+  if (!apiKey) {
+    setConnection("API KEY REQUIRED", "bad");
+    setStatus("NO KEY", "yellow", "Enter your data API key below.");
+    systemMessage("Enter a valid data API key, then tap SAVE & CONNECT.");
     return;
   }
 
-  const thisSocket = ws;
+  loading = true;
+  $("refreshBtn").disabled = true;
+  $("saveKeyBtn").disabled = true;
 
-  thisSocket.onopen = async () => {
-    if (ws !== thisSocket) return;
-
-    connected = true;
-    connecting = true;
-
-    setConnection("CONNECTED — CHECKING SYMBOL", "ok");
-
-    heartbeatTimer = setInterval(() => {
-      if (
-        ws === thisSocket &&
-        thisSocket.readyState === WebSocket.OPEN
-      ) {
-        try {
-          thisSocket.send(JSON.stringify({ ping: 1 }));
-        } catch {
-          // The close handler will report a dropped connection.
-        }
-      }
-    }, 12000);
-
-    try {
-      await discoverGoldSymbol();
-
-      if (ws !== thisSocket || !connected) return;
-
-      connecting = false;
-
-      setConnection("DERIV CONNECTED", "ok");
-
-      await loadCandles();
-
-      if (ws === thisSocket && connected) {
-        refreshTimer = setInterval(loadCandles, REFRESH_INTERVAL);
-      }
-    } catch (error) {
-      if (ws !== thisSocket) return;
-
-      connecting = false;
-
-      setDataStatus("REQUEST ERROR", "red", error.message);
-
-      setConnection("CONNECTED — DATA REQUEST FAILED", "bad");
-
-      $("marketInfo").textContent =
-        "Connection opened, but market data could not be loaded.";
-
-      showWait("Market data could not be verified. No signal generated.");
-    }
-  };
-
-  thisSocket.onmessage = event => {
-    if (ws === thisSocket) handleMessage(event);
-  };
-
-  thisSocket.onerror = () => {
-    if (ws !== thisSocket) return;
-
-    setConnection("WEBSOCKET ERROR", "bad");
-
-    $("dataNote").textContent =
-      "The browser reported a WebSocket error. Check the connection " +
-      "and App ID. The browser may not provide a detailed reason.";
-  };
-
-  thisSocket.onclose = event => {
-    if (ws !== thisSocket) return;
-
-    connected = false;
-    connecting = false;
-
-    clearInterval(heartbeatTimer);
-    clearInterval(refreshTimer);
-
-    heartbeatTimer = null;
-    refreshTimer = null;
-
-    rejectPending("Deriv connection closed.");
-
-    const reason = event.reason || "No reason supplied";
-    const detail = "Close code: " + event.code + " — " + reason;
-
-    setConnection("DISCONNECTED", "bad");
-
-    setDataStatus("DISCONNECTED", "red", detail);
-
-    $("marketInfo").textContent =
-      "Deriv closed the connection. " + detail;
-
-    showWait(
-      "Disconnected from Deriv. Waiting to reconnect. " +
-      "No new signal can be confirmed."
-    );
-
-    scheduleReconnect();
-  };
-}
-
-function connectionFailure(message) {
-  connected = false;
-  connecting = false;
-
-  setConnection("CONNECTION FAILED", "bad");
-  setDataStatus("ERROR", "red", message);
-
-  $("marketInfo").textContent = message;
-
-  showWait("Connection failed. No market signal is available.");
-
-  scheduleReconnect();
-}
-
-async function discoverGoldSymbol() {
-  const response = await sendRequest({
-    active_symbols: "brief"
-  });
-
-  const symbols = response.active_symbols || [];
-
-  const candidates = symbols.filter(item => {
-    const symbol = String(item.symbol || "").toUpperCase();
-    const name = String(item.display_name || "").toLowerCase();
-
-    return (
-      symbol.includes("XAUUSD") ||
-      (name.includes("gold") && name.includes("usd"))
-    );
-  });
-
-  if (!candidates.length) {
-    throw new Error(
-      "Deriv did not return a matching Gold/USD symbol. " +
-      "We need to check the symbols available to this API."
-    );
-  }
-
-  const exact = candidates.find(item =>
-    String(item.symbol).toUpperCase() === "XAUUSD"
-  );
-
-  const chosen = exact || candidates[0];
-
-  selectedSymbol = chosen.symbol;
-
-  $("marketInfo").textContent =
-    "Selected symbol: " + chosen.symbol +
-    " — " + (chosen.display_name || "Gold");
-
-  await sendRequest({
-    ticks: selectedSymbol,
-    subscribe: 1
-  });
-}
-
-async function getCandles(granularity) {
-  const response = await sendRequest({
-    ticks_history: selectedSymbol,
-    adjust_start_time: 1,
-    count: 300,
-    end: "latest",
-    granularity: granularity,
-    style: "candles"
-  });
-
-  if (!response.candles || response.candles.length === 0) {
-    throw new Error("No candles returned for " + granularity + ".");
-  }
-
-  return response.candles
-    .map(c => ({
-      time: Number(c.epoch),
-      open: Number(c.open),
-      high: Number(c.high),
-      low: Number(c.low),
-      close: Number(c.close)
-    }))
-    .filter(c =>
-      Number.isFinite(c.time) &&
-      Number.isFinite(c.open) &&
-      Number.isFinite(c.high) &&
-      Number.isFinite(c.low) &&
-      Number.isFinite(c.close) &&
-      c.high >= c.low
-    )
-    .sort((a, b) => a.time - b.time);
-}
-
-async function loadCandles() {
-  if (!connected || !selectedSymbol) return;
+  setConnection("LOADING MARKET DATA");
+  setStatus("LOADING", "yellow", "Requesting Gold candles.");
+  systemMessage("Loading M1 and M5 Gold candles.");
 
   try {
     const [m1, m5] = await Promise.all([
-      getCandles(60),
-      getCandles(300)
+      fetchCandles("1min"),
+      fetchCandles("5min")
     ]);
-
-    if (!connected) return;
 
     candlesM1 = m1;
     candlesM5 = m5;
 
-    setDataStatus(
-      "LIVE DATA",
+    const latest = m1[m1.length - 1];
+
+    $("price").textContent = fmt(latest.close);
+    $("priceNote").textContent =
+      "Latest returned M1 candle: " +
+      new Date(latest.time).toLocaleString();
+
+    setConnection("DATA CONNECTED", "ok");
+
+    setStatus(
+      "DATA LOADED",
       "green",
-      "M1 candles: " + m1.length +
-      " | M5 candles: " + m5.length +
-      " | Updated: " + new Date().toLocaleTimeString()
+      "M1: " + m1.length + " candles | M5: " +
+      m5.length + " candles | Updated: " +
+      new Date().toLocaleTimeString()
     );
 
-    setConnection("DERIV CONNECTED", "ok");
+    $("marketInfo").textContent =
+      "Source: Twelve Data · XAU/USD · Historical candle feed";
 
     analyse();
-  } catch (error) {
-    setDataStatus("DATA ERROR", "red", error.message);
 
-    showWait("Candle data could not be verified. Waiting for valid data.");
+    systemMessage(
+      "Market data loaded. Confirm the latest price and signals against your own chart before making decisions."
+    );
+
+  } catch (error) {
+    setConnection("DATA ERROR", "bad");
+    setStatus("ERROR", "red", error.message);
+    $("marketInfo").textContent = "Market data could not be loaded.";
+
+    resetSignal("No verified candles. No new signal is available.");
+    systemMessage(error.message);
+
+  } finally {
+    loading = false;
+    $("refreshBtn").disabled = false;
+    $("saveKeyBtn").disabled = false;
   }
 }
 
@@ -969,7 +822,6 @@ function rsi(values, period = 14) {
 
   for (let i = 1; i <= period; i++) {
     const change = values[i] - values[i - 1];
-
     gains += Math.max(0, change);
     losses += Math.max(0, -change);
   }
@@ -1019,13 +871,13 @@ function superTrend(candles, period = 10, factor = 3) {
     return { direction: "WAIT", line: null };
   }
 
+  const last = candles[candles.length - 1];
+  const previous = candles[candles.length - 2];
   const averageRange = atr(candles, period);
+
   if (!Number.isFinite(averageRange)) {
     return { direction: "WAIT", line: null };
   }
-
-  const last = candles[candles.length - 1];
-  const previous = candles[candles.length - 2];
 
   const middle = (last.high + last.low) / 2;
   const upper = middle + factor * averageRange;
@@ -1129,54 +981,29 @@ function detectReversal(candles, levels) {
   return "NONE";
 }
 
-function indicator(id, text, color) {
-  $(id).textContent = text;
-  $(id).className = "indicator-status " + color;
-}
-
-function showSignal(name, description, setup = "--") {
-  $("signal").textContent = name;
-
-  $("signal").className = "signal-title " +
-    (name === "BUY" ? "green" :
-     name === "SELL" ? "red" : "yellow");
-
-  $("signalCard").className = "signal " +
-    (name === "BUY" ? "buy" :
-     name === "SELL" ? "sell" : "");
-
-  $("signalDesc").textContent = description;
-  $("chipSetup").textContent = "Setup: " + setup;
-}
-
 function analyse() {
   if (candlesM1.length < 205 || candlesM5.length < 205) {
-    showWait("Waiting for sufficient candles to calculate the indicators.");
-
-    $("score").textContent = "--";
-    $("scoreFill").style.width = "0%";
-    $("scoreNote").textContent =
-      "Need at least 205 candles on both timeframes.";
-
+    resetSignal("Waiting for sufficient M1 and M5 candles.");
     return;
   }
 
-  // Use closed candles for indicator calculations.
+  /*
+    Exclude the latest candle from entry calculations because
+    it may still be forming.
+  */
   const m1 = candlesM1.slice(0, -1);
   const m5 = candlesM5.slice(0, -1);
 
-  const close1 = m1.map(c => c.close);
-
+  const closes1 = m1.map(c => c.close);
   const trend = getTrend(m5);
   const entryTrend = getTrend(m1);
 
-  const fast = ema(close1, 9);
-  const slow = ema(close1, 20);
-  const long = ema(close1, 200);
-  const momentum = rsi(close1, 14);
+  const fast = ema(closes1, 9);
+  const slow = ema(closes1, 20);
+  const long = ema(closes1, 200);
+  const momentum = rsi(closes1, 14);
   const st = superTrend(m1);
-
-  const last = close1[close1.length - 1];
+  const last = closes1[closes1.length - 1];
 
   const levels = supportResistance(m5, 50);
   const breakout = detectBreakout(m5, levels);
@@ -1185,56 +1012,52 @@ function analyse() {
   $("support").textContent = fmt(levels.support);
   $("resistance").textContent = fmt(levels.resistance);
 
-  $("supportNote").textContent = "Approximate M5 swing low.";
-  $("resistanceNote").textContent = "Approximate M5 swing high.";
-
   $("chipTrend").textContent = "M5 Trend: " + trend;
   $("chipEntry").textContent = "M1 Trend: " + entryTrend;
   $("chipRsi").textContent = "RSI: " + fmt(momentum);
 
-  indicator("trendStatus", trend,
-    trend === "UP" ? "green" :
-    trend === "DOWN" ? "red" : "yellow");
-
-  indicator("entryStatus", entryTrend,
-    entryTrend === "UP" ? "green" :
-    entryTrend === "DOWN" ? "red" : "yellow");
+  paintIndicator("trendStatus", trend, stateFor(trend));
+  paintIndicator("entryStatus", entryTrend, stateFor(entryTrend));
 
   const emaDirection =
     fast > slow ? "UP" : fast < slow ? "DOWN" : "SIDEWAYS";
 
-  indicator("emaStatus", emaDirection,
-    emaDirection === "UP" ? "green" :
-    emaDirection === "DOWN" ? "red" : "yellow");
+  paintIndicator("emaStatus", emaDirection, stateFor(emaDirection));
 
   const longDirection = last > long ? "ABOVE EMA 200" : "BELOW EMA 200";
 
-  indicator("ema200Status", longDirection,
-    last > long ? "green" : "red");
+  paintIndicator(
+    "ema200Status",
+    longDirection,
+    last > long ? "green" : "red"
+  );
 
-  indicator("rsiStatus", fmt(momentum),
+  paintIndicator(
+    "rsiStatus",
+    fmt(momentum),
     momentum >= 55 ? "green" :
-    momentum <= 45 ? "red" : "yellow");
+    momentum <= 45 ? "red" : "yellow"
+  );
 
-  indicator("stStatus", st.direction,
-    st.direction === "UP" ? "green" :
-    st.direction === "DOWN" ? "red" : "yellow");
+  paintIndicator("stStatus", st.direction, stateFor(st.direction));
 
   $("breakout").textContent = breakout;
-  $("breakout").className = "value " +
+  $("breakout").className =
+    "value " +
     (breakout === "BREAKOUT UP" ? "green" :
      breakout === "BREAKOUT DOWN" ? "red" : "yellow");
 
   $("breakoutNote").textContent =
-    "Based on closed M5 candles and recent swing levels.";
+    "Based on recent M5 levels and candle closes.";
 
   $("reversal").textContent = reversal;
-  $("reversal").className = "value " +
+  $("reversal").className =
+    "value " +
     (reversal === "BULLISH REVERSAL" ? "green" :
      reversal === "BEARISH REVERSAL" ? "red" : "yellow");
 
   $("reversalNote").textContent =
-    "A possible reversal pattern, not a guarantee.";
+    "Pattern detection; reversal is not guaranteed.";
 
   let buyScore = 0;
   let sellScore = 0;
@@ -1254,11 +1077,16 @@ function analyse() {
   if (st.direction === "UP") buyScore += 15;
   if (st.direction === "DOWN") sellScore += 15;
 
-  if (breakout === "BREAKOUT UP" ||
-      reversal === "BULLISH REVERSAL") buyScore += 15;
+  const buyTrigger =
+    breakout === "BREAKOUT UP" ||
+    reversal === "BULLISH REVERSAL";
 
-  if (breakout === "BREAKOUT DOWN" ||
-      reversal === "BEARISH REVERSAL") sellScore += 15;
+  const sellTrigger =
+    breakout === "BREAKOUT DOWN" ||
+    reversal === "BEARISH REVERSAL";
+
+  if (buyTrigger) buyScore += 15;
+  if (sellTrigger) sellScore += 15;
 
   const best = Math.max(buyScore, sellScore);
 
@@ -1267,18 +1095,10 @@ function analyse() {
   $("chipScore").textContent = "Score: " + best + "/100";
 
   $("scoreNote").textContent =
-    "Alignment score only; it is not a probability of winning.";
+    "Indicator alignment only, not a win probability.";
 
   let candidate = "WAIT";
   let setup = "--";
-
-  const buyTrigger =
-    breakout === "BREAKOUT UP" ||
-    reversal === "BULLISH REVERSAL";
-
-  const sellTrigger =
-    breakout === "BREAKOUT DOWN" ||
-    reversal === "BEARISH REVERSAL";
 
   if (
     trend === "UP" &&
@@ -1308,58 +1128,61 @@ function analyse() {
 
   const candleKey = m1[m1.length - 1].time;
 
-  // Avoid repeating a signal for the same closed candle.
-  if (candleKey === lastAnalysisKey) return;
-  lastAnalysisKey = candleKey;
+  if (candleKey === lastSignalCandle) return;
+  lastSignalCandle = candleKey;
 
   if (candidate === "WAIT") {
     showSignal(
       "WAIT",
-      "No qualifying setup. Wait for trend, momentum and entry conditions to align."
+      "No qualifying setup. Wait for trend, momentum and a breakout or reversal condition to align."
     );
     return;
   }
 
-  if (Date.now() - lastSignalTime < 60000) {
-    showSignal("WAIT", "Signal cooldown active. Wait for another closed candle.");
-    return;
-  }
-
-  lastSignalTime = Date.now();
-
   showSignal(
     candidate,
-    candidate + " setup detected. Confirm the price and conditions independently. This is not a guaranteed trade.",
+    candidate + " conditions detected on closed candles. Confirm the price and setup independently.",
     setup
   );
 }
 
-$("reconnect").addEventListener("click", () => {
-  stopTimers();
+$("saveKeyBtn").addEventListener("click", () => {
+  const entered = $("apiKey").value.trim();
 
-  if (ws) {
-    const old = ws;
-    ws = null;
-
-    old.onopen = null;
-    old.onmessage = null;
-    old.onerror = null;
-    old.onclose = null;
-
-    try {
-      old.close();
-    } catch {}
+  if (!entered) {
+    systemMessage("Enter your data API key first.");
+    return;
   }
 
-  connect();
+  apiKey = entered;
+  refreshData();
 });
 
-connect();
-  </script>
+$("refreshBtn").addEventListener("click", refreshData);
 
+$("clearKeyBtn").addEventListener("click", () => {
+  apiKey = "";
+  $("apiKey").value = "";
+  candlesM1 = [];
+  candlesM5 = [];
 
+  setConnection("API KEY CLEARED", "bad");
+  setStatus("WAITING", "yellow", "Enter your data API key to reconnect.");
+  $("price").textContent = "--";
+  $("priceNote").textContent = "Waiting for market data.";
 
-    
-  
+  resetSignal("Enter a data API key to load market candles.");
+  systemMessage("The key has been cleared from this page.");
+});
+
+/* Refresh the candles periodically. Provider limits may apply. */
+setInterval(() => {
+  if (apiKey && !loading) refreshData();
+}, REFRESH_INTERVAL);
+
+setConnection("API KEY REQUIRED");
+setStatus("WAITING", "yellow", "No data request has been made.");
+</script>
+
 </body>
-    </html>
+  </html>
