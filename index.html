@@ -38,42 +38,40 @@ body {
   margin:auto;
 }
 
-.logo {
-  width:48px;
-  height:48px;
-  border-radius:15px;
-  display:grid;
-  font-weight:900;
-  box-shadow:0 8px 28px #316bff35;
-}
-.logo-container {
-display: flex;
-justify-content: center;
-align-items: center;
-margin: 10px auto;
-}
-
-.app-logo {
-width: 70px;
-height: 70px;
-object-fit: contain;
-  }
-  
 header {
   display:flex;
   justify-content:space-between;
   align-items:center;
   flex-wrap:wrap;
   gap:15px;
-  margin:8px 0 16px;
+  margin:8px 0 20px;
 }
 
 .brand {
   display:flex;
   align-items:center;
-  gap:12px;
+  gap:14px;
 }
 
+.logo-container {
+  width:66px;
+  height:66px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:#111b2e;
+  overflow:hidden;
+}
+
+.app-logo {
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  padding:4px;
+}
 
 h1 {
   font-size:25px;
@@ -88,6 +86,7 @@ h1 span {
   font-size:11px;
   color:var(--muted);
   margin-top:5px;
+  line-height:1.6;
 }
 
 .connection {
@@ -110,13 +109,8 @@ h1 span {
   flex-shrink:0;
 }
 
-.dot.ok {
-  background:var(--green);
-}
-
-.dot.bad {
-  background:var(--red);
-}
+.dot.ok { background:var(--green); }
+.dot.bad { background:var(--red); }
 
 .toolbar {
   display:flex;
@@ -185,21 +179,10 @@ button:disabled {
   margin-top:9px;
 }
 
-.blue {
-  color:var(--blue);
-}
-
-.green {
-  color:var(--green);
-}
-
-.red {
-  color:var(--red);
-}
-
-.yellow {
-  color:var(--yellow);
-}
+.blue { color:var(--blue); }
+.green { color:var(--green); }
+.red { color:var(--red); }
+.yellow { color:var(--yellow); }
 
 .section {
   margin-top:17px;
@@ -209,12 +192,6 @@ button:disabled {
   font-size:14px;
   font-weight:bold;
   margin-bottom:12px;
-}
-
-.two {
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:12px;
 }
 
 .signal {
@@ -250,7 +227,7 @@ button:disabled {
   font-size:13px;
   line-height:1.7;
   color:#c4d0e4;
-  max-width:650px;
+  max-width:700px;
   margin:auto;
 }
 
@@ -268,6 +245,62 @@ button:disabled {
   background:#ffffff0a;
   border:1px solid #ffffff13;
   border-radius:8px;
+}
+
+.track {
+  height:7px;
+  background:#ffffff12;
+  border-radius:10px;
+  overflow:hidden;
+  margin-top:13px;
+}
+
+.fill {
+  height:100%;
+  width:0;
+  background:var(--blue);
+  transition:width .3s ease;
+}
+
+.score-track {
+  display:flex;
+  height:10px;
+  border-radius:10px;
+  overflow:hidden;
+  background:#ffffff12;
+  margin-top:12px;
+}
+
+.score-fill {
+  height:100%;
+  width:0;
+  background:var(--blue);
+  transition:width .3s ease;
+}
+
+.indicator-list {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-top:14px;
+}
+
+.indicator-item {
+  padding:12px;
+  border:1px solid #ffffff12;
+  border-radius:10px;
+  background:#ffffff05;
+}
+
+.indicator-name {
+  color:var(--muted);
+  font-size:10px;
+}
+
+.indicator-status {
+  margin-top:7px;
+  font-size:13px;
+  font-weight:bold;
 }
 
 canvas {
@@ -325,37 +358,14 @@ canvas {
 }
 
 @media(max-width:480px) {
-  body {
-    padding:11px;
-  }
-
-  h1 {
-    font-size:21px;
-  }
-
-  .card {
-    padding:14px;
-  }
-
-  .value {
-    font-size:22px;
-  }
-
-  .grid {
-    gap:9px;
-  }
-
-  .two {
-    gap:9px;
-  }
-
-  .signal-title {
-    font-size:28px;
-  }
-
-  .connection {
-    max-width:100%;
-  }
+  body { padding:11px; }
+  h1 { font-size:21px; }
+  .card { padding:14px; }
+  .value { font-size:22px; }
+  .grid { gap:9px; }
+  .signal-title { font-size:27px; }
+  .connection { max-width:100%; }
+  .logo-container { width:56px; height:56px; }
 }
 </style>
 </head>
@@ -365,7 +375,13 @@ canvas {
 
 <header>
   <div class="brand">
-    <div class="logo" <img src="lgo.png"></div>
+    <div class="logo-container">
+      <img src="./lgo.png"
+           alt="Wisetrader Gold PRO Logo"
+           class="app-logo"
+           onerror="this.style.display='none';">
+    </div>
+
     <div>
       <h1>Wise<span>trader</span> Gold</h1>
       <div class="subtitle">
@@ -380,88 +396,105 @@ canvas {
   </div>
 </header>
 
-<!-- SIGNAL MONITOR: MOVED ABOVE THE PRICE HISTORY -->
-
-<div class="section" id="topSignal">
-  <div class="section-title">
-    PRACTICE SIGNAL MONITOR
-  </div>
+<div class="section">
+  <div class="section-title">PRACTICE SIGNAL MONITOR</div>
 
   <div id="signalCard" class="signal wait">
     <div class="label">WISETRADER OBSERVATION</div>
-
-    <div id="signal" class="signal-title yellow">
-      WAIT
-    </div>
+    <div id="signal" class="signal-title yellow">WAIT</div>
 
     <div id="signalDesc" class="signal-desc">
-      Waiting for valid data before displaying a practice signal.
+      Waiting for sufficient observations.
     </div>
 
     <div class="chips">
-      <span id="chipDirection" class="chip">
-        Direction: --
-      </span>
-
-      <span id="chipRsi" class="chip">
-        RSI: --
-      </span>
-
-      <span class="chip">
-        Mode: Practice only
-      </span>
+      <span id="chipDirection" class="chip">Direction: --</span>
+      <span id="chipSuperTrend" class="chip">SuperTrend: --</span>
+      <span id="chipScore" class="chip">Score: --</span>
+      <span id="chipRsi" class="chip">RSI: --</span>
+      <span class="chip">Practice only</span>
     </div>
   </div>
 </div>
 
-<div class="toolbar">
+<div class="toolbar" style="margin-top:17px">
   <div>
     <div class="market-name">XAU/USD · Gold Spot</div>
-    <div class="small">
-      Online reference price · Not a Deriv quote
-    </div>
+    <div class="small">Global reference price · Not a Deriv quote</div>
   </div>
-
   <button id="refresh">Refresh data</button>
 </div>
 
 <div class="grid">
-
   <div class="card">
     <div class="label">GOLD SPOT PRICE</div>
     <div id="price" class="value blue">Loading…</div>
-    <div id="priceNote" class="note">
-      Fetching reference price
-    </div>
+    <div id="priceNote" class="note">Fetching reference price</div>
   </div>
 
   <div class="card">
     <div class="label">SAMPLED-SERIES RSI (14)</div>
     <div id="rsi" class="value yellow">--</div>
-    <div id="rsiNote" class="note">
-      Waiting for enough observations
-    </div>
-    <div class="track">
-      <div id="rsiFill" class="fill"></div>
-    </div>
+    <div id="rsiNote" class="note">Waiting for observations</div>
+    <div class="track"><div id="rsiFill" class="fill"></div></div>
   </div>
 
   <div class="card">
     <div class="label">SAMPLED PRICE DIRECTION</div>
     <div id="direction" class="value yellow">WAIT</div>
-    <div id="directionNote" class="note">
-      Waiting for price observations
-    </div>
+    <div id="directionNote" class="note">Waiting for price observations</div>
   </div>
 
   <div class="card">
     <div class="label">DATA FRESHNESS</div>
     <div id="freshness" class="value yellow">CHECKING</div>
-    <div id="updated" class="note">
-      Checking provider timestamp
+    <div id="updated" class="note">Checking provider timestamp</div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">FLEXIBLE 60/40 SCORING</div>
+
+  <div class="card">
+    <div class="label">DIRECTIONAL CONFIDENCE SCORE</div>
+    <div id="scoreValue" class="value blue">--</div>
+
+    <div class="score-track">
+      <div id="scoreFill" class="score-fill"></div>
+    </div>
+
+    <div id="scoreNote" class="note">
+      Waiting for sufficient data.
+    </div>
+
+    <div class="indicator-list">
+      <div class="indicator-item">
+        <div class="indicator-name">SUPERTREND PROXY</div>
+        <div id="stStatus" class="indicator-status yellow">WAIT</div>
+      </div>
+
+      <div class="indicator-item">
+        <div class="indicator-name">EMA 200 PROXY</div>
+        <div id="ema200Status" class="indicator-status yellow">WAIT</div>
+      </div>
+
+      <div class="indicator-item">
+        <div class="indicator-name">EMA 9 / EMA 20</div>
+        <div id="emaStatus" class="indicator-status yellow">WAIT</div>
+      </div>
+
+      <div class="indicator-item">
+        <div class="indicator-name">RSI MOMENTUM</div>
+        <div id="momentumStatus" class="indicator-status yellow">WAIT</div>
+      </div>
+    </div>
+
+    <div class="note">
+      Practice scoring: trend direction contributes 60% and momentum
+      contributes 40%. A signal requires a score of at least 60/100
+      plus agreement from the SuperTrend proxy and EMA 200 proxy.
     </div>
   </div>
-
 </div>
 
 <div class="section">
@@ -469,14 +502,12 @@ canvas {
 
   <div class="card">
     <div class="label">
-      XAU intraday observations · approximately 2-minute sampling
+      XAU intraday observations · sampled reference prices
     </div>
 
     <canvas id="chart" width="1000" height="300"></canvas>
 
-    <div id="chartNote" class="note">
-      Loading intraday observations…
-    </div>
+    <div id="chartNote" class="note">Loading observations…</div>
   </div>
 </div>
 
@@ -492,32 +523,26 @@ canvas {
             <th>REFERENCE PRICE (USD/OZ)</th>
           </tr>
         </thead>
-
         <tbody id="history">
-          <tr>
-            <td colspan="2">Waiting for data…</td>
-          </tr>
+          <tr><td colspan="2">Waiting for data…</td></tr>
         </tbody>
       </table>
     </div>
 
     <div class="note">
-      Data source: XAUS public Gold Data API. The spot endpoint
-      may be cached, and the intraday series is sampled rather than
-      a complete set of M1/M5 OHLC candles.
+      Source: XAUS public Gold Data API. Sampled observations are
+      not complete M1/M5 OHLC candles.
     </div>
   </div>
 </div>
 
 <div class="warning">
-  <strong>Data and risk notice:</strong>
-  The displayed price is an indicative global gold spot reference,
-  not necessarily the price offered by Deriv. The intraday series
-  contains sampled prices rather than complete M1/M5 OHLC candles.
-  The direction and RSI are calculated from these observations.
-  They are not SuperTrend signals, verified trade entries, or a
-  guarantee of profit. Do not use this version as the sole basis
-  for a financial decision.
+  <strong>Important data limitation:</strong>
+  This app uses sampled global gold prices. It does not receive
+  confirmed Deriv prices or complete M1/M5 candles. Its SuperTrend
+  is an approximation calculated from sampled prices, not a true
+  candle-based SuperTrend. Scores are experimental observations,
+  not verified trade entries or a guarantee of profit. Test on demo.
 </div>
 
 <div class="footer">
@@ -556,14 +581,11 @@ function pointTime(value) {
   if (typeof value === "number") {
     return new Date(value < 1e12 ? value * 1000 : value);
   }
-
   return new Date(value);
 }
 
 async function fetchJSON(url) {
-  const response = await fetch(url, {
-    cache:"no-store"
-  });
+  const response = await fetch(url, {cache:"no-store"});
 
   if (!response.ok) {
     throw new Error("HTTP " + response.status);
@@ -573,56 +595,36 @@ async function fetchJSON(url) {
 }
 
 function getPriceState(data) {
-  const state = data && data.data_state;
   const asOf = data && (data.price_as_of || data.updated_at);
   const timestamp = asOf ? new Date(asOf).getTime() : NaN;
-
   const age = Number.isFinite(timestamp)
     ? Date.now() - timestamp
     : Infinity;
 
-  if (
-    data.stale === true ||
-    (state && state.status === "stale") ||
-    age > MAX_AGE_MS
-  ) {
-    return {
-      label:"STALE",
-      fresh:false,
-      timestamp
-    };
-  }
+  const unavailable = data &&
+    data.data_state &&
+    data.data_state.status === "unavailable";
 
-  if (state && state.status === "unavailable") {
-    return {
-      label:"UNAVAILABLE",
-      fresh:false,
-      timestamp
-    };
+  if (data.stale === true || unavailable || age > MAX_AGE_MS) {
+    return {label:"STALE", fresh:false, timestamp};
   }
 
   if (!Number.isFinite(timestamp)) {
-    return {
-      label:"UNVERIFIED",
-      fresh:false,
-      timestamp
-    };
+    return {label:"UNVERIFIED", fresh:false, timestamp};
   }
 
-  return {
-    label:"FRESH",
-    fresh:true,
-    timestamp
-  };
+  return {label:"FRESH", fresh:true, timestamp};
 }
 
 async function loadSpot() {
-  const url = API + "/spot?compact=1&fresh=" + Date.now();
-  const data = await fetchJSON(url);
+  const data = await fetchJSON(
+    API + "/spot?compact=1&fresh=" + Date.now()
+  );
+
   const price = Number(data.spot_usd_oz);
 
   if (!Number.isFinite(price) || price <= 0) {
-    throw new Error("The provider did not return a valid gold price.");
+    throw new Error("Provider did not return a valid gold price.");
   }
 
   const state = getPriceState(data);
@@ -634,7 +636,6 @@ async function loadSpot() {
     (data.price_source || data.source || "XAUS reference data");
 
   $("freshness").textContent = state.label;
-
   $("freshness").className =
     "value " + (state.fresh ? "green" : "yellow");
 
@@ -642,35 +643,37 @@ async function loadSpot() {
     ? "Price timestamp: " + new Date(state.timestamp).toLocaleString()
     : "Provider timestamp could not be verified";
 
-  return {
-    price,
-    state
-  };
+  return {price, state};
 }
 
 function normalizePoints(data) {
   if (!Array.isArray(data.points)) {
-    throw new Error("Intraday response did not contain a points array.");
+    throw new Error("Intraday response has no points array.");
   }
 
-  return data.points
-    .map(p => {
-      const date = pointTime(p.t);
+  return data.points.map(p => {
+    const date = pointTime(p.t);
+    return {time:date.getTime(), price:Number(p.p)};
+  }).filter(p =>
+    Number.isFinite(p.time) &&
+    Number.isFinite(p.price) &&
+    p.price > 0
+  ).sort((a,b) => a.time-b.time)
+   .filter((p,i,arr) => i === 0 || p.time !== arr[i-1].time);
+}
 
-      return {
-        time:date.getTime(),
-        price:Number(p.p)
-      };
-    })
-    .filter(p =>
-      Number.isFinite(p.time) &&
-      Number.isFinite(p.price) &&
-      p.price > 0
-    )
-    .sort((a, b) => a.time - b.time)
-    .filter((p, i, arr) =>
-      i === 0 || p.time !== arr[i - 1].time
-    );
+function calculateEMA(values, period) {
+  if (values.length < period) return null;
+
+  const multiplier = 2 / (period + 1);
+  let ema = values.slice(0, period)
+    .reduce((sum, value) => sum + value, 0) / period;
+
+  for (let i = period; i < values.length; i++) {
+    ema = (values[i] - ema) * multiplier + ema;
+  }
+
+  return ema;
 }
 
 function calculateRSI(values, period = 14) {
@@ -680,8 +683,7 @@ function calculateRSI(values, period = 14) {
   let loss = 0;
 
   for (let i = 1; i <= period; i++) {
-    const change = values[i] - values[i - 1];
-
+    const change = values[i] - values[i-1];
     gain += Math.max(change, 0);
     loss += Math.max(-change, 0);
   }
@@ -690,13 +692,10 @@ function calculateRSI(values, period = 14) {
   let avgLoss = loss / period;
 
   for (let i = period + 1; i < values.length; i++) {
-    const change = values[i] - values[i - 1];
+    const change = values[i] - values[i-1];
 
-    avgGain =
-      (avgGain * (period - 1) + Math.max(change, 0)) / period;
-
-    avgLoss =
-      (avgLoss * (period - 1) + Math.max(-change, 0)) / period;
+    avgGain = (avgGain * (period-1) + Math.max(change,0)) / period;
+    avgLoss = (avgLoss * (period-1) + Math.max(-change,0)) / period;
   }
 
   if (avgGain === 0 && avgLoss === 0) return 50;
@@ -704,22 +703,18 @@ function calculateRSI(values, period = 14) {
   if (avgGain === 0) return 0;
 
   const rs = avgGain / avgLoss;
-
   return 100 - 100 / (1 + rs);
 }
 
 function calculateDirection(values) {
   if (values.length < 10) return "WAIT";
 
-  const recent = values.slice(-10);
-  const first = recent[0];
-  const last = recent[recent.length - 1];
+  const first = values[values.length-10];
+  const last = values[values.length-1];
 
-  if (!Number.isFinite(first) || first === 0) {
-    return "WAIT";
-  }
+  if (!Number.isFinite(first) || first === 0) return "WAIT";
 
-  const changePct = ((last - first) / first) * 100;
+  const changePct = (last-first) / first * 100;
 
   if (changePct > 0.03) return "UP";
   if (changePct < -0.03) return "DOWN";
@@ -727,39 +722,78 @@ function calculateDirection(values) {
   return "SIDEWAYS";
 }
 
+/*
+ * Approximate SuperTrend based on sampled prices.
+ * Because the feed does not supply OHLC candles or true ATR,
+ * this is a directional proxy, not a standard SuperTrend.
+ */
+function calculateSuperTrendProxy(values, period = 10, multiplier = 3) {
+  if (values.length < period + 1) {
+    return {direction:"WAIT", line:null};
+  }
+
+  const changes = [];
+
+  for (let i = 1; i < values.length; i++) {
+    changes.push(Math.abs(values[i] - values[i-1]));
+  }
+
+  const recent = changes.slice(-period);
+  const atr = recent.reduce((a,b) => a+b, 0) / recent.length;
+
+  const last = values[values.length-1];
+  const previous = values[values.length-2];
+
+  const upper = last + multiplier * atr;
+  const lower = last - multiplier * atr;
+
+  let direction;
+
+  if (last > previous) direction = "UP";
+  else if (last < previous) direction = "DOWN";
+  else direction = "SIDEWAYS";
+
+  return {
+    direction,
+    line:direction === "UP" ? lower : upper,
+    atr
+  };
+}
+
+function setIndicator(id, text, color) {
+  $(id).textContent = text;
+  $(id).className = "indicator-status " + color;
+}
+
 function renderChart() {
   const canvas = $("chart");
   const ctx = canvas.getContext("2d");
-
   const w = canvas.width;
   const h = canvas.height;
 
-  ctx.clearRect(0, 0, w, h);
-
+  ctx.clearRect(0,0,w,h);
   ctx.fillStyle = "#0c1527";
-  ctx.fillRect(0, 0, w, h);
+  ctx.fillRect(0,0,w,h);
 
   if (points.length < 2) {
-    $("chartNote").textContent =
-      "Not enough observations to draw the chart.";
+    $("chartNote").textContent = "Not enough observations to draw the chart.";
     return;
   }
 
   const values = points.map(p => p.price);
   const min = Math.min(...values);
   const max = Math.max(...values);
-  const range = max - min || 1;
+  const range = max-min || 1;
   const pad = 24;
 
   ctx.strokeStyle = "#273650";
   ctx.lineWidth = 1;
 
-  for (let i = 1; i <= 4; i++) {
-    const y = pad + (h - 2 * pad) * i / 5;
-
+  for (let i=1; i<=4; i++) {
+    const y = pad + (h-2*pad)*i/5;
     ctx.beginPath();
-    ctx.moveTo(pad, y);
-    ctx.lineTo(w - pad, y);
+    ctx.moveTo(pad,y);
+    ctx.lineTo(w-pad,y);
     ctx.stroke();
   }
 
@@ -767,151 +801,192 @@ function renderChart() {
   ctx.lineWidth = 3;
   ctx.beginPath();
 
-  values.forEach((v, i) => {
-    const x =
-      pad + i * (w - 2 * pad) / (values.length - 1);
+  values.forEach((v,i) => {
+    const x = pad + i*(w-2*pad)/(values.length-1);
+    const y = h-pad-((v-min)/range)*(h-2*pad);
 
-    const y =
-      h - pad - ((v - min) / range) * (h - 2 * pad);
-
-    if (i === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
+    if (i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
   });
 
   ctx.stroke();
 
   ctx.fillStyle = "#91a0ba";
   ctx.font = "13px Arial";
-
-  ctx.fillText("$" + number(max), pad, 17);
-  ctx.fillText("$" + number(min), pad, h - 5);
-
-  const first = points[0].time;
-  const last = points[points.length - 1].time;
+  ctx.fillText("$"+number(max),pad,17);
+  ctx.fillText("$"+number(min),pad,h-5);
 
   $("chartNote").textContent =
     points.length + " observations · " +
-    new Date(first).toLocaleTimeString() + " to " +
-    new Date(last).toLocaleTimeString() +
+    new Date(points[0].time).toLocaleTimeString() + " to " +
+    new Date(points[points.length-1].time).toLocaleTimeString() +
     " · Sampled prices, not OHLC candles.";
 }
 
 function renderHistory() {
-  const body = $("history");
   const recent = points.slice(-10).reverse();
 
   if (!recent.length) {
-    body.innerHTML =
+    $("history").innerHTML =
       '<tr><td colspan="2">No observations available.</td></tr>';
     return;
   }
 
-  body.innerHTML = recent.map(p => {
-    return "<tr><td>" +
-      new Date(p.time).toLocaleString() +
-      "</td><td>$" + number(p.price) + "</td></tr>";
-  }).join("");
+  $("history").innerHTML = recent.map(p =>
+    "<tr><td>" + new Date(p.time).toLocaleString() +
+    "</td><td>$" + number(p.price) + "</td></tr>"
+  ).join("");
 }
 
 function renderIndicators(state) {
   const values = points.map(p => p.price);
-
   const rsi = calculateRSI(values);
   const direction = calculateDirection(values);
+  const ema9 = calculateEMA(values,9);
+  const ema20 = calculateEMA(values,20);
+  const ema200 = calculateEMA(values,200);
+  const st = calculateSuperTrendProxy(values);
 
-  $("rsi").textContent =
-    rsi === null ? "--" : number(rsi);
+  $("rsi").textContent = rsi === null ? "--" : number(rsi);
+  $("rsi").className = "value " +
+    (rsi === null ? "yellow" : rsi >= 60 ? "green" : rsi <= 40 ? "red" : "yellow");
 
-  $("rsi").className =
-    "value " +
-    (
-      rsi === null
-        ? "yellow"
-        : rsi >= 60
-          ? "green"
-          : rsi <= 40
-            ? "red"
-            : "yellow"
-    );
+  $("rsiFill").style.width = rsi === null ? "0%" : rsi + "%";
 
-  $("rsiFill").style.width =
-    rsi === null ? "0%" : rsi + "%";
-
-  $("rsiNote").textContent =
-    rsi === null
-      ? "Collecting enough sampled observations"
-      : "RSI calculated from sampled prices; not M1/M5 candle RSI";
+  $("rsiNote").textContent = rsi === null
+    ? "Collecting enough observations"
+    : "RSI calculated from sampled prices, not candle RSI";
 
   $("direction").textContent = direction;
-
-  $("direction").className =
-    "value " +
-    (
-      direction === "UP"
-        ? "green"
-        : direction === "DOWN"
-          ? "red"
-          : "yellow"
-    );
+  $("direction").className = "value " +
+    (direction==="UP" ? "green" : direction==="DOWN" ? "red" : "yellow");
 
   $("directionNote").textContent =
-    "Direction of the last 10 available observations; not SuperTrend.";
+    "Direction of recent sampled prices, not a candle trend.";
+
+  setIndicator(
+    "stStatus",
+    st.direction,
+    st.direction==="UP" ? "green" : st.direction==="DOWN" ? "red" : "yellow"
+  );
+
+  let ema200Direction = "WAIT";
+
+  if (ema200 !== null) {
+    if (values[values.length-1] > ema200) ema200Direction = "UP";
+    else if (values[values.length-1] < ema200) ema200Direction = "DOWN";
+    else ema200Direction = "SIDEWAYS";
+  }
+
+  setIndicator(
+    "ema200Status",
+    ema200Direction,
+    ema200Direction==="UP" ? "green" : ema200Direction==="DOWN" ? "red" : "yellow"
+  );
+
+  let emaDirection = "WAIT";
+
+  if (ema9 !== null && ema20 !== null) {
+    if (ema9 > ema20) emaDirection = "UP";
+    else if (ema9 < ema20) emaDirection = "DOWN";
+    else emaDirection = "SIDEWAYS";
+  }
+
+  setIndicator(
+    "emaStatus",
+    emaDirection,
+    emaDirection==="UP" ? "green" : emaDirection==="DOWN" ? "red" : "yellow"
+  );
+
+  let momentum = "NEUTRAL";
+
+  if (rsi !== null) {
+    if (rsi >= 55) momentum = "BULLISH";
+    else if (rsi <= 45) momentum = "BEARISH";
+  }
+
+  setIndicator(
+    "momentumStatus",
+    momentum,
+    momentum==="BULLISH" ? "green" : momentum==="BEARISH" ? "red" : "yellow"
+  );
+
+  /*
+   * Experimental 60/40 score:
+   * 60 points for trend alignment, 40 for momentum alignment.
+   * Signals require score >= 60, plus SuperTrend proxy and
+   * EMA 200 direction agreement. Not a tested trading strategy.
+   */
+  let buyScore = 0;
+  let sellScore = 0;
+
+  const ready = values.length >= 201 &&
+    rsi !== null &&
+    ema9 !== null &&
+    ema20 !== null &&
+    ema200 !== null &&
+    st.direction !== "WAIT";
+
+  if (ready) {
+    const buyTrend =
+      st.direction==="UP" &&
+      ema200Direction==="UP" &&
+      emaDirection==="UP";
+
+    const sellTrend =
+      st.direction==="DOWN" &&
+      ema200Direction==="DOWN" &&
+      emaDirection==="DOWN";
+
+    const buyMomentum = momentum==="BULLISH";
+    const sellMomentum = momentum==="BEARISH";
+
+    if (buyTrend) buyScore += 60;
+    if (sellTrend) sellScore += 60;
+
+    if (buyMomentum) buyScore += 40;
+    if (sellMomentum) sellScore += 40;
+  }
+
+  const bestScore = Math.max(buyScore,sellScore);
+
+  $("scoreValue").textContent = ready ? bestScore + "/100" : "--";
+  $("scoreFill").style.width = ready ? bestScore + "%" : "0%";
+
+  $("scoreNote").textContent = !ready
+    ? "Collect at least 201 valid observations before calculating the complete EMA 200 score."
+    : "Experimental score only. It has not been backtested.";
 
   let signal = "WAIT";
-
-  let explanation =
-    "Waiting for sufficient fresh data or indicator agreement.";
+  let explanation = "Waiting for sufficient observations and indicator agreement.";
 
   if (!state.fresh) {
-    explanation =
-      "The gold reference price or intraday data is stale or its freshness could not be verified.";
-  } else if (rsi === null || direction === "WAIT") {
-    explanation =
-      "More sampled observations are needed before a practice signal can be calculated.";
-  } else if (direction === "UP" && rsi >= 60) {
-    signal = "BULLISH BIAS";
-
-    explanation =
-      "Recent sampled prices are rising and RSI is at least 60. This is an observation, not a trade instruction.";
-  } else if (direction === "DOWN" && rsi <= 40) {
-    signal = "BEARISH BIAS";
-
-    explanation =
-      "Recent sampled prices are falling and RSI is at most 40. This is an observation, not a trade instruction.";
+    explanation = "Data freshness could not be verified. No practice signal is available.";
+  } else if (!ready) {
+    explanation = "More observations are required for the EMA 200 and scoring calculations.";
+  } else if (buyScore >= 60 && st.direction==="UP" && ema200Direction==="UP") {
+    signal = "BUY BIAS";
+    explanation = "The sampled-price SuperTrend proxy and EMA 200 direction are upward, and the experimental score has reached the threshold. This is not a confirmed Deriv entry.";
+  } else if (sellScore >= 60 && st.direction==="DOWN" && ema200Direction==="DOWN") {
+    signal = "SELL BIAS";
+    explanation = "The sampled-price SuperTrend proxy and EMA 200 direction are downward, and the experimental score has reached the threshold. This is not a confirmed Deriv entry.";
   } else {
-    explanation =
-      "The sampled-price direction and RSI do not meet the practice conditions.";
+    explanation = "The experimental score or essential trend conditions are not satisfied. Wait for clearer conditions.";
   }
 
   $("signal").textContent = signal;
+  $("signal").className = "signal-title " +
+    (signal==="BUY BIAS" ? "green" : signal==="SELL BIAS" ? "red" : "yellow");
 
-  $("signal").className =
-    "signal-title " +
-    (
-      signal === "BULLISH BIAS"
-        ? "green"
-        : signal === "BEARISH BIAS"
-          ? "red"
-          : "yellow"
-    );
-
-  $("signalCard").className =
-    "signal " +
-    (
-      signal === "BULLISH BIAS"
-        ? "buy"
-        : signal === "BEARISH BIAS"
-          ? "sell"
-          : "wait"
-    );
+  $("signalCard").className = "signal " +
+    (signal==="BUY BIAS" ? "buy" : signal==="SELL BIAS" ? "sell" : "wait");
 
   $("signalDesc").textContent = explanation;
 
-  $("chipDirection").textContent =
-    "Direction: " + direction;
-
-  $("chipRsi").textContent =
-    "RSI: " + (rsi === null ? "--" : number(rsi));
+  $("chipDirection").textContent = "Direction: " + direction;
+  $("chipSuperTrend").textContent = "SuperTrend: " + st.direction;
+  $("chipScore").textContent = "Score: " + (ready ? bestScore+"/100" : "--");
+  $("chipRsi").textContent = "RSI: " + (rsi===null ? "--" : number(rsi));
 }
 
 async function refreshData() {
@@ -921,48 +996,39 @@ async function refreshData() {
   $("refresh").disabled = true;
 
   try {
-    setConnection("UPDATING DATA", "");
+    setConnection("UPDATING DATA","");
 
-    const [spotResult, intradayData] = await Promise.all([
+    const [spotResult,intradayData] = await Promise.all([
       loadSpot(),
-      fetchJSON(
-        API + "/intraday?symbol=xau&hours=24&fresh=" + Date.now()
-      )
+      fetchJSON(API + "/intraday?symbol=xau&hours=24&fresh=" + Date.now())
     ]);
 
     const newPoints = normalizePoints(intradayData);
 
-    if (newPoints.length >= 2) {
-      points = newPoints;
-    }
+    if (newPoints.length >= 2) points = newPoints;
 
     const intradayState = intradayData.data_state;
+    const asOf = intradayState && intradayState.as_of
+      ? new Date(intradayState.as_of).getTime()
+      : NaN;
 
-    const intradayAsOf =
-      intradayState && intradayState.as_of
-        ? new Date(intradayState.as_of).getTime()
-        : NaN;
-
-    const intradayAge =
-      Number.isFinite(intradayAsOf)
-        ? Date.now() - intradayAsOf
-        : Infinity;
+    const age = Number.isFinite(asOf) ? Date.now()-asOf : Infinity;
 
     const intradayFresh = Boolean(
       intradayState &&
-      intradayState.status === "fresh" &&
-      intradayAge >= -60000 &&
-      intradayAge <= MAX_AGE_MS
+      intradayState.status==="fresh" &&
+      age >= -60000 &&
+      age <= MAX_AGE_MS
     );
 
     const combinedState = {
       fresh:Boolean(spotResult.state.fresh && intradayFresh)
     };
 
-    if (!intradayFresh) {
-      setConnection("INTRADAY DATA NOT FRESH", "bad");
-    } else if (combinedState.fresh) {
-      setConnection("GOLD DATA CONNECTED", "ok");
+    if (combinedState.fresh) {
+      setConnection("GOLD REFERENCE DATA CONNECTED","ok");
+    } else {
+      setConnection("DATA FRESHNESS NOT VERIFIED","bad");
     }
 
     renderChart();
@@ -977,21 +1043,19 @@ async function refreshData() {
   } catch (error) {
     console.error(error);
 
-    setConnection("DATA CONNECTION ERROR", "bad");
-
+    setConnection("DATA CONNECTION ERROR","bad");
     $("freshness").textContent = "ERROR";
     $("freshness").className = "value red";
-
-    $("updated").textContent =
-      error.message || "Could not retrieve data.";
+    $("updated").textContent = error.message || "Could not retrieve data.";
 
     $("signal").textContent = "WAIT";
     $("signal").className = "signal-title yellow";
-
     $("signalDesc").textContent =
       "Data could not be verified. No practice signal is available.";
-
     $("signalCard").className = "signal wait";
+
+    $("scoreValue").textContent = "--";
+    $("scoreFill").style.width = "0%";
 
   } finally {
     requestRunning = false;
@@ -999,12 +1063,11 @@ async function refreshData() {
   }
 }
 
-$("refresh").addEventListener("click", refreshData);
+$("refresh").addEventListener("click",refreshData);
 
 refreshData();
-
-setInterval(refreshData, REFRESH_MS);
+setInterval(refreshData,REFRESH_MS);
 </script>
 
 </body>
-</html>
+  </html>
