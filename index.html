@@ -4,926 +4,1854 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#090d17">
+
 <title>Wisetrader Gold PRO</title>
 
 <style>
 :root {
-  --bg:#090d17;
-  --panel:#111827;
-  --panel2:#151e30;
-  --border:#2b3549;
-  --text:#edf3ff;
-  --muted:#91a0ba;
-  --green:#27df9a;
-  --red:#ff6076;
-  --yellow:#ffc857;
-  --blue:#68a7ff;
+    --bg: #090d17;
+    --panel: #111827;
+    --panel2: #151e2e;
+    --border: #263248;
+    --text: #f3f6fc;
+    --muted: #98a6bd;
+    --green: #27df9a;
+    --red: #ff5c72;
+    --yellow: #ffcb65;
+    --blue: #69a8ff;
 }
-* {box-sizing:border-box}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:Arial,Helvetica,sans-serif;
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 16px;
 }
+
+.app {
+    max-width: 760px;
+    margin: auto;
+}
+
 header {
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding:16px;
-  border-bottom:1px solid var(--border);
-  background:#0c1220;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-bottom: 18px;
 }
+
 .logo {
-  width:52px;
-  height:52px;
-  object-fit:contain;
-  border-radius:10px;
-  background:#fff;
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
+    border-radius: 12px;
 }
-.brand {font-size:18px;font-weight:800}
-.subtitle {font-size:12px;color:var(--muted);margin-top:5px}
-main {max-width:800px;margin:auto;padding:14px}
+
+.brand h1 {
+    font-size: 21px;
+    margin: 0 0 5px;
+}
+
+.brand p {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0;
+}
+
+.badge {
+    display: inline-block;
+    background: #19283a;
+    border: 1px solid var(--border);
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    margin-top: 7px;
+}
+
 .card {
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:15px;
-  margin-bottom:13px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 16px;
+    margin-bottom: 13px;
 }
-h2 {font-size:15px;margin:0 0 13px}
-label {
-  display:block;
-  color:var(--muted);
-  font-size:12px;
-  margin-bottom:6px;
+
+.card h2 {
+    font-size: 14px;
+    margin: 0 0 13px;
+    color: #dfe8f7;
 }
-input,select,button {
-  width:100%;
-  padding:12px;
-  border-radius:9px;
-  border:1px solid var(--border);
-  background:var(--panel2);
-  color:var(--text);
-  font-size:14px;
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
 }
+
+.metric {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 13px;
+    min-width: 0;
+}
+
+.label {
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    margin-bottom: 9px;
+}
+
+.value {
+    font-size: 19px;
+    font-weight: bold;
+    overflow-wrap: anywhere;
+}
+
+.small {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 7px;
+    line-height: 1.5;
+}
+
+.green {
+    color: var(--green);
+}
+
+.red {
+    color: var(--red);
+}
+
+.yellow {
+    color: var(--yellow);
+}
+
+.blue {
+    color: var(--blue);
+}
+
+.muted {
+    color: var(--muted);
+}
+
+input,
+select,
 button {
-  border:0;
-  background:var(--blue);
-  color:#07101e;
-  font-weight:800;
-  cursor:pointer;
+    width: 100%;
+    padding: 12px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: #0c1320;
+    color: var(--text);
+    font-size: 14px;
 }
-button:disabled {opacity:.6}
-.secondary {background:#25334b;color:var(--text)}
-.row,.actions {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
+
+input,
+select {
+    margin: 7px 0 12px;
 }
-.actions {margin-top:12px}
-.muted {color:var(--muted);font-size:12px;line-height:1.6}
-.status {
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:12px;
-  background:#0c1423;
-  overflow-wrap:anywhere;
-  line-height:1.6;
+
+button {
+    background: #203651;
+    border-color: #315477;
+    font-weight: bold;
+    cursor: pointer;
 }
-.status strong {display:block;margin-bottom:4px}
-.signal {
-  text-align:center;
-  padding:23px 12px;
-  background:#0c1423;
-  border:1px solid var(--border);
-  border-radius:12px;
+
+button:active {
+    transform: scale(.99);
 }
-.signal-title {font-size:30px;font-weight:900}
-.signal-detail {font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6}
-.buy {color:var(--green)}
-.sell {color:var(--red)}
-.wait {color:var(--yellow)}
-.stat-grid {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:9px;
-  margin-top:11px;
+
+button:disabled {
+    opacity: .55;
+    cursor: wait;
 }
-.stat {padding:12px;background:var(--panel2);border-radius:9px}
-.stat small {display:block;color:var(--muted);margin-bottom:6px}
-.stat strong {font-size:14px;overflow-wrap:anywhere}
-footer {
-  text-align:center;
-  padding:15px;
-  color:var(--muted);
-  font-size:11px;
-  line-height:1.7;
+
+button.primary {
+    background: #176c50;
+    border-color: #238966;
 }
-@media(max-width:480px) {
-  main {padding:10px}
-  .row,.actions {grid-template-columns:1fr}
-  header {padding:12px}
+
+button.secondary {
+    background: #182234;
+}
+
+button.warning {
+    background: #503c1c;
+    border-color: #80602a;
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+}
+
+.full {
+    grid-column: 1 / -1;
+}
+
+.statusline {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 10px;
+}
+
+.rule {
+    border: 0;
+    border-top: 1px solid var(--border);
+    margin: 14px 0;
+}
+
+.notice {
+    font-size: 12px;
+    line-height: 1.65;
+    color: var(--muted);
+}
+
+.notice strong {
+    color: var(--text);
+}
+
+.guidance {
+    background: #0d1522;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--blue);
+    padding: 13px;
+    border-radius: 9px;
+    line-height: 1.55;
+}
+
+.guidance.hold {
+    border-left-color: var(--green);
+}
+
+.guidance.review {
+    border-left-color: var(--yellow);
+}
+
+.guidance.exit {
+    border-left-color: var(--red);
+}
+
+.footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.6;
+    padding: 10px 0 20px;
+}
+
+@media (max-width: 420px) {
+    body {
+        padding: 10px;
+    }
+
+    .brand h1 {
+        font-size: 18px;
+    }
+
+    .value {
+        font-size: 17px;
+    }
+
+    .card {
+        padding: 13px;
+    }
 }
 </style>
 </head>
 
 <body>
+
+<div class="app">
+
 <header>
-  <img class="logo" src="./lgo.png" alt="Wisetrader logo"
-       onerror="this.style.display='none'">
-  <div>
-    <div class="brand">WISETRADER GOLD PRO</div>
-    <div class="subtitle">SuperTrend 10 / 4.0 · M1 + M5 · Closed-Candle Confirmation</div>
-  </div>
+    <img
+        class="logo"
+        src="lgo.png"
+        alt="Wisetrader logo"
+        onerror="this.style.display='none'"
+    >
+
+    <div class="brand">
+        <h1>WISETRADER GOLD PRO</h1>
+        <p>Gold trend and entry analysis</p>
+        <span class="badge">SUPERTREND 10 / 4.0</span>
+    </div>
 </header>
 
-<main>
+<!-- CONNECTION -->
+
 <section class="card">
-  <h2>API CONNECTION</h2>
+    <h2>DATA CONNECTION</h2>
 
-  <label for="apiKey">Twelve Data API key</label>
-  <input id="apiKey" type="password"
-         placeholder="Enter your Twelve Data API key"
-         autocomplete="off">
+    <label class="label" for="apiKey">Twelve Data API Key</label>
 
-  <p class="muted">
-    Your API key is used for market-data requests and is not saved
-    in browser storage. Do not share your key publicly.
-  </p>
+    <input
+        id="apiKey"
+        type="password"
+        placeholder="Enter your Twelve Data API key"
+        autocomplete="off"
+        spellcheck="false"
+    >
 
-  <div class="row">
-    <div>
-      <label for="symbol">Market</label>
-      <select id="symbol">
-        <option value="XAU/USD">Gold — XAU/USD</option>
-      </select>
+    <div class="buttons">
+        <button id="connectBtn" class="primary">
+            Connect / Refresh
+        </button>
+
+        <button id="testNotificationBtn" class="secondary">
+            Test Notification
+        </button>
+
+        <button id="refreshBtn" class="secondary">
+            Refresh Now
+        </button>
+
+        <button id="notifyBtn" class="secondary">
+            Enable Notifications
+        </button>
     </div>
-    <div>
-      <label for="refresh">Refresh interval</label>
-      <select id="refresh">
-        <option value="10000" selected>10 seconds</option>
-        <option value="30000">30 seconds</option>
-        <option value="60000">1 minute</option>
-        <option value="300000">5 minutes</option>
-      </select>
+
+    <div class="statusline">
+        <span id="connectionStatus">Status: Not connected</span>
+        <span id="lastUpdate">Last update: —</span>
     </div>
-  </div>
 
-  <div class="actions">
-    <button id="startBtn">CONNECT / ENABLE ALERTS</button>
-    <button id="refreshBtn" class="secondary">REFRESH NOW</button>
-  </div>
-
-  <div class="actions">
-    <button id="testAlertBtn" class="secondary">TEST NOTIFICATION</button>
-    <button id="resetSignalBtn" class="secondary">RESET SIGNAL BASELINE</button>
-  </div>
-
-  <p class="muted">
-    Automatic refresh while running. Signals use completed M1 and M5
-    candles only. Keep the app open for updates. Twelve Data API limits apply.
-  </p>
-</section>
-
-<section class="card">
-  <h2>CONNECTION STATUS</h2>
-
-  <div class="status">
-    <strong id="dataTitle" class="wait">NOT STARTED</strong>
-    <span id="dataMessage">Enter your API key and press Connect / Enable Alerts.</span>
-  </div>
-
-  <div class="stat-grid">
-    <div class="stat"><small>South African time</small><strong id="clock">--:--:--</strong></div>
-    <div class="stat"><small>Last update</small><strong id="lastUpdate">—</strong></div>
-    <div class="stat"><small>M1 closed candles</small><strong id="m1Count">—</strong></div>
-    <div class="stat"><small>M5 closed candles</small><strong id="m5Count">—</strong></div>
-    <div class="stat"><small>Next refresh</small><strong id="nextRefresh">Stopped</strong></div>
-    <div class="stat"><small>Notifications</small><strong id="notificationStatus">Not enabled</strong></div>
-  </div>
-</section>
-
-<section class="card">
-  <h2>MARKET ANALYSIS</h2>
-
-  <div class="signal">
-    <div style="font-size:12px;color:var(--muted);margin-bottom:7px">CONFIRMED TREND</div>
-    <div id="trendText" class="signal-title wait">WAIT</div>
-    <div id="trendDetail" class="signal-detail">
-      Waiting for M1 and M5 trend confirmation.
+    <div class="small" id="dataMessage">
+        Enter your API key to load Gold data.
     </div>
-  </div>
+</section>
 
-  <div class="signal" style="margin-top:12px">
-    <div style="font-size:12px;color:var(--muted);margin-bottom:7px">ENTRY SIGNAL</div>
-    <div id="signalText" class="signal-title wait">WAIT</div>
-    <div id="signalDetail" class="signal-detail">Waiting for market data.</div>
-  </div>
+<!-- MARKET PRICE -->
 
-  <div class="stat-grid">
-    <div class="stat"><small>M1 SuperTrend</small><strong id="m1Trend">—</strong></div>
-    <div class="stat"><small>M5 SuperTrend</small><strong id="m5Trend">—</strong></div>
-    <div class="stat"><small>M1 RSI (14)</small><strong id="rsi">—</strong></div>
-    <div class="stat"><small>Latest closed M1 price</small><strong id="price">—</strong></div>
-    <div class="stat"><small>Last signal candle</small><strong id="signalCandle">—</strong></div>
-    <div class="stat"><small>SuperTrend settings</small><strong>10 / 4.0</strong></div>
-  </div>
+<section class="card">
+    <h2>GOLD MARKET</h2>
+
+    <div class="grid">
+        <div class="metric">
+            <div class="label">Market</div>
+            <div class="value">XAU/USD</div>
+            <div class="small">Gold / US Dollar</div>
+        </div>
+
+        <div class="metric">
+            <div class="label">Latest Price</div>
+            <div class="value" id="price">—</div>
+            <div class="small" id="priceTime">Candle time: —</div>
+        </div>
+    </div>
+
+    <div class="statusline">
+        <span id="m1Status">M1: Waiting for data</span>
+        <span id="m5Status">M5: Waiting for data</span>
+    </div>
+</section>
+
+<!-- TREND -->
+
+<section class="card">
+    <h2>TREND DIRECTION</h2>
+
+    <div class="grid">
+        <div class="metric">
+            <div class="label">Overall Trend</div>
+            <div class="value muted" id="trend">WAIT</div>
+            <div class="small" id="trendExplanation">
+                Waiting for M1 and M5 confirmation.
+            </div>
+        </div>
+
+        <div class="metric">
+            <div class="label">M5 SuperTrend</div>
+            <div class="value muted" id="m5Trend">WAIT</div>
+            <div class="small">Higher-timeframe direction</div>
+        </div>
+    </div>
+
+    <hr class="rule">
+
+    <div class="grid">
+        <div class="metric">
+            <div class="label">M1 SuperTrend</div>
+            <div class="value muted" id="m1Trend">WAIT</div>
+        </div>
+
+        <div class="metric">
+            <div class="label">M1 RSI (14)</div>
+            <div class="value muted" id="rsi">—</div>
+            <div class="small" id="rsiExplanation">
+                Waiting for RSI calculation.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ENTRY -->
+
+<section class="card">
+    <h2>ENTRY SIGNAL</h2>
+
+    <div class="metric">
+        <div class="label">Current Entry</div>
+        <div class="value muted" id="entry">WAIT</div>
+        <div class="small" id="entryExplanation">
+            Waiting for confirmed conditions.
+        </div>
+    </div>
+
+    <div class="statusline">
+        <span id="m1CandleTime">M1 closed candle: —</span>
+    </div>
+
+    <hr class="rule">
+
+    <div class="notice">
+        <strong>BUY conditions</strong><br>
+        M1 and M5 SuperTrend bullish, with M1 RSI at least 50 but below 70.
+        <br><br>
+
+        <strong>SELL conditions</strong><br>
+        M1 and M5 SuperTrend bearish, with M1 RSI above 30 but below 50.
+        <br><br>
+
+        Otherwise, the entry signal is WAIT.
+    </div>
+</section>
+
+<!-- TRADE GUIDANCE -->
+
+<section class="card">
+    <h2>TRADE GUIDANCE</h2>
+
+    <label class="label" for="openTrade">
+        Select your manually managed open position
+    </label>
+
+    <select id="openTrade">
+        <option value="NONE">No open trade</option>
+        <option value="BUY">I have an open BUY</option>
+        <option value="SELL">I have an open SELL</option>
+    </select>
+
+    <div class="guidance" id="guidanceBox">
+        <div class="label">Guidance</div>
+        <div class="value blue" id="guidanceTitle">
+            WAIT FOR A SIGNAL
+        </div>
+        <div class="small" id="guidanceText">
+            The bot will display guidance after market data is available.
+        </div>
+    </div>
+
+    <p class="notice">
+        The guidance is based on the position you select and the latest
+        indicator conditions. The bot does not know your actual account
+        position, entry price, profit, loss, or stop-loss.
+    </p>
+</section>
+
+<!-- SETTINGS -->
+
+<section class="card">
+    <h2>BOT SETTINGS</h2>
+
+    <div class="grid">
+        <div class="metric">
+            <div class="label">SuperTrend ATR Period</div>
+            <div class="value">10</div>
+        </div>
+
+        <div class="metric">
+            <div class="label">SuperTrend Multiplier</div>
+            <div class="value">4.0</div>
+        </div>
+
+        <div class="metric">
+            <div class="label">Trend Timeframe</div>
+            <div class="value">M5</div>
+        </div>
+
+        <div class="metric">
+            <div class="label">Entry Timeframe</div>
+            <div class="value">M1</div>
+        </div>
+
+        <div class="metric">
+            <div class="label">RSI Period</div>
+            <div class="value">14</div>
+        </div>
+
+        <div class="metric">
+            <div class="label">Auto Refresh</div>
+            <div class="value">10 sec</div>
+        </div>
+    </div>
+
+    <hr class="rule">
+
+    <label class="label" for="refreshInterval">
+        Refresh interval
+    </label>
+
+    <select id="refreshInterval">
+        <option value="10">10 seconds</option>
+        <option value="30">30 seconds</option>
+        <option value="60">1 minute</option>
+        <option value="300">5 minutes</option>
+    </select>
+
+    <div class="buttons">
+        <button id="applyRefreshBtn" class="secondary">
+            Apply Refresh Setting
+        </button>
+
+        <button id="resetBaselineBtn" class="warning">
+            Reset Alert Baseline
+        </button>
+    </div>
+
+    <p class="notice">
+        Your API key is kept in this page's memory and is not deliberately
+        saved to browser storage. Reloading the page may require you to
+        enter it again.
+    </p>
 </section>
 
 <section class="card">
-  <h2>HOW THE STRATEGY WORKS</h2>
-  <p class="muted">
-    <strong class="buy">BUY:</strong> M1 and M5 SuperTrend must both be bullish
-    and M1 RSI must be at least 50 but below 70.
-  </p>
-  <p class="muted">
-    <strong class="sell">SELL:</strong> M1 and M5 SuperTrend must both be bearish
-    and M1 RSI must be above 30 but below 50.
-  </p>
-  <p class="muted">
-    <strong class="wait">WAIT:</strong> Trend and RSI conditions do not align.
-  </p>
-  <p class="muted">
-    Notifications are considered only when a new completed M1 candle produces
-    a new BUY or SELL signal. This is an analysis tool, not an automatic trader.
-    Signals are not guaranteed to be profitable.
-  </p>
-</section>
-</main>
+    <h2>IMPORTANT INFORMATION</h2>
 
-<footer>
-  WISETRADER GOLD PRO<br>
-  Twelve Data · XAU/USD · Market analysis only · No automatic trading
-</footer>
+    <p class="notice">
+        This application provides technical analysis, not guaranteed
+        trading results. SuperTrend and RSI can produce false signals.
+        A bullish trend does not guarantee that a BUY trade will be
+        profitable, and a bearish trend does not guarantee that a SELL
+        trade will be profitable.
+        <br><br>
+
+        WAIT means a new entry is not currently confirmed. It does not,
+        by itself, mean an existing trade must be closed.
+        <br><br>
+
+        HOLD or REVIEW TRADE is guidance only. Always assess your
+        predefined exit rules and risk limits. Test with demo data before
+        making any trading decisions.
+    </p>
+</section>
+
+<div class="footer">
+    WISETRADER GOLD PRO<br>
+    XAU/USD • SuperTrend • RSI • M1 / M5
+</div>
+
+</div>
 
 <script>
 "use strict";
 
-const $ = id => document.getElementById(id);
-const TIME_ZONE = "Africa/Johannesburg";
-const API_URL = "https://api.twelvedata.com/time_series";
+/* =========================================================
+   WISETRADER GOLD PRO
+   Market: XAU/USD
+   SuperTrend ATR: 10
+   SuperTrend multiplier: 4.0
+   Entry timeframe: M1
+   Trend timeframe: M5
+   RSI: 14
+   ========================================================= */
 
-const REFRESH_DEFAULT = 10000;
-const MIN_CANDLES = 205;
+const CONFIG = {
+    symbol: "XAU/USD",
+    atrPeriod: 10,
+    superTrendMultiplier: 4.0,
+    rsiPeriod: 14,
+    defaultRefreshSeconds: 10,
+    outputSize: 250,
+    timezone: "Africa/Johannesburg"
+};
 
 let apiKey = "";
-let running = false;
-let busy = false;
 let refreshTimer = null;
-let countdownTimer = null;
-let nextRefreshAt = 0;
-let candles = { M1: [], M5: [] };
+let refreshInProgress = false;
 
-let confirmedTrend = null;
-let lastEntrySignal = null;
-let lastProcessedM1Close = null;
-let baselineEstablished = false;
+let marketState = {
+    m1: null,
+    m5: null,
+    price: null,
+    lastSuccessfulUpdate: null
+};
+
+let alertBaselineReady = false;
+let lastAlertCandle = null;
+let lastAlertEntry = null;
+let lastAlertTrend = null;
+let lastAlertGuidance = null;
 
 let audioContext = null;
-let audioUnlocked = false;
-let lastAlertKey = null;
-let runGeneration = 0;
 
-function formatSA(date = new Date()) {
-  return new Intl.DateTimeFormat("en-ZA", {
-    timeZone: TIME_ZONE,
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false
-  }).format(date);
+/* =========================================================
+   DOM HELPERS
+   ========================================================= */
+
+function el(id) {
+    return document.getElementById(id);
 }
 
-function formatSATimestamp(timestamp) {
-  return new Intl.DateTimeFormat("en-ZA", {
-    timeZone: TIME_ZONE,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false
-  }).format(new Date(timestamp));
+function setText(id, text) {
+    el(id).textContent = text;
 }
 
-function updateClock() {
-  $("clock").textContent = formatSA();
-}
-updateClock();
-setInterval(updateClock, 1000);
+function setColor(id, type) {
+    const node = el(id);
 
-function setStatus(title, message, state = "wait") {
-  $("dataTitle").textContent = title;
-  $("dataTitle").className =
-    state === "error" ? "sell" :
-    state === "success" ? "buy" : "wait";
-
-  $("dataMessage").textContent = message;
-}
-
-function setNextRefresh(seconds) {
-  $("nextRefresh").textContent =
-    seconds === null ? "Stopped" : seconds + " sec";
-}
-
-function updateNotificationStatus() {
-  if (!("Notification" in window)) {
-    $("notificationStatus").textContent = "Unsupported";
-    return;
-  }
-
-  $("notificationStatus").textContent =
-    Notification.permission === "granted" ? "Enabled" :
-    Notification.permission === "denied" ? "Blocked in settings" :
-    "Permission needed";
-}
-updateNotificationStatus();
-
-function setTrendDisplay(trend, detail) {
-  $("trendText").textContent = trend;
-  $("trendText").className =
-    "signal-title " +
-    (trend === "BULLISH" ? "buy" :
-     trend === "BEARISH" ? "sell" : "wait");
-  $("trendDetail").textContent = detail;
-}
-
-function setEntryDisplay(signal, detail) {
-  $("signalText").textContent = signal;
-  $("signalText").className =
-    "signal-title " +
-    (signal === "BUY" ? "buy" :
-     signal === "SELL" ? "sell" : "wait");
-  $("signalDetail").textContent = detail;
-}
-
-function resetAnalysis() {
-  confirmedTrend = null;
-  setTrendDisplay("WAIT", "Waiting for M1 and M5 SuperTrend agreement.");
-  setEntryDisplay("WAIT", "Waiting for valid market data.");
-
-  $("m1Trend").textContent = "—";
-  $("m5Trend").textContent = "—";
-  $("rsi").textContent = "—";
-  $("price").textContent = "—";
-  $("m1Count").textContent = "—";
-  $("m5Count").textContent = "—";
-  $("signalCandle").textContent = "—";
-}
-
-async function fetchCandles(interval, generation) {
-  const url = new URL(API_URL);
-  url.searchParams.set("symbol", $("symbol").value);
-  url.searchParams.set("interval", interval);
-  url.searchParams.set("outputsize", "500");
-  url.searchParams.set("timezone", TIME_ZONE);
-  url.searchParams.set("apikey", apiKey);
-
-  let response;
-  let data;
-
-  try {
-    response = await fetch(url.toString(), { cache: "no-store" });
-    data = await response.json();
-  } catch (error) {
-    throw new Error(
-      "Could not contact Twelve Data. Check internet access and API availability."
+    node.classList.remove(
+        "green",
+        "red",
+        "yellow",
+        "blue",
+        "muted"
     );
-  }
 
-  if (generation !== runGeneration) {
-    throw new Error("Refresh cancelled because the app was restarted.");
-  }
+    node.classList.add(type || "muted");
+}
 
-  if (!response.ok ||
-      !data ||
-      data.status === "error" ||
-      data.code ||
-      !Array.isArray(data.values)) {
-    let message = data && data.message
-      ? String(data.message)
-      : "Twelve Data returned an invalid response.";
+function setStatus(message, color = "muted") {
+    setText("connectionStatus", "Status: " + message);
+    setColor("connectionStatus", color);
+}
 
-    if (response.status === 429 || (data && Number(data.code) === 429)) {
-      message = "Twelve Data rate limit reached. Wait before retrying.";
+function setMessage(message) {
+    setText("dataMessage", message);
+}
+
+function directionLabel(direction) {
+    if (direction === "BULLISH") return "BULLISH";
+    if (direction === "BEARISH") return "BEARISH";
+    return "WAIT";
+}
+
+function directionColor(direction) {
+    if (direction === "BULLISH") return "green";
+    if (direction === "BEARISH") return "red";
+    return "yellow";
+}
+
+function entryColor(entry) {
+    if (entry === "BUY") return "green";
+    if (entry === "SELL") return "red";
+    return "yellow";
+}
+
+/* =========================================================
+   TIME AND DATA HELPERS
+   ========================================================= */
+
+function parseCandleDate(timestamp) {
+    /*
+       Twelve Data normally supplies timestamps such as:
+       2026-10-10 10:15:00
+
+       For timezone-free timestamps, interpret them as
+       South African local time (UTC+02:00).
+    */
+
+    if (!timestamp) return null;
+
+    let normalized = String(timestamp).trim();
+
+    if (!normalized.includes("T")) {
+        normalized = normalized.replace(" ", "T");
     }
 
-    throw new Error(message);
-  }
+    const hasTimezone =
+        /Z$/i.test(normalized) ||
+        /[+-]\d{2}:\d{2}$/.test(normalized);
 
-  const parsed = data.values.map(c => {
-    const raw = String(c.datetime || "");
-    let time = NaN;
+    if (!hasTimezone) {
+        normalized += "+02:00";
+    }
 
-    // Interpret a timezone-free timestamp in the API-requested SA timezone.
-    // South Africa uses UTC+02:00 year-round.
-    if (/Z$|[+-]\d{2}:\d{2}$/.test(raw)) {
-      time = Date.parse(raw);
-    } else {
-      time = Date.parse(raw.replace(" ", "T") + "+02:00");
+    const date = new Date(normalized);
+
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatDate(date) {
+    if (!date) return "—";
+
+    return new Intl.DateTimeFormat("en-ZA", {
+        timeZone: CONFIG.timezone,
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+    }).format(date);
+}
+
+function candleDuration(interval) {
+    return interval === "1min" ? 60_000 : 300_000;
+}
+
+function isClosedCandle(date, interval) {
+    if (!date) return false;
+
+    return date.getTime() + candleDuration(interval) <= Date.now();
+}
+
+function parseNumber(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : NaN;
+}
+
+function normalizeCandles(values, interval) {
+    if (!Array.isArray(values)) {
+        throw new Error("The API did not return candle data.");
+    }
+
+    const candles = values.map(item => {
+        const date = parseCandleDate(item.datetime);
+
+        return {
+            time: item.datetime,
+            date,
+            open: parseNumber(item.open),
+            high: parseNumber(item.high),
+            low: parseNumber(item.low),
+            close: parseNumber(item.close)
+        };
+    }).filter(candle =>
+        candle.date &&
+        Number.isFinite(candle.open) &&
+        Number.isFinite(candle.high) &&
+        Number.isFinite(candle.low) &&
+        Number.isFinite(candle.close)
+    );
+
+    candles.sort((a, b) => a.date - b.date);
+
+    /*
+       Exclude incomplete candles. If the latest returned candle
+       is still forming, it cannot generate a confirmed signal.
+    */
+
+    return candles.filter(candle =>
+        isClosedCandle(candle.date, interval)
+    );
+}
+
+/* =========================================================
+   TWELVE DATA API
+   ========================================================= */
+
+async function fetchCandles(interval) {
+    if (!apiKey) {
+        throw new Error("Enter your Twelve Data API key.");
+    }
+
+    const url = new URL(
+        "https://api.twelvedata.com/time_series"
+    );
+
+    url.searchParams.set("symbol", CONFIG.symbol);
+    url.searchParams.set("interval", interval);
+    url.searchParams.set("outputsize", String(CONFIG.outputSize));
+    url.searchParams.set("timezone", CONFIG.timezone);
+    url.searchParams.set("apikey", apiKey);
+
+    const controller = new AbortController();
+
+    const timeout = setTimeout(() => {
+        controller.abort();
+    }, 20000);
+
+    try {
+        const response = await fetch(url.toString(), {
+            method: "GET",
+            cache: "no-store",
+            signal: controller.signal
+        });
+
+        if (!response.ok) {
+            throw new Error(
+                "HTTP error " + response.status
+            );
+        }
+
+        const result = await response.json();
+
+        if (result.status === "error" || result.code) {
+            throw new Error(
+                result.message ||
+                "Twelve Data returned an API error."
+            );
+        }
+
+        if (!Array.isArray(result.values)) {
+            throw new Error(
+                "No candle values received. Check the API key, " +
+                "symbol availability, or API limit."
+            );
+        }
+
+        const candles = normalizeCandles(
+            result.values,
+            interval
+        );
+
+        if (candles.length < 40) {
+            throw new Error(
+                "Not enough completed " + interval +
+                " candles to calculate the indicators reliably."
+            );
+        }
+
+        return candles;
+    } finally {
+        clearTimeout(timeout);
+    }
+}
+
+/* =========================================================
+   ATR CALCULATION
+   ========================================================= */
+
+function calculateATR(candles, period) {
+    const tr = new Array(candles.length).fill(null);
+    const atr = new Array(candles.length).fill(null);
+
+    for (let i = 1; i < candles.length; i++) {
+        const current = candles[i];
+        const previous = candles[i - 1];
+
+        tr[i] = Math.max(
+            current.high - current.low,
+            Math.abs(current.high - previous.close),
+            Math.abs(current.low - previous.close)
+        );
+    }
+
+    if (candles.length <= period) {
+        return atr;
+    }
+
+    let initialSum = 0;
+
+    for (let i = 1; i <= period; i++) {
+        initialSum += tr[i];
+    }
+
+    atr[period] = initialSum / period;
+
+    for (let i = period + 1; i < candles.length; i++) {
+        atr[i] =
+            (
+                atr[i - 1] * (period - 1) +
+                tr[i]
+            ) / period;
+    }
+
+    return atr;
+}
+
+/* =========================================================
+   SUPERTREND
+   ATR PERIOD 10 / MULTIPLIER 4.0
+   ========================================================= */
+
+function calculateSuperTrend(
+    candles,
+    period = CONFIG.atrPeriod,
+    multiplier = CONFIG.superTrendMultiplier
+) {
+    const length = candles.length;
+
+    const atr = calculateATR(candles, period);
+
+    const finalUpper = new Array(length).fill(null);
+    const finalLower = new Array(length).fill(null);
+    const superTrend = new Array(length).fill(null);
+    const direction = new Array(length).fill(null);
+
+    for (let i = period; i < length; i++) {
+        if (
+            atr[i] === null ||
+            !Number.isFinite(atr[i])
+        ) {
+            continue;
+        }
+
+        const candle = candles[i];
+
+        const midpoint = (candle.high + candle.low) / 2;
+
+        const basicUpper =
+            midpoint + multiplier * atr[i];
+
+        const basicLower =
+            midpoint - multiplier * atr[i];
+
+        if (i === period) {
+            finalUpper[i] = basicUpper;
+            finalLower[i] = basicLower;
+
+            direction[i] =
+                candle.close >= midpoint
+                    ? "BULLISH"
+                    : "BEARISH";
+
+            superTrend[i] =
+                direction[i] === "BULLISH"
+                    ? finalLower[i]
+                    : finalUpper[i];
+
+            continue;
+        }
+
+        const previousUpper = finalUpper[i - 1];
+        const previousLower = finalLower[i - 1];
+        const previousClose = candles[i - 1].close;
+
+        finalUpper[i] =
+            basicUpper < previousUpper ||
+            previousClose > previousUpper
+                ? basicUpper
+                : previousUpper;
+
+        finalLower[i] =
+            basicLower > previousLower ||
+            previousClose < previousLower
+                ? basicLower
+                : previousLower;
+
+        if (direction[i - 1] === "BEARISH") {
+            direction[i] =
+                candle.close > finalUpper[i]
+                    ? "BULLISH"
+                    : "BEARISH";
+        } else {
+            direction[i] =
+                candle.close < finalLower[i]
+                    ? "BEARISH"
+                    : "BULLISH";
+        }
+
+        superTrend[i] =
+            direction[i] === "BULLISH"
+                ? finalLower[i]
+                : finalUpper[i];
     }
 
     return {
-      time,
-      open: Number(c.open),
-      high: Number(c.high),
-      low: Number(c.low),
-      close: Number(c.close)
+        atr,
+        finalUpper,
+        finalLower,
+        superTrend,
+        direction
     };
-  }).filter(c =>
-    Number.isFinite(c.time) &&
-    Number.isFinite(c.open) &&
-    Number.isFinite(c.high) &&
-    Number.isFinite(c.low) &&
-    Number.isFinite(c.close) &&
-    c.high >= c.low &&
-    c.high >= Math.max(c.open, c.close) &&
-    c.low <= Math.min(c.open, c.close)
-  );
-
-  parsed.sort((a, b) => a.time - b.time);
-
-  // Do not analyse a candle until its entire interval has elapsed.
-  const intervalMs = interval === "1min" ? 60000 : 300000;
-  const now = Date.now();
-  const closed = parsed.filter(c => c.time + intervalMs <= now);
-
-  if (closed.length < MIN_CANDLES) {
-    throw new Error(
-      "Only " + closed.length + " completed " + interval +
-      " candles are available. At least " + MIN_CANDLES +
-      " are required. Check your Twelve Data plan and available history."
-    );
-  }
-
-  return closed;
 }
 
-function calculateRSI(data, period = 14) {
-  if (data.length <= period) return null;
+/* =========================================================
+   RSI 14
+   ========================================================= */
 
-  let gain = 0;
-  let loss = 0;
+function calculateRSI(candles, period = CONFIG.rsiPeriod) {
+    const result = new Array(candles.length).fill(null);
 
-  for (let i = 1; i <= period; i++) {
-    const change = data[i].close - data[i - 1].close;
-    gain += Math.max(0, change);
-    loss += Math.max(0, -change);
-  }
-
-  let avgGain = gain / period;
-  let avgLoss = loss / period;
-
-  for (let i = period + 1; i < data.length; i++) {
-    const change = data[i].close - data[i - 1].close;
-    avgGain = (avgGain * (period - 1) + Math.max(0, change)) / period;
-    avgLoss = (avgLoss * (period - 1) + Math.max(0, -change)) / period;
-  }
-
-  if (avgLoss === 0) return avgGain === 0 ? 50 : 100;
-
-  return 100 - 100 / (1 + avgGain / avgLoss);
-}
-
-function calculateSuperTrend(data, period = 10, multiplier = 4.0) {
-  const n = data.length;
-  if (n <= period + 2) {
-    throw new Error("Insufficient candles for SuperTrend.");
-  }
-
-  const tr = new Array(n).fill(null);
-  const atr = new Array(n).fill(null);
-  const upper = new Array(n).fill(null);
-  const lower = new Array(n).fill(null);
-  const direction = new Array(n).fill(null);
-
-  for (let i = 1; i < n; i++) {
-    tr[i] = Math.max(
-      data[i].high - data[i].low,
-      Math.abs(data[i].high - data[i - 1].close),
-      Math.abs(data[i].low - data[i - 1].close)
-    );
-  }
-
-  let sum = 0;
-  for (let i = 1; i <= period; i++) sum += tr[i];
-  atr[period] = sum / period;
-
-  for (let i = period + 1; i < n; i++) {
-    atr[i] = (atr[i - 1] * (period - 1) + tr[i]) / period;
-  }
-
-  for (let i = period; i < n; i++) {
-    const mid = (data[i].high + data[i].low) / 2;
-    const basicUpper = mid + multiplier * atr[i];
-    const basicLower = mid - multiplier * atr[i];
-
-    if (i === period) {
-      upper[i] = basicUpper;
-      lower[i] = basicLower;
-      direction[i] = data[i].close >= mid ? 1 : -1;
-      continue;
+    if (candles.length <= period) {
+        return result;
     }
 
-    upper[i] =
-      basicUpper < upper[i - 1] ||
-      data[i - 1].close > upper[i - 1]
-        ? basicUpper : upper[i - 1];
+    let averageGain = 0;
+    let averageLoss = 0;
 
-    lower[i] =
-      basicLower > lower[i - 1] ||
-      data[i - 1].close < lower[i - 1]
-        ? basicLower : lower[i - 1];
+    for (let i = 1; i <= period; i++) {
+        const change =
+            candles[i].close - candles[i - 1].close;
 
-    if (direction[i - 1] === 1) {
-      direction[i] = data[i].close < lower[i] ? -1 : 1;
+        if (change > 0) {
+            averageGain += change;
+        } else {
+            averageLoss += Math.abs(change);
+        }
+    }
+
+    averageGain /= period;
+    averageLoss /= period;
+
+    result[period] = rsiValue(
+        averageGain,
+        averageLoss
+    );
+
+    for (let i = period + 1; i < candles.length; i++) {
+        const change =
+            candles[i].close - candles[i - 1].close;
+
+        const gain = Math.max(change, 0);
+        const loss = Math.max(-change, 0);
+
+        averageGain =
+            (averageGain * (period - 1) + gain) / period;
+
+        averageLoss =
+            (averageLoss * (period - 1) + loss) / period;
+
+        result[i] = rsiValue(
+            averageGain,
+            averageLoss
+        );
+    }
+
+    return result;
+}
+
+function rsiValue(averageGain, averageLoss) {
+    if (averageLoss === 0) {
+        return averageGain === 0 ? 50 : 100;
+    }
+
+    const relativeStrength =
+        averageGain / averageLoss;
+
+    return 100 - (100 / (1 + relativeStrength));
+}
+
+/* =========================================================
+   INDICATOR ANALYSIS
+   ========================================================= */
+
+function analyzeCandles(candles) {
+    const st = calculateSuperTrend(candles);
+    const rsiValues = calculateRSI(candles);
+
+    /*
+       The last item is the most recent COMPLETED candle.
+       Use its indicator values for confirmed signals.
+    */
+
+    const index = candles.length - 1;
+
+    return {
+        candles,
+        index,
+        candle: candles[index],
+        superTrend: st.superTrend[index],
+        direction: st.direction[index],
+        rsi: rsiValues[index]
+    };
+}
+
+/* =========================================================
+   SIGNAL LOGIC
+   ========================================================= */
+
+function calculateEntry(m1, m5) {
+    if (
+        !m1 ||
+        !m5 ||
+        !m1.direction ||
+        !m5.direction ||
+        !Number.isFinite(m1.rsi)
+    ) {
+        return "WAIT";
+    }
+
+    const bothBullish =
+        m1.direction === "BULLISH" &&
+        m5.direction === "BULLISH";
+
+    const bothBearish =
+        m1.direction === "BEARISH" &&
+        m5.direction === "BEARISH";
+
+    if (
+        bothBullish &&
+        m1.rsi >= 50 &&
+        m1.rsi < 70
+    ) {
+        return "BUY";
+    }
+
+    if (
+        bothBearish &&
+        m1.rsi > 30 &&
+        m1.rsi < 50
+    ) {
+        return "SELL";
+    }
+
+    return "WAIT";
+}
+
+function calculateTrend(m1, m5) {
+    if (!m1 || !m5) {
+        return "WAIT";
+    }
+
+    /*
+       Both SuperTrend directions must agree for a confirmed
+       overall trend. RSI is an entry filter, not a trend filter.
+    */
+
+    if (
+        m1.direction === "BULLISH" &&
+        m5.direction === "BULLISH"
+    ) {
+        return "BULLISH";
+    }
+
+    if (
+        m1.direction === "BEARISH" &&
+        m5.direction === "BEARISH"
+    ) {
+        return "BEARISH";
+    }
+
+    return "WAIT";
+}
+
+/* =========================================================
+   TRADE GUIDANCE — OPTION B
+   ========================================================= */
+
+function calculateGuidance(position, trend, entry) {
+    if (position === "NONE") {
+        if (entry === "BUY") {
+            return {
+                title: "BUY CONDITIONS CONFIRMED",
+                message:
+                    "A BUY signal is present. This is an analysis signal, " +
+                    "not a guarantee. Apply your planned risk and exit rules.",
+                type: "hold",
+                code: "BUY_CONFIRMED"
+            };
+        }
+
+        if (entry === "SELL") {
+            return {
+                title: "SELL CONDITIONS CONFIRMED",
+                message:
+                    "A SELL signal is present. This is an analysis signal, " +
+                    "not a guarantee. Apply your planned risk and exit rules.",
+                type: "hold",
+                code: "SELL_CONFIRMED"
+            };
+        }
+
+        return {
+            title: "WAIT FOR CONFIRMATION",
+            message:
+                "No fresh entry is confirmed. Wait for the strategy's " +
+                "conditions instead of treating WAIT as a BUY or SELL.",
+            type: "review",
+            code: "NO_ENTRY"
+        };
+    }
+
+    if (position === "BUY") {
+        if (trend === "BEARISH") {
+            return {
+                title: "TREND REVERSAL — REVIEW BUY",
+                message:
+                    "The confirmed trend is now bearish. Review your " +
+                    "predefined exit and risk rules for your BUY position. " +
+                    "This warning does not close the trade automatically.",
+                type: "exit",
+                code: "BUY_TREND_REVERSAL"
+            };
+        }
+
+        if (trend === "WAIT") {
+            return {
+                title: "TREND UNCLEAR — REVIEW TRADE",
+                message:
+                    "M1 and M5 SuperTrend are not aligned. Reassess your " +
+                    "BUY using your planned exit and risk rules.",
+                type: "review",
+                code: "BUY_TREND_UNCLEAR"
+            };
+        }
+
+        if (entry === "WAIT") {
+            return {
+                title: "HOLD / REVIEW ENTRY CONDITIONS",
+                message:
+                    "The overall trend remains bullish, but a fresh BUY " +
+                    "entry is not currently confirmed. WAIT alone is not " +
+                    "an automatic exit signal. Monitor your predefined " +
+                    "stop-loss and exit rules.",
+                type: "hold",
+                code: "BUY_ENTRY_WEAKENED"
+            };
+        }
+
+        return {
+            title: "BULLISH TREND — MONITOR BUY",
+            message:
+                "The trend remains bullish and BUY conditions are " +
+                "confirmed. Continue monitoring your planned risk and exit rules.",
+            type: "hold",
+            code: "BUY_TREND_ALIGNED"
+        };
+    }
+
+    if (position === "SELL") {
+        if (trend === "BULLISH") {
+            return {
+                title: "TREND REVERSAL — REVIEW SELL",
+                message:
+                    "The confirmed trend is now bullish. Review your " +
+                    "predefined exit and risk rules for your SELL position. " +
+                    "This warning does not close the trade automatically.",
+                type: "exit",
+                code: "SELL_TREND_REVERSAL"
+            };
+        }
+
+        if (trend === "WAIT") {
+            return {
+                title: "TREND UNCLEAR — REVIEW TRADE",
+                message:
+                    "M1 and M5 SuperTrend are not aligned. Reassess your " +
+                    "SELL using your planned exit and risk rules.",
+                type: "review",
+                code: "SELL_TREND_UNCLEAR"
+            };
+        }
+
+        if (entry === "WAIT") {
+            return {
+                title: "HOLD / REVIEW ENTRY CONDITIONS",
+                message:
+                    "The overall trend remains bearish, but a fresh SELL " +
+                    "entry is not currently confirmed. WAIT alone is not " +
+                    "an automatic exit signal. Monitor your predefined " +
+                    "stop-loss and exit rules.",
+                type: "hold",
+                code: "SELL_ENTRY_WEAKENED"
+            };
+        }
+
+        return {
+            title: "BEARISH TREND — MONITOR SELL",
+            message:
+                "The trend remains bearish and SELL conditions are " +
+                "confirmed. Continue monitoring your planned risk and exit rules.",
+            type: "hold",
+            code: "SELL_TREND_ALIGNED"
+        };
+    }
+
+    return {
+        title: "WAIT",
+        message: "Waiting for valid market data.",
+        type: "review",
+        code: "WAIT"
+    };
+}
+
+/* =========================================================
+   DISPLAY UPDATES
+   ========================================================= */
+
+function renderTrend(trend) {
+    setText("trend", directionLabel(trend));
+    setColor("trend", directionColor(trend));
+
+    if (trend === "BULLISH") {
+        setText(
+            "trendExplanation",
+            "M1 and M5 SuperTrend are bullish."
+        );
+    } else if (trend === "BEARISH") {
+        setText(
+            "trendExplanation",
+            "M1 and M5 SuperTrend are bearish."
+        );
     } else {
-      direction[i] = data[i].close > upper[i] ? 1 : -1;
+        setText(
+            "trendExplanation",
+            "M1 and M5 are not aligned. Overall trend is unclear."
+        );
     }
-  }
+}
 
-  for (let i = n - 1; i >= 0; i--) {
-    if (direction[i] !== null) {
-      return direction[i] === 1 ? "BULLISH" : "BEARISH";
+function renderEntry(entry, m1, m5) {
+    setText("entry", entry);
+    setColor("entry", entryColor(entry));
+
+    if (entry === "BUY") {
+        setText(
+            "entryExplanation",
+            "Both timeframes are bullish and RSI meets BUY conditions."
+        );
+    } else if (entry === "SELL") {
+        setText(
+            "entryExplanation",
+            "Both timeframes are bearish and RSI meets SELL conditions."
+        );
+    } else if (
+        m1 &&
+        m5 &&
+        m1.direction === m5.direction
+    ) {
+        setText(
+            "entryExplanation",
+            "Trend directions agree, but the RSI entry conditions are not met."
+        );
+    } else {
+        setText(
+            "entryExplanation",
+            "Waiting for M1/M5 alignment and RSI confirmation."
+        );
     }
-  }
-
-  throw new Error("SuperTrend calculation failed.");
 }
 
-function unlockAudio() {
-  try {
-    const AudioClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioClass) return;
+function renderGuidance(guidance) {
+    setText("guidanceTitle", guidance.title);
+    setText("guidanceText", guidance.message);
 
-    if (!audioContext) audioContext = new AudioClass();
-    if (audioContext.state === "suspended") audioContext.resume();
-    audioUnlocked = true;
-  } catch (error) {
-    console.warn("Audio unavailable:", error);
-  }
+    const box = el("guidanceBox");
+
+    box.classList.remove("hold", "review", "exit");
+    box.classList.add(guidance.type);
+
+    const color =
+        guidance.type === "hold"
+            ? "green"
+            : guidance.type === "exit"
+                ? "red"
+                : "yellow";
+
+    setColor("guidanceTitle", color);
 }
 
-function playAlertSound(type = "BUY") {
-  if (!audioUnlocked || !audioContext) return;
+function renderIndicators(m1, m5) {
+    setText("m1Trend", directionLabel(m1.direction));
+    setColor("m1Trend", directionColor(m1.direction));
 
-  try {
-    if (audioContext.state === "suspended") audioContext.resume();
+    setText("m5Trend", directionLabel(m5.direction));
+    setColor("m5Trend", directionColor(m5.direction));
 
-    const frequencies = type === "SELL" ? [660, 440] : [660, 880];
+    setText("rsi", m1.rsi.toFixed(2));
 
-    frequencies.forEach((frequency, index) => {
-      const oscillator = audioContext.createOscillator();
-      const gain = audioContext.createGain();
-      const start = audioContext.currentTime + index * 0.18;
+    if (m1.rsi >= 70) {
+        setText(
+            "rsiExplanation",
+            "RSI is at or above 70; BUY filter is not met."
+        );
+        setColor("rsi", "yellow");
+    } else if (m1.rsi <= 30) {
+        setText(
+            "rsiExplanation",
+            "RSI is at or below 30; SELL filter is not met."
+        );
+        setColor("rsi", "yellow");
+    } else {
+        setText(
+            "rsiExplanation",
+            "RSI is within the middle range."
+        );
+        setColor("rsi", "blue");
+    }
 
-      oscillator.type = "sine";
-      oscillator.frequency.value = frequency;
-      gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(0.15, start + 0.025);
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.16);
+    setText(
+        "price",
+        m1.candle.close.toFixed(2)
+    );
 
-      oscillator.connect(gain);
-      gain.connect(audioContext.destination);
-      oscillator.start(start);
-      oscillator.stop(start + 0.18);
-    });
-  } catch (error) {
-    console.warn("Alert sound failed:", error);
-  }
+    setText(
+        "priceTime",
+        "Candle time: " + formatDate(m1.candle.date)
+    );
+
+    setText(
+        "m1CandleTime",
+        "M1 closed candle: " + formatDate(m1.candle.date)
+    );
+
+    setText(
+        "m1Status",
+        "M1: " + m1.candles.length + " closed candles"
+    );
+
+    setText(
+        "m5Status",
+        "M5: " + m5.candles.length + " closed candles"
+    );
 }
+
+/* =========================================================
+   NOTIFICATIONS AND SOUND
+   ========================================================= */
 
 async function requestNotificationPermission() {
-  if (!("Notification" in window)) {
-    updateNotificationStatus();
-    return;
-  }
+    if (!("Notification" in window)) {
+        alert(
+            "Browser notifications are not supported by this app container."
+        );
+        return false;
+    }
 
-  if (Notification.permission === "default") {
+    if (Notification.permission === "granted") {
+        return true;
+    }
+
+    if (Notification.permission === "denied") {
+        alert(
+            "Notifications are blocked by the browser or Android app. " +
+            "Check the app's notification permissions and builder settings."
+        );
+        return false;
+    }
+
     try {
-      await Notification.requestPermission();
+        const permission =
+            await Notification.requestPermission();
+
+        if (permission === "granted") {
+            setMessage("Browser notifications enabled.");
+            return true;
+        }
+
+        setMessage(
+            "Notification permission was not granted."
+        );
+
+        return false;
     } catch (error) {
-      console.warn("Notification permission request failed:", error);
+        setMessage(
+            "This app container does not allow notification permission requests."
+        );
+
+        return false;
     }
-  }
-
-  updateNotificationStatus();
 }
 
-function showNotification(title, body, tag) {
-  if (!("Notification" in window)) return false;
-  if (Notification.permission !== "granted") return false;
-
-  try {
-    const notification = new Notification(title, {
-      body,
-      tag,
-      renotify: false
-    });
-
-    notification.onclick = () => {
-      window.focus();
-      notification.close();
-    };
-    return true;
-  } catch (error) {
-    // Some Android app builders do not support the Notification constructor.
-    // A service worker may be required for notifications in those environments.
-    console.warn("Notification could not be displayed:", error);
-    return false;
-  }
+function sendNotification(title, message) {
+    if (
+        "Notification" in window &&
+        Notification.permission === "granted"
+    ) {
+        try {
+            new Notification(title, {
+                body: message,
+                tag: "wisetrader-gold-pro"
+            });
+        } catch (error) {
+            console.warn(
+                "Browser notification failed:",
+                error
+            );
+        }
+    }
 }
 
-function handleSignalChange(signal, price, rsi, candleTime) {
-  const key = signal + ":" + candleTime;
+function playAlertSound() {
+    try {
+        const AudioContextClass =
+            window.AudioContext ||
+            window.webkitAudioContext;
 
-  if (lastAlertKey === key) return;
-  lastAlertKey = key;
+        if (!AudioContextClass) return;
 
-  const title = "WISETRADER GOLD PRO — " + signal;
-  const body =
-    "Confirmed " + signal + " signal\n" +
-    "Market: XAU/USD\n" +
-    "Closed M1 price: " + price.toFixed(2) + "\n" +
-    "RSI: " + rsi.toFixed(2) + "\n" +
-    "Candle time: " + formatSATimestamp(candleTime);
+        if (!audioContext) {
+            audioContext = new AudioContextClass();
+        }
 
-  showNotification(title, body, "wisetrader-gold-entry");
-  playAlertSound(signal);
+        if (audioContext.state === "suspended") {
+            audioContext.resume();
+        }
 
-  setStatus(
-    signal + " SIGNAL CONFIRMED",
-    "A new " + signal + " signal was detected at " + formatSA() + ".",
-    "success"
-  );
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        oscillator.type = "sine";
+        oscillator.frequency.value = 880;
+
+        gain.gain.setValueAtTime(
+            0.0001,
+            audioContext.currentTime
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.12,
+            audioContext.currentTime + 0.03
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.0001,
+            audioContext.currentTime + 0.35
+        );
+
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.36);
+    } catch (error) {
+        console.warn("Sound alert failed:", error);
+    }
 }
 
-function analyse() {
-  const m1 = candles.M1;
-  const m5 = candles.M5;
+function alertUser(title, message) {
+    sendNotification(title, message);
+    playAlertSound();
+}
 
-  if (m1.length < MIN_CANDLES || m5.length < MIN_CANDLES) {
-    throw new Error("Waiting for enough completed candles.");
-  }
+/* =========================================================
+   ALERT TRANSITIONS
+   ========================================================= */
 
-  const st1 = calculateSuperTrend(m1, 10, 4.0);
-  const st5 = calculateSuperTrend(m5, 10, 4.0);
-  const rsi = calculateRSI(m1, 14);
-
-  if (rsi === null || !Number.isFinite(rsi)) {
-    throw new Error("RSI calculation failed.");
-  }
-
-  const latest = m1[m1.length - 1];
-
-  $("m1Count").textContent = m1.length;
-  $("m5Count").textContent = m5.length;
-  $("price").textContent = latest.close.toFixed(2);
-  $("rsi").textContent = rsi.toFixed(2);
-  $("m1Trend").textContent = st1;
-  $("m5Trend").textContent = st5;
-  $("signalCandle").textContent = formatSATimestamp(latest.time);
-
-  if (st1 === st5) confirmedTrend = st1;
-  const trend = confirmedTrend || "WAIT";
-
-  setTrendDisplay(
+function handleSignalAlerts(
+    candleTime,
+    entry,
     trend,
-    trend === "BULLISH"
-      ? "M1 and M5 confirm a bullish trend."
-      : trend === "BEARISH"
-        ? "M1 and M5 confirm a bearish trend."
-        : "Waiting for M1 and M5 SuperTrend to agree."
-  );
+    guidance
+) {
+    /*
+       Do not immediately alert on first load. Establish a baseline
+       first, then only process a new completed M1 candle.
+    */
 
-  let entry = "WAIT";
-  let detail = "Trend and RSI conditions are not aligned.";
-
-  if (trend === "BULLISH" &&
-      st1 === "BULLISH" &&
-      st5 === "BULLISH" &&
-      rsi >= 50 && rsi < 70) {
-    entry = "BUY";
-    detail = "M1 and M5 bullish; completed-candle RSI confirms the entry conditions.";
-  } else if (trend === "BEARISH" &&
-             st1 === "BEARISH" &&
-             st5 === "BEARISH" &&
-             rsi > 30 && rsi < 50) {
-    entry = "SELL";
-    detail = "M1 and M5 bearish; completed-candle RSI confirms the entry conditions.";
-  }
-
-  /*
-   * First successful analysis establishes a baseline without an alert.
-   * Later alerts require a new closed M1 candle and a newly appearing BUY/SELL.
-   */
-  if (!baselineEstablished) {
-    baselineEstablished = true;
-    lastProcessedM1Close = latest.time;
-    lastEntrySignal = entry;
-  } else if (latest.time > lastProcessedM1Close) {
-    lastProcessedM1Close = latest.time;
-
-    if ((entry === "BUY" || entry === "SELL") &&
-        entry !== lastEntrySignal) {
-      handleSignalChange(entry, latest.close, rsi, latest.time);
+    if (!alertBaselineReady) {
+        alertBaselineReady = true;
+        lastAlertCandle = candleTime;
+        lastAlertEntry = entry;
+        lastAlertTrend = trend;
+        lastAlertGuidance = guidance.code;
+        return;
     }
 
-    lastEntrySignal = entry;
-  }
-
-  setEntryDisplay(entry, detail);
-}
-
-async function refreshMarket() {
-  if (!running || busy) return;
-
-  apiKey = $("apiKey").value.trim();
-
-  if (!apiKey) {
-    setStatus("API KEY REQUIRED", "Enter your Twelve Data API key.", "error");
-    return;
-  }
-
-  busy = true;
-  const generation = runGeneration;
-
-  try {
-    setStatus("UPDATING", "Requesting the latest completed Gold candles.");
-
-    const results = await Promise.all([
-      fetchCandles("1min", generation),
-      fetchCandles("5min", generation)
-    ]);
-
-    if (!running || generation !== runGeneration) return;
-
-    candles.M1 = results[0];
-    candles.M5 = results[1];
-
-    analyse();
-
-    $("lastUpdate").textContent = formatSA();
-
-    setStatus(
-      "CONNECTED · DATA RECEIVED",
-      "Completed candles analysed. Automatic refresh is active.",
-      "success"
-    );
-  } catch (error) {
-    console.error("Wisetrader Gold error:", error);
-
-    if (running && generation === runGeneration) {
-      setStatus(
-        "DATA ERROR",
-        (error.message || "Unknown error") +
-        " Check your API key, internet access and Twelve Data limits.",
-        "error"
-      );
+    if (candleTime === lastAlertCandle) {
+        return;
     }
-  } finally {
-    busy = false;
-    if (running && generation === runGeneration) scheduleNextRefresh();
-  }
+
+    const previousEntry = lastAlertEntry;
+    const previousTrend = lastAlertTrend;
+    const previousGuidance = lastAlertGuidance;
+
+    lastAlertCandle = candleTime;
+    lastAlertEntry = entry;
+    lastAlertTrend = trend;
+    lastAlertGuidance = guidance.code;
+
+    if (
+        entry !== previousEntry &&
+        (entry === "BUY" || entry === "SELL")
+    ) {
+        alertUser(
+            "Wisetrader Gold PRO — " + entry,
+            entry + " signal confirmed on a new completed M1 candle."
+        );
+    } else if (
+        entry === "WAIT" &&
+        (previousEntry === "BUY" || previousEntry === "SELL")
+    ) {
+        alertUser(
+            "Wisetrader Gold PRO — Entry changed to WAIT",
+            "The previous entry conditions are no longer confirmed. " +
+            "Check the trend and your trade guidance."
+        );
+    }
+
+    if (
+        trend !== previousTrend &&
+        (trend === "WAIT" || trend === "BEARISH" || trend === "BULLISH")
+    ) {
+        alertUser(
+            "Wisetrader Gold PRO — Trend update",
+            "The confirmed overall trend is now " + trend + "."
+        );
+    }
+
+    /*
+       Warn once when trade guidance changes into a review or reversal
+       state. Repeated unchanged guidance does not trigger alerts.
+    */
+
+    const isWarning =
+        guidance.code.includes("WEAKENED") ||
+        guidance.code.includes("UNCLEAR") ||
+        guidance.code.includes("REVERSAL");
+
+    const wasWarning =
+        String(previousGuidance).includes("WEAKENED") ||
+        String(previousGuidance).includes("UNCLEAR") ||
+        String(previousGuidance).includes("REVERSAL");
+
+    if (isWarning && guidance.code !== previousGuidance && !wasWarning) {
+        alertUser(
+            "Wisetrader Gold PRO — Trade review",
+            guidance.title + ". " + guidance.message
+        );
+    }
 }
 
-function scheduleNextRefresh() {
-  clearTimeout(refreshTimer);
+/* =========================================================
+   MAIN REFRESH
+   ========================================================= */
 
-  const interval = Math.max(10000, Number($("refresh").value) || REFRESH_DEFAULT);
-  nextRefreshAt = Date.now() + interval;
-  refreshTimer = setTimeout(refreshMarket, interval);
+async function refreshMarket(options = {}) {
+    const manual = Boolean(options.manual);
+
+    if (refreshInProgress) {
+        return;
+    }
+
+    apiKey = el("apiKey").value.trim();
+
+    if (!apiKey) {
+        setStatus("API key required", "yellow");
+        setMessage("Enter your Twelve Data API key first.");
+        return;
+    }
+
+    refreshInProgress = true;
+
+    el("connectBtn").disabled = true;
+    el("refreshBtn").disabled = true;
+
+    setStatus("Loading market data...", "yellow");
+
+    try {
+        /*
+           Two Twelve Data requests are needed: one for M1 and one
+           for M5. Depending on your API plan, rapid refreshes may
+           reach the provider's request limit.
+        */
+
+        const m1Candles = await fetchCandles("1min");
+        const m5Candles = await fetchCandles("5min");
+
+        const m1 = analyzeCandles(m1Candles);
+        const m5 = analyzeCandles(m5Candles);
+
+        const trend = calculateTrend(m1, m5);
+        const entry = calculateEntry(m1, m5);
+
+        marketState = {
+            m1,
+            m5,
+            price: m1.candle.close,
+            lastSuccessfulUpdate: new Date()
+        };
+
+        renderIndicators(m1, m5);
+        renderTrend(trend);
+        renderEntry(entry, m1, m5);
+
+        const position = el("openTrade").value;
+
+        const guidance = calculateGuidance(
+            position,
+            trend,
+            entry
+        );
+
+        renderGuidance(guidance);
+
+        setText(
+            "lastUpdate",
+            "Last update: " + formatDate(new Date())
+        );
+
+        setStatus("Data updated", "green");
+
+        const latestCandleAge =
+            Date.now() - m1.candle.date.getTime();
+
+        const ageMinutes =
+            Math.floor(latestCandleAge / 60000);
+
+        if (ageMinutes > 10) {
+            setMessage(
+                "Warning: the latest completed M1 candle is about " +
+                ageMinutes +
+                " minutes old. Gold may be closed, or the data may be delayed."
+            );
+
+            setStatus("Data may be stale", "yellow");
+        } else {
+            setMessage(
+                "Completed candles loaded. " +
+                "M1/M5 indicators calculated from the latest returned data."
+            );
+        }
+
+        handleSignalAlerts(
+            m1.candle.time,
+            entry,
+            trend,
+            guidance
+        );
+
+    } catch (error) {
+        console.error(error);
+
+        setStatus("Data error", "red");
+
+        setMessage(
+            error.name === "AbortError"
+                ? "The data request timed out. Check your connection and try again."
+                : error.message || "Unable to load market data."
+        );
+    } finally {
+        refreshInProgress = false;
+
+        el("connectBtn").disabled = false;
+        el("refreshBtn").disabled = false;
+    }
 }
 
-function updateCountdown() {
-  if (!running) {
-    setNextRefresh(null);
-    return;
-  }
+/* =========================================================
+   AUTO REFRESH
+   ========================================================= */
 
-  setNextRefresh(
-    Math.max(0, Math.ceil((nextRefreshAt - Date.now()) / 1000))
-  );
-}
-countdownTimer = setInterval(updateCountdown, 1000);
+function startAutoRefresh() {
+    if (refreshTimer) {
+        clearInterval(refreshTimer);
+    }
 
-async function startApp() {
-  unlockAudio();
-  await requestNotificationPermission();
-
-  apiKey = $("apiKey").value.trim();
-
-  if (!apiKey) {
-    setStatus("API KEY REQUIRED", "Enter your Twelve Data API key first.", "error");
-    return;
-  }
-
-  if (running) {
-    clearTimeout(refreshTimer);
-    await refreshMarket();
-    return;
-  }
-
-  running = true;
-  runGeneration++;
-  $("startBtn").textContent = "ALERTS ENABLED · RUNNING";
-  setStatus("STARTING", "Connecting to Twelve Data market data.");
-  await refreshMarket();
-}
-
-$("startBtn").addEventListener("click", startApp);
-
-$("refreshBtn").addEventListener("click", async () => {
-  unlockAudio();
-
-  if (!running) {
-    running = true;
-    runGeneration++;
-    $("startBtn").textContent = "ALERTS ENABLED · RUNNING";
-  }
-
-  clearTimeout(refreshTimer);
-  await refreshMarket();
-});
-
-$("testAlertBtn").addEventListener("click", async () => {
-  unlockAudio();
-  await requestNotificationPermission();
-
-  playAlertSound("BUY");
-
-  const shown = showNotification(
-    "WISETRADER GOLD PRO — TEST",
-    "This is a test notification, not a trading signal.",
-    "wisetrader-gold-test"
-  );
-
-  if (!shown) {
-    setStatus(
-      "NOTIFICATION UNAVAILABLE",
-      "If permission is blocked, allow notifications in Android settings. Some app builders require service-worker notification support.",
-      "error"
+    const seconds = Math.max(
+        10,
+        Number(el("refreshInterval").value) || 10
     );
-  } else {
-    setStatus(
-      "TEST SENT",
-      "A test notification was requested. Check your device notification settings.",
-      "success"
+
+    refreshTimer = setInterval(() => {
+        if (document.visibilityState === "visible") {
+            refreshMarket();
+        }
+    }, seconds * 1000);
+}
+
+/* =========================================================
+   EVENTS
+   ========================================================= */
+
+el("connectBtn").addEventListener("click", () => {
+    refreshMarket({ manual: true });
+});
+
+el("refreshBtn").addEventListener("click", () => {
+    refreshMarket({ manual: true });
+});
+
+el("notifyBtn").addEventListener("click", async () => {
+    const enabled =
+        await requestNotificationPermission();
+
+    if (enabled) {
+        alertUser(
+            "Wisetrader Gold PRO",
+            "Notifications are enabled."
+        );
+    }
+});
+
+el("testNotificationBtn").addEventListener("click", async () => {
+    const enabled =
+        await requestNotificationPermission();
+
+    if (enabled) {
+        alertUser(
+            "Wisetrader Gold PRO — Test",
+            "Your notification and sound test has been triggered."
+        );
+    } else {
+        /*
+           The sound test is attempted separately because some app
+           containers may block browser notifications.
+        */
+        playAlertSound();
+
+        alert(
+            "Notification permission is unavailable or blocked. " +
+            "A sound test was attempted. If notifications remain blocked, " +
+            "check Android and your APK builder settings."
+        );
+    }
+});
+
+el("applyRefreshBtn").addEventListener("click", () => {
+    startAutoRefresh();
+
+    setMessage(
+        "Auto-refresh interval set to " +
+        el("refreshInterval").value +
+        " seconds."
     );
-  }
 });
 
-$("resetSignalBtn").addEventListener("click", () => {
-  baselineEstablished = false;
-  lastProcessedM1Close = null;
-  lastEntrySignal = null;
-  lastAlertKey = null;
+el("resetBaselineBtn").addEventListener("click", () => {
+    alertBaselineReady = false;
+    lastAlertCandle = null;
+    lastAlertEntry = null;
+    lastAlertTrend = null;
+    lastAlertGuidance = null;
 
-  setStatus(
-    "SIGNAL BASELINE RESET",
-    "The next successful analysis establishes a new baseline without an immediate alert.",
-    "success"
-  );
+    setMessage(
+        "Alert baseline reset. The next successful refresh will establish a new baseline."
+    );
 });
 
-$("refresh").addEventListener("change", () => {
-  if (!running) return;
-  clearTimeout(refreshTimer);
-  scheduleNextRefresh();
+el("openTrade").addEventListener("change", () => {
+    if (!marketState.m1 || !marketState.m5) {
+        return;
+    }
+
+    const trend = calculateTrend(
+        marketState.m1,
+        marketState.m5
+    );
+
+    const entry = calculateEntry(
+        marketState.m1,
+        marketState.m5
+    );
+
+    const guidance = calculateGuidance(
+        el("openTrade").value,
+        trend,
+        entry
+    );
+
+    renderGuidance(guidance);
 });
 
-$("symbol").addEventListener("change", () => {
-  if (running) {
-    baselineEstablished = false;
-    lastProcessedM1Close = null;
-    lastEntrySignal = null;
-    clearTimeout(refreshTimer);
-    refreshMarket();
-  }
+/*
+   Resume refreshing when the app returns to the foreground.
+*/
+
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+        refreshMarket();
+    }
 });
 
-$("apiKey").addEventListener("keydown", event => {
-  if (event.key === "Enter") startApp();
-});
+/*
+   Start the automatic refresh timer.
+   The API key is intentionally not saved in localStorage.
+*/
 
-window.addEventListener("offline", () => {
-  setStatus("NETWORK OFFLINE", "Check your internet connection.", "error");
-});
+startAutoRefresh();
 
-window.addEventListener("online", () => {
-  if (running) {
-    clearTimeout(refreshTimer);
-    refreshMarket();
-  }
-});
-
-window.addEventListener("beforeunload", () => {
-  running = false;
-  runGeneration++;
-  clearTimeout(refreshTimer);
-  clearInterval(countdownTimer);
-});
 </script>
+
 </body>
-                                            </html>
+  </html>
