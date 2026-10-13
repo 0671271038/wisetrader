@@ -122,25 +122,11 @@ header {
     line-height: 1.5;
 }
 
-.green {
-    color: var(--green);
-}
-
-.red {
-    color: var(--red);
-}
-
-.yellow {
-    color: var(--yellow);
-}
-
-.blue {
-    color: var(--blue);
-}
-
-.muted {
-    color: var(--muted);
-}
+.green { color: var(--green); }
+.red { color: var(--red); }
+.yellow { color: var(--yellow); }
+.blue { color: var(--blue); }
+.muted { color: var(--muted); }
 
 input,
 select,
@@ -275,13 +261,12 @@ button.warning {
 </head>
 
 <body>
-
 <div class="app">
 
 <header>
     <img
         class="logo"
-        src="lgo.png"
+        src="./lgo.png"
         alt="Wisetrader logo"
         onerror="this.style.display='none'"
     >
@@ -293,7 +278,7 @@ button.warning {
     </div>
 </header>
 
-<!-- CONNECTION -->
+<!-- DATA CONNECTION -->
 
 <section class="card">
     <h2>DATA CONNECTION</h2>
@@ -336,7 +321,7 @@ button.warning {
     </div>
 </section>
 
-<!-- MARKET PRICE -->
+<!-- MARKET -->
 
 <section class="card">
     <h2>GOLD MARKET</h2>
@@ -422,10 +407,12 @@ button.warning {
     <div class="notice">
         <strong>BUY conditions</strong><br>
         M1 and M5 SuperTrend bullish, with M1 RSI at least 50 but below 70.
+
         <br><br>
 
         <strong>SELL conditions</strong><br>
         M1 and M5 SuperTrend bearish, with M1 RSI above 30 but below 50.
+
         <br><br>
 
         Otherwise, the entry signal is WAIT.
@@ -458,7 +445,7 @@ button.warning {
     </div>
 
     <p class="notice">
-        The guidance is based on the position you select and the latest
+        Guidance is based on the position you select and the latest
         indicator conditions. The bot does not know your actual account
         position, entry price, profit, loss, or stop-loss.
     </p>
@@ -497,7 +484,7 @@ button.warning {
 
         <div class="metric">
             <div class="label">Auto Refresh</div>
-            <div class="value">10 sec</div>
+            <div class="value" id="refreshDisplay">30 sec</div>
         </div>
     </div>
 
@@ -509,7 +496,7 @@ button.warning {
 
     <select id="refreshInterval">
         <option value="10">10 seconds</option>
-        <option value="30">30 seconds</option>
+        <option value="30" selected>30 seconds</option>
         <option value="60">1 minute</option>
         <option value="300">5 minutes</option>
     </select>
@@ -531,30 +518,32 @@ button.warning {
     </p>
 </section>
 
+<!-- INFORMATION -->
+
 <section class="card">
     <h2>IMPORTANT INFORMATION</h2>
 
     <p class="notice">
         This application provides technical analysis, not guaranteed
         trading results. SuperTrend and RSI can produce false signals.
-        A bullish trend does not guarantee that a BUY trade will be
-        profitable, and a bearish trend does not guarantee that a SELL
-        trade will be profitable.
+
         <br><br>
 
         WAIT means a new entry is not currently confirmed. It does not,
         by itself, mean an existing trade must be closed.
+
         <br><br>
 
         HOLD or REVIEW TRADE is guidance only. Always assess your
         predefined exit rules and risk limits. Test with demo data before
-        making any trading decisions.
+        making trading decisions.
     </p>
 </section>
 
 <div class="footer">
     WISETRADER GOLD PRO<br>
-    XAU/USD • SuperTrend • RSI • M1 / M5
+    XAU/USD • SuperTrend • RSI • M1 / M5<br>
+    Default refresh: 30 seconds
 </div>
 
 </div>
@@ -570,6 +559,7 @@ button.warning {
    Entry timeframe: M1
    Trend timeframe: M5
    RSI: 14
+   Default refresh: 30 seconds
    ========================================================= */
 
 const CONFIG = {
@@ -577,7 +567,7 @@ const CONFIG = {
     atrPeriod: 10,
     superTrendMultiplier: 4.0,
     rsiPeriod: 14,
-    defaultRefreshSeconds: 10,
+    defaultRefreshSeconds: 30,
     outputSize: 250,
     timezone: "Africa/Johannesburg"
 };
@@ -600,10 +590,6 @@ let lastAlertTrend = null;
 let lastAlertGuidance = null;
 
 let audioContext = null;
-
-/* =========================================================
-   DOM HELPERS
-   ========================================================= */
 
 function el(id) {
     return document.getElementById(id);
@@ -655,18 +641,10 @@ function entryColor(entry) {
 }
 
 /* =========================================================
-   TIME AND DATA HELPERS
+   TIME AND CANDLE HELPERS
    ========================================================= */
 
 function parseCandleDate(timestamp) {
-    /*
-       Twelve Data normally supplies timestamps such as:
-       2026-10-10 10:15:00
-
-       For timezone-free timestamps, interpret them as
-       South African local time (UTC+02:00).
-    */
-
     if (!timestamp) return null;
 
     let normalized = String(timestamp).trim();
@@ -704,7 +682,7 @@ function formatDate(date) {
 }
 
 function candleDuration(interval) {
-    return interval === "1min" ? 60_000 : 300_000;
+    return interval === "1min" ? 60000 : 300000;
 }
 
 function isClosedCandle(date, interval) {
@@ -744,11 +722,6 @@ function normalizeCandles(values, interval) {
 
     candles.sort((a, b) => a.date - b.date);
 
-    /*
-       Exclude incomplete candles. If the latest returned candle
-       is still forming, it cannot generate a confirmed signal.
-    */
-
     return candles.filter(candle =>
         isClosedCandle(candle.date, interval)
     );
@@ -787,9 +760,7 @@ async function fetchCandles(interval) {
         });
 
         if (!response.ok) {
-            throw new Error(
-                "HTTP error " + response.status
-            );
+            throw new Error("HTTP error " + response.status);
         }
 
         const result = await response.json();
@@ -827,7 +798,7 @@ async function fetchCandles(interval) {
 }
 
 /* =========================================================
-   ATR CALCULATION
+   ATR
    ========================================================= */
 
 function calculateATR(candles, period) {
@@ -869,8 +840,7 @@ function calculateATR(candles, period) {
 }
 
 /* =========================================================
-   SUPERTREND
-   ATR PERIOD 10 / MULTIPLIER 4.0
+   SUPERTREND 10 / 4.0
    ========================================================= */
 
 function calculateSuperTrend(
@@ -896,14 +866,10 @@ function calculateSuperTrend(
         }
 
         const candle = candles[i];
-
         const midpoint = (candle.high + candle.low) / 2;
 
-        const basicUpper =
-            midpoint + multiplier * atr[i];
-
-        const basicLower =
-            midpoint - multiplier * atr[i];
+        const basicUpper = midpoint + multiplier * atr[i];
+        const basicLower = midpoint - multiplier * atr[i];
 
         if (i === period) {
             finalUpper[i] = basicUpper;
@@ -993,10 +959,7 @@ function calculateRSI(candles, period = CONFIG.rsiPeriod) {
     averageGain /= period;
     averageLoss /= period;
 
-    result[period] = rsiValue(
-        averageGain,
-        averageLoss
-    );
+    result[period] = rsiValue(averageGain, averageLoss);
 
     for (let i = period + 1; i < candles.length; i++) {
         const change =
@@ -1011,10 +974,7 @@ function calculateRSI(candles, period = CONFIG.rsiPeriod) {
         averageLoss =
             (averageLoss * (period - 1) + loss) / period;
 
-        result[i] = rsiValue(
-            averageGain,
-            averageLoss
-        );
+        result[i] = rsiValue(averageGain, averageLoss);
     }
 
     return result;
@@ -1025,25 +985,18 @@ function rsiValue(averageGain, averageLoss) {
         return averageGain === 0 ? 50 : 100;
     }
 
-    const relativeStrength =
-        averageGain / averageLoss;
+    const relativeStrength = averageGain / averageLoss;
 
     return 100 - (100 / (1 + relativeStrength));
 }
 
 /* =========================================================
-   INDICATOR ANALYSIS
+   ANALYSIS
    ========================================================= */
 
 function analyzeCandles(candles) {
     const st = calculateSuperTrend(candles);
     const rsiValues = calculateRSI(candles);
-
-    /*
-       The last item is the most recent COMPLETED candle.
-       Use its indicator values for confirmed signals.
-    */
-
     const index = candles.length - 1;
 
     return {
@@ -1103,11 +1056,6 @@ function calculateTrend(m1, m5) {
         return "WAIT";
     }
 
-    /*
-       Both SuperTrend directions must agree for a confirmed
-       overall trend. RSI is an entry filter, not a trend filter.
-    */
-
     if (
         m1.direction === "BULLISH" &&
         m5.direction === "BULLISH"
@@ -1126,7 +1074,7 @@ function calculateTrend(m1, m5) {
 }
 
 /* =========================================================
-   TRADE GUIDANCE — OPTION B
+   TRADE GUIDANCE
    ========================================================= */
 
 function calculateGuidance(position, trend, entry) {
@@ -1266,7 +1214,7 @@ function calculateGuidance(position, trend, entry) {
 }
 
 /* =========================================================
-   DISPLAY UPDATES
+   DISPLAY
    ========================================================= */
 
 function renderTrend(trend) {
@@ -1370,10 +1318,7 @@ function renderIndicators(m1, m5) {
         setColor("rsi", "blue");
     }
 
-    setText(
-        "price",
-        m1.candle.close.toFixed(2)
-    );
+    setText("price", m1.candle.close.toFixed(2));
 
     setText(
         "priceTime",
@@ -1421,24 +1366,20 @@ async function requestNotificationPermission() {
     }
 
     try {
-        const permission =
-            await Notification.requestPermission();
+        const permission = await Notification.requestPermission();
 
         if (permission === "granted") {
             setMessage("Browser notifications enabled.");
             return true;
         }
 
-        setMessage(
-            "Notification permission was not granted."
-        );
-
+        setMessage("Notification permission was not granted.");
         return false;
+
     } catch (error) {
         setMessage(
             "This app container does not allow notification permission requests."
         );
-
         return false;
     }
 }
@@ -1454,10 +1395,7 @@ function sendNotification(title, message) {
                 tag: "wisetrader-gold-pro"
             });
         } catch (error) {
-            console.warn(
-                "Browser notification failed:",
-                error
-            );
+            console.warn("Browser notification failed:", error);
         }
     }
 }
@@ -1504,6 +1442,7 @@ function playAlertSound() {
 
         oscillator.start();
         oscillator.stop(audioContext.currentTime + 0.36);
+
     } catch (error) {
         console.warn("Sound alert failed:", error);
     }
@@ -1525,8 +1464,9 @@ function handleSignalAlerts(
     guidance
 ) {
     /*
-       Do not immediately alert on first load. Establish a baseline
-       first, then only process a new completed M1 candle.
+       First successful refresh establishes a baseline.
+       Alerts are processed only when a new completed M1 candle
+       is received.
     */
 
     if (!alertBaselineReady) {
@@ -1559,6 +1499,7 @@ function handleSignalAlerts(
             "Wisetrader Gold PRO — " + entry,
             entry + " signal confirmed on a new completed M1 candle."
         );
+
     } else if (
         entry === "WAIT" &&
         (previousEntry === "BUY" || previousEntry === "SELL")
@@ -1570,20 +1511,12 @@ function handleSignalAlerts(
         );
     }
 
-    if (
-        trend !== previousTrend &&
-        (trend === "WAIT" || trend === "BEARISH" || trend === "BULLISH")
-    ) {
+    if (trend !== previousTrend) {
         alertUser(
             "Wisetrader Gold PRO — Trend update",
             "The confirmed overall trend is now " + trend + "."
         );
     }
-
-    /*
-       Warn once when trade guidance changes into a review or reversal
-       state. Repeated unchanged guidance does not trigger alerts.
-    */
 
     const isWarning =
         guidance.code.includes("WEAKENED") ||
@@ -1595,7 +1528,11 @@ function handleSignalAlerts(
         String(previousGuidance).includes("UNCLEAR") ||
         String(previousGuidance).includes("REVERSAL");
 
-    if (isWarning && guidance.code !== previousGuidance && !wasWarning) {
+    if (
+        isWarning &&
+        guidance.code !== previousGuidance &&
+        !wasWarning
+    ) {
         alertUser(
             "Wisetrader Gold PRO — Trade review",
             guidance.title + ". " + guidance.message
@@ -1607,9 +1544,7 @@ function handleSignalAlerts(
    MAIN REFRESH
    ========================================================= */
 
-async function refreshMarket(options = {}) {
-    const manual = Boolean(options.manual);
-
+async function refreshMarket() {
     if (refreshInProgress) {
         return;
     }
@@ -1631,16 +1566,31 @@ async function refreshMarket(options = {}) {
 
     try {
         /*
-           Two Twelve Data requests are needed: one for M1 and one
-           for M5. Depending on your API plan, rapid refreshes may
-           reach the provider's request limit.
+           Two requests per refresh:
+           1. XAU/USD M1
+           2. XAU/USD M5
+
+           At a 30-second refresh interval, this is approximately
+           240 requests per hour if every refresh makes both requests.
         */
 
-        const m1Candles = await fetchCandles("1min");
-        const m5Candles = await fetchCandles("5min");
+        const [m1Candles, m5Candles] = await Promise.all([
+            fetchCandles("1min"),
+            fetchCandles("5min")
+        ]);
 
         const m1 = analyzeCandles(m1Candles);
         const m5 = analyzeCandles(m5Candles);
+
+        if (
+            !Number.isFinite(m1.rsi) ||
+            !m1.direction ||
+            !m5.direction
+        ) {
+            throw new Error(
+                "Indicators are not ready. Try refreshing again."
+            );
+        }
 
         const trend = calculateTrend(m1, m5);
         const entry = calculateEntry(m1, m5);
@@ -1656,10 +1606,8 @@ async function refreshMarket(options = {}) {
         renderTrend(trend);
         renderEntry(entry, m1, m5);
 
-        const position = el("openTrade").value;
-
         const guidance = calculateGuidance(
-            position,
+            el("openTrade").value,
             trend,
             entry
         );
@@ -1671,8 +1619,6 @@ async function refreshMarket(options = {}) {
             "Last update: " + formatDate(new Date())
         );
 
-        setStatus("Data updated", "green");
-
         const latestCandleAge =
             Date.now() - m1.candle.date.getTime();
 
@@ -1680,17 +1626,19 @@ async function refreshMarket(options = {}) {
             Math.floor(latestCandleAge / 60000);
 
         if (ageMinutes > 10) {
+            setStatus("Data may be stale", "yellow");
+
             setMessage(
                 "Warning: the latest completed M1 candle is about " +
                 ageMinutes +
-                " minutes old. Gold may be closed, or the data may be delayed."
+                " minutes old. Gold may be closed, or data may be delayed."
             );
-
-            setStatus("Data may be stale", "yellow");
         } else {
+            setStatus("Data updated", "green");
+
             setMessage(
-                "Completed candles loaded. " +
-                "M1/M5 indicators calculated from the latest returned data."
+                "Completed candles loaded. M1/M5 indicators calculated " +
+                "from the latest returned data."
             );
         }
 
@@ -1711,6 +1659,7 @@ async function refreshMarket(options = {}) {
                 ? "The data request timed out. Check your connection and try again."
                 : error.message || "Unable to load market data."
         );
+
     } finally {
         refreshInProgress = false;
 
@@ -1720,7 +1669,7 @@ async function refreshMarket(options = {}) {
 }
 
 /* =========================================================
-   AUTO REFRESH
+   AUTO REFRESH — DEFAULT 30 SECONDS
    ========================================================= */
 
 function startAutoRefresh() {
@@ -1730,8 +1679,11 @@ function startAutoRefresh() {
 
     const seconds = Math.max(
         10,
-        Number(el("refreshInterval").value) || 10
+        Number(el("refreshInterval").value) ||
+        CONFIG.defaultRefreshSeconds
     );
+
+    setText("refreshDisplay", seconds + " sec");
 
     refreshTimer = setInterval(() => {
         if (document.visibilityState === "visible") {
@@ -1745,16 +1697,15 @@ function startAutoRefresh() {
    ========================================================= */
 
 el("connectBtn").addEventListener("click", () => {
-    refreshMarket({ manual: true });
+    refreshMarket();
 });
 
 el("refreshBtn").addEventListener("click", () => {
-    refreshMarket({ manual: true });
+    refreshMarket();
 });
 
 el("notifyBtn").addEventListener("click", async () => {
-    const enabled =
-        await requestNotificationPermission();
+    const enabled = await requestNotificationPermission();
 
     if (enabled) {
         alertUser(
@@ -1765,8 +1716,7 @@ el("notifyBtn").addEventListener("click", async () => {
 });
 
 el("testNotificationBtn").addEventListener("click", async () => {
-    const enabled =
-        await requestNotificationPermission();
+    const enabled = await requestNotificationPermission();
 
     if (enabled) {
         alertUser(
@@ -1774,10 +1724,6 @@ el("testNotificationBtn").addEventListener("click", async () => {
             "Your notification and sound test has been triggered."
         );
     } else {
-        /*
-           The sound test is attempted separately because some app
-           containers may block browser notifications.
-        */
         playAlertSound();
 
         alert(
@@ -1798,6 +1744,16 @@ el("applyRefreshBtn").addEventListener("click", () => {
     );
 });
 
+el("refreshInterval").addEventListener("change", () => {
+    startAutoRefresh();
+
+    setMessage(
+        "Refresh interval changed to " +
+        el("refreshInterval").value +
+        " seconds."
+    );
+});
+
 el("resetBaselineBtn").addEventListener("click", () => {
     alertBaselineReady = false;
     lastAlertCandle = null;
@@ -1806,7 +1762,7 @@ el("resetBaselineBtn").addEventListener("click", () => {
     lastAlertGuidance = null;
 
     setMessage(
-        "Alert baseline reset. The next successful refresh will establish a new baseline."
+        "Alert baseline reset. The next successful refresh establishes a new baseline."
     );
 });
 
@@ -1835,7 +1791,7 @@ el("openTrade").addEventListener("change", () => {
 });
 
 /*
-   Resume refreshing when the app returns to the foreground.
+   Resume market refresh when the app returns to the foreground.
 */
 
 document.addEventListener("visibilitychange", () => {
@@ -1845,13 +1801,12 @@ document.addEventListener("visibilitychange", () => {
 });
 
 /*
-   Start the automatic refresh timer.
+   Start automatic refreshing with a 30-second default.
    The API key is intentionally not saved in localStorage.
 */
 
 startAutoRefresh();
 
 </script>
-
 </body>
-  </html>
+    </html>
